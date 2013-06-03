@@ -1,0 +1,27 @@
+html {
+	height: 100%;
+}
+
+body {
+    padding: 41px 0 0 0;
+	height: 100%;
+}
+
+form fieldset {
+	padding: 10px;
+}
+
+#logout-form {
+	padding: 0 10px 5px 10px;
+}
+
+#map_canvas {
+	height: 100%;
+}
+
+.dropdown-toggle, #update{
+    outline: none!important; 
+}
+
+
+
