@@ -7,6 +7,15 @@ body {
 	height: 100%;
 }
 
+body .modal{
+   width: 900px;
+   margin-left: -450px;
+}
+
+.modal .dropdown-menu{
+	padding: 10px;
+}
+
 form fieldset {
 	padding: 10px;
 }

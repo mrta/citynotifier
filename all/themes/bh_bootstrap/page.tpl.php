@@ -67,7 +67,7 @@
  */
 ?>
 
-<nav>
+  	<nav>
 	    <div class="navbar navbar-inverse navbar-fixed-top">
 	      <div class="navbar-inner">
 	        <div class="container">
@@ -156,7 +156,113 @@
 	    </div>
 	</nav>
 
-    <div id="map_canvas"></div>
+  <div id="map_canvas"></div>
+    
+	<nav>
+	    <div class="navbar navbar-inverse navbar-fixed-bottom">
+	      <div class="navbar-inner">
+	        <div class="container">
+	            <ul class="nav pull-left">
+	                <li>
+	                    <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>
+	                </li>
+	         	  </ul>
+	        </div>
+	      </div>
+	    </div>
+	</nav>
+	
+	 <!-- Modal -->
+  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Search matches</h3>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Type/Subtype</th>
+                  <th>Date</th>
+                  <th>Location</th>
+                  <th>Descriptions</th>
+                  <th>Credibility</th>
+                  <th>Status</th>  
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Stradale > Buca</td>
+                  <td>23/06/2013 12:03</td>
+                  <td>Via Fiesso, 7</td>
+				  <td><div class="btn-group">
+                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                        <ul class="dropdown-menu">
+                          <li><p>Incidente stradale, tamponamento.</p></li>
+                          <li><p>Un ferito lieve.</p></li>
+                          <li><p>Un mare di figa qui.</p></li>
+                          <li><p>A Davide però la figa non piace tanto.</p></li> 
+                        </ul>
+                      </div></td>
+                  <td>13 / 0.81</td>
+                  <td><button class="btn btn-success">Open</td>
+                </tr>
+                <tr>
+                  <td>Stradale > Buca</td>
+                  <td>23/06/2013 12:03</td>
+                  <td>Via Fiesso, 7</td>
+				  <td><div class="btn-group">
+                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                        <ul class="dropdown-menu">
+                          <li><p>Incidente stradale, tamponamento.</p></li>
+                          <li><p>Un ferito lieve.</p></li>
+                          <li><p>Un mare di figa qui.</p></li>
+                          <li><p>A Davide però la figa non piace tanto.</p></li> 
+                        </ul>
+                      </div></td>
+                  <td>13 / 0.81</td>
+                  <td><button class="btn btn-warning">Skeptical</td>
+                </tr>
+                <tr>
+                  <td>Stradale > Buca</td>
+                  <td>23/06/2013 12:03</td>
+                  <td>Via Fiesso, 7</td>
+				  <td><div class="btn-group">
+                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                        <ul class="dropdown-menu">
+                          <li><p>Incidente stradale, tamponamento.</p></li>
+                          <li><p>Un ferito lieve.</p></li>
+                          <li><p>Un mare di figa qui.</p></li>
+                          <li><p>A Davide però la figa non piace tanto.</p></li> 
+                        </ul>
+                      </div></td>
+                  <td>13 / 0.81</td>
+                  <td><button class="btn btn-success">Open</td>
+                </tr>
+                <tr>
+                  <td>Stradale > Buca</td>
+                  <td>23/06/2013 12:03</td>
+                  <td>Via Fiesso, 7</td>
+				  <td><div class="btn-group">
+                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                        <ul class="dropdown-menu">
+                          <li><p>Incidente stradale, tamponamento.</p></li>
+                          <li><p>Un ferito lieve.</p></li>
+                          <li><p>Un mare di figa qui.</p></li>
+                          <li><p>A Davide però la figa non piace tanto.</p></li> 
+                        </ul>
+                      </div></td>
+                  <td>13 / 0.81</td>
+                  <td><button class="btn btn-danger">Closed</td>
+                </tr>
+              </tbody>
+            </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        <button class="btn btn-primary">Save changes</button>
+      </div>
+  </div>
     
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false"></script>
