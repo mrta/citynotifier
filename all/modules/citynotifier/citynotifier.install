@@ -1,0 +1,134 @@
+<?php
+// citynotifier.install
+
+/**
+* Implements hook_install().
+*/
+function citynotifier_install() {
+  drupal_install_schema('citynotifier_notify');
+  drupal_install_schema('citynotifier_event');
+}
+
+/**
+* Implements hook_uninstall().
+*/
+function citynotifier_uninstall() {
+  drupal_uninstall_schema('citynotifier_notify');
+  drupal_uninstall_schema('citynotifier_event');
+}
+
+
+/**
+* Implementation of hook_schema().
+*/
+function citynotifier_schema() {
+  $schema = array();
+  
+  $schema['citynotifier_notify'] = array(
+    'description' => t('Stores notifications.'),
+    'fields' => array(
+      'id' => array(
+        'description' => t('The primary identifier for a notify.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => t('The user that created the notify.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => t('The timestamp for when the notify was created.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => t('The notify\'s type.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'subtype' => array(
+        'description' => t('The notify\'s subtype.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'lat' => array(
+        'description' => t('The notify\'s latitude.'),
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'lng' => array(
+        'description' => t('The notify\'s longitude.'),
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'description' => array(
+        'description' => t('The notify\'s description.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  
+  $schema['citynotifier_event'] = array(
+    'description' => t('Stores events.'),
+    'fields' => array(
+      'id' => array(
+        'description' => t('The primary identifier for an event.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => t('The event\'s type.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'subtype' => array(
+        'description' => t('The event\'s subtype.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'lat' => array(
+        'description' => t('The notify\'s latitude.'),
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'lng' => array(
+        'description' => t('The notify\'s longitude.'),
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => t('The event\'s status.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  
+  return $schema;
+}
+?>

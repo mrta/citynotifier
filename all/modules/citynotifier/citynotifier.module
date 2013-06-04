@@ -3,6 +3,7 @@
 /**
 * Implements hook_menu().
 */
+
 function citynotifier_menu() {
   $items['richieste/%'] = array(
     'page callback' => 'citynotifier_request',
@@ -11,19 +12,48 @@ function citynotifier_menu() {
     'page arguments' => array(1),
     'type' => MENU_CALLBACK,
     );
-  
-  $items['segnalazione/%'] = array(
-    'page callback' => 'citynotifier_notify',
-    'access arguments' => array('View published content'),
-    'access callback' => true,
-    'page arguments' => array(1),
-    'type' => MENU_CALLBACK,
-    );
-  
     
   return $items;
 }
 
+
+/**
+* Implementation of hook_services_resources().
+*/
+function citynotifier_services_resources() {
+  return array(
+    'login' => array(
+      'help' => 'Retrieves graphdata',
+      'callback' => 'citynotifier_login',
+      'access arguments' => array('view'),
+      'access arguments append' => FALSE,
+      'args' => array(
+        array('name' => 'parameters',
+          'type' => 'string',
+          'description' => 'The parameters that define requested data',
+          'source' => array('path' => '0'), // first argument in the url 
+          'optional' => FALSE,
+          ),
+        ),
+      ),
+    );
+}
+
+/**
+* Implements hook_ctools_plugin_api().
+*/
+function citynotifier_ctools_plugin_api($owner, $api) {
+  if ($owner == 'services' && $api == 'services') {
+    return array(
+      'version' => 3,
+      'path' => drupal_get_path('module', 'citynotifier')
+    );
+  }
+}
+
+function citynotifier_login() {
+  citynotifier_debug('ciao');
+}
 
 function citynotifier_request() {
   _citynotifier_validate_request(func_get_args());
@@ -82,4 +112,11 @@ function _citynotifier_validate_request($args) {
   }
   
   //var_dump($args2validate);
+}
+
+function citynotifier_debug($data) {
+    if (is_array($data) || is_object($data))
+      $data = print_r($data, TRUE);
+    $data .= "\n";
+    error_log($data, 3, "/tmp/citynotifier_debug.log");
 }
