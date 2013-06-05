@@ -5,54 +5,54 @@
 */
 
 function citynotifier_menu() {
-  $items['richieste/%'] = array(
+  $items['richieste'] = array(
     'page callback' => 'citynotifier_request',
-    'access arguments' => array('View published content'),
+    'access arguments' => array('access content'),
     'access callback' => true,
-    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    );
+  
+  $items['segnalazione'] = array(
+    'page callback' => 'citynotifier_report',
+    'access arguments' => array('access content'),
+    'access callback' => true,
+    'type' => MENU_CALLBACK,
+    );
+  
+  $items['notifica'] = array(
+    'page callback' => 'citynotifier_notify',
+    'access arguments' => array('access content'),
+    'access callback' => true,
+    'type' => MENU_CALLBACK,
+    );
+  
+  $items['login'] = array(
+    'page callback' => 'citynotifier_login',
+    'access arguments' => array('access content'),
+    'access callback' => true,
+    'type' => MENU_CALLBACK,
+    );
+ 
+  $items['logout'] = array(
+    'page callback' => 'citynotifier_logout',
+    'access arguments' => array('access content'),
+    'access callback' => true,
     'type' => MENU_CALLBACK,
     );
     
   return $items;
 }
 
-
-/**
-* Implementation of hook_services_resources().
-*/
-function citynotifier_services_resources() {
-  return array(
-    'login' => array(
-      'help' => 'Retrieves graphdata',
-      'callback' => 'citynotifier_login',
-      'access arguments' => array('view'),
-      'access arguments append' => FALSE,
-      'args' => array(
-        array('name' => 'parameters',
-          'type' => 'string',
-          'description' => 'The parameters that define requested data',
-          'source' => array('path' => '0'), // first argument in the url 
-          'optional' => FALSE,
-          ),
-        ),
-      ),
-    );
-}
-
-/**
-* Implements hook_ctools_plugin_api().
-*/
-function citynotifier_ctools_plugin_api($owner, $api) {
-  if ($owner == 'services' && $api == 'services') {
-    return array(
-      'version' => 3,
-      'path' => drupal_get_path('module', 'citynotifier')
-    );
-  }
-}
-
 function citynotifier_login() {
-  citynotifier_debug('ciao');
+  header('Content-type: application/json');
+  $result = array("result" => "login effettuato con successo");
+  echo drupal_json_output($result);
+}
+
+function citynotifier_logout() {
+  header('Content-type: application/json');
+  $result = array("result" => "logout effettuato con successo");
+  echo drupal_json_output($result);
 }
 
 function citynotifier_request() {
