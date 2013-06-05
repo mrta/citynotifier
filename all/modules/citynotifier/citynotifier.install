@@ -77,7 +77,6 @@ function citynotifier_schema() {
         'description' => t('The notify\'s description.'),
         'type' => 'varchar',
         'length' => 255,
-        'not null' => TRUE,
       ),
     ),
     'primary key' => array('id'),
