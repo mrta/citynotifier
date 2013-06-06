@@ -1,9 +1,10 @@
 $("#account").next().delegate("#login", "click", function(){
 	xmlhttp = new XMLHttpRequest();
-	url = 'http://ltw1306.web.cs.unibo.it/login';
+	domain = "http://";
+	url =  domain.concat(document.location.hostname, "/login");
 	
 	var loginObj = new Object();
-	loginObj.user = $('#user').val();
+	loginObj.username = $('#user').val();
 	loginObj.password = $('#pass').val();
 
 	var userError = $('<span id="user_span" class="help-inline">User incorrect</span>');
@@ -12,14 +13,15 @@ $("#account").next().delegate("#login", "click", function(){
 	var loginJSON = JSON.stringify(loginObj);
 	console.log(loginJSON);
 
-	if((loginObj.user) && (loginObj.password)){
+	if((loginObj.username) && (loginObj.password)){
 			$.ajax({
 				url: url,
 				method: 'POST',
 				data: loginJSON,
+				contentType: "application/json; charset=utf-8",
 				success: function(datiString, status, richiesta){
 					$('#account').fadeOut(1000, function(){ 
-						$('#account').html((loginObj.user)[0].toUpperCase() + (loginObj.user).slice(1) + ' <i class="icon-user icon-white"></i>');
+						$('#account').html((loginObj.username)[0].toUpperCase() + (loginObj.username).slice(1) + ' <i class="icon-user icon-white"></i>');
 						$('#account').fadeIn(1000);
 					});
 
@@ -32,7 +34,7 @@ $("#account").next().delegate("#login", "click", function(){
 				}
 			  });			
 	}
-	else if(!(loginObj.user) && $("#user").is(':last-child')){
+	else if(!(loginObj.username) && $("#user").is(':last-child')){
 		$('#user').parent().addClass("error");
 		$('#user').after(userError);
 	}
