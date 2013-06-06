@@ -49,6 +49,7 @@ function citynotifier_menu() {
 function citynotifier_login() {
   header('Content-type: application/json');
   citynotifier_debug($_POST);
+  watchdog('citynotifier', $_POST);
   $result = array("result" => "login effettuato con successo");
   echo drupal_json_output($result);
 }
