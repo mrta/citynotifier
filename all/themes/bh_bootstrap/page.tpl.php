@@ -79,18 +79,23 @@
 	              	<ul class="dropdown-menu">
 						  <form>
 							  <fieldset>
-							  	<select>
-								  <option>Select event type</option>
+							  	<select id="notifyType">
+									<option disabled selected>Select type</option>
+									<option>Problemi stradali</option>
+									<option>Emergenze sanitarie</option>
+									<option>Reati</option>
+									<option>Problemi ambientali</option>
+									<option>Eventi pubblici</option>
 								</select>
-								<select>
-								  <option>Select event subtype</option>
+								<select id="notifySubType" disabled>
+								  <option>Select subtype</option>
 								</select>
 							    <div class="input-append">
 								  <input type="text" id="NotifyAddress" placeholder="Address">
 								  <button class="btn" type="button"><i class="icon-map-marker"></i></button>
 								</div>
-							    <input type="text" placeholder="Description" class="input-block-level">
-							    <button type="submit" class="btn btn-inverse pull-right">Notify </button>
+							    <input id="notifyDesc" type="text" placeholder="Description" class="input-block-level">
+							    <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
 							  </fieldset>
 						  </form>
 					</ul>
