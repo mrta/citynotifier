@@ -16,7 +16,7 @@ $("#account").next().delegate("#login", "click", function(){
 	if((loginObj.username) && (loginObj.password)){
 			$.ajax({
 				url: url,
-				method: 'POST',
+				type: 'POST',
 				data: loginJSON,
 				contentType: "application/json; charset=utf-8",
 				success: function(datiString, status, richiesta){

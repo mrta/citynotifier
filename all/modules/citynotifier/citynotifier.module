@@ -48,10 +48,23 @@ function citynotifier_menu() {
 
 function citynotifier_login() {
   header('Content-type: application/json');
-  citynotifier_debug($_POST);
-  watchdog('citynotifier',  print_r($_POST, TRUE));
-  $result = array("result" => "login effettuato con successo");
-  echo drupal_json_output($result);
+  $login = drupal_json_decode(file_get_contents("php://input"));
+  
+  if(!$login['username'] || !$login['password']) {
+    drupal_add_http_header("Status", 406, "Not validate type");
+    drupal_json_output(array("result" => t("Errore nello username o nella password")));
+    return;
+  };
+  
+   
+  if(!user_authenticate($login['username'], $login['password'])) {
+    drupal_add_http_header("Status", 406, "Not validate type");
+    drupal_json_output(array("result" => t("Username o password sbagliati")));
+    return;
+  }
+  
+  drupal_add_http_header("Status", 200);
+  drupal_json_output(array("result" => t("login effettuato con successo")));
 }
 
 function citynotifier_logout() {
