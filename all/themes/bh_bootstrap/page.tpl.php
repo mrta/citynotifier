@@ -79,22 +79,28 @@
 	              	<ul class="dropdown-menu">
 						  <form>
 							  <fieldset>
-							  	<select id="notifyType">
-									<option disabled selected>Select type</option>
-									<option>Problemi stradali</option>
-									<option>Emergenze sanitarie</option>
-									<option>Reati</option>
-									<option>Problemi ambientali</option>
-									<option>Eventi pubblici</option>
-								</select>
-								<select id="notifySubType" disabled>
-								  <option>Select subtype</option>
-								</select>
-							    <div class="input-append">
-								  <input type="text" id="NotifyAddress" placeholder="Address">
-								  <button class="btn" type="button"><i class="icon-map-marker"></i></button>
+							  	<div class="control-group">
+									<select id="notifyType">
+										<option disabled selected>Select type</option>
+										<option>Problemi stradali</option>
+										<option>Emergenze sanitarie</option>
+										<option>Reati</option>
+										<option>Problemi ambientali</option>
+										<option>Eventi pubblici</option>
+									</select>
 								</div>
-							    <input id="notifyDesc" type="text" placeholder="Description" class="input-block-level">
+								<div class="control-group">
+									<select id="notifySubType" disabled>
+									  <option disabled selected>Select subtype</option>
+									</select>
+								</div>
+							    <div class="input-append control-group">
+								  <input type="text" id="notifyAddress" placeholder="Address">
+								  <button onclick="getLocation()" id="addressButton" class="btn" type="button">
+								  	<i id="addressMarker" class="icon-map-marker"></i>
+								  </button>
+								</div>
+							    <input id="notifyDesc" type="text" placeholder="Description" class="input-block-level ">
 							    <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
 							  </fieldset>
 						  </form>
