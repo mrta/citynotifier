@@ -1,5 +1,20 @@
 <?php
 
+module_load_include('inc', 'citynotifier');
+
+global $index, $types, $subtypes;
+
+$index = array("scope","type","subtype","lat","lng","radius","timemin","timemax","status");
+$types = array("all", "problemi_stradali", "emergenze_sanitarie", "reati", "problemi_ambientali", "eventi_pubblici");
+$subtypes = array("all" => array("all"),
+                         "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
+                         "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
+                         "reati" => array("furto", "attentato"),
+                         "problemi_ambientali" => array("incendio", "tornado", "neve", "alluvione"),
+                         "eventi_pubblici" => array("partita", "manifestazione", "concerto")); 
+
+
+
 /**
 * Implements hook_menu().
 */
@@ -13,9 +28,9 @@ function citynotifier_menu() {
     'type' => MENU_CALLBACK,
     );
   
-  $items['segnalazione/%'] = array(
+  $items['segnalazione'] = array(
+    'title'=>t('Segnalazione'),
     'page callback' => 'citynotifier_report',
-    'page arguments' => array(1),
     'access arguments' => array('access content'),
     'access callback' => true,
     'type' => MENU_CALLBACK,
@@ -30,16 +45,18 @@ function citynotifier_menu() {
     );
   
   $items['login'] = array(
-    'title'=>t('login'),
+    'title'=>t('Login'),
     'page callback' => 'citynotifier_login',
     'access arguments' => array('access content'),
+    'access callback' => true,
     'type' => MENU_CALLBACK,
     );
  
   $items['logout'] = array(
-    'title'=>t('logout'),
+    'title'=>t('Logout'),
     'page callback' => 'citynotifier_logout',
     'access arguments' => array('access content'),
+    'access callback' => true,
     'type' => MENU_CALLBACK,
     );
     
@@ -52,15 +69,14 @@ function citynotifier_login() {
   
   if(!$login['username'] || !$login['password']) {
     watchdog('citynotifier', t('Errore nello username o nella password'), array(), WATCHDOG_WARNING);
-    drupal_add_http_header("Status", 406, "Not validate type");
+    drupal_add_http_header("Status", 406);
     drupal_json_output(array("result" => t("Errore nello username o nella password")));
     return;
   };
-  
    
   if(!user_authenticate($login['username'], $login['password'])) {
     watchdog('citynotifier', t("Username o password sbagliati"), array(), WATCHDOG_WARNING);
-    drupal_add_http_header("Status", 406, "Not validate type");
+    drupal_add_http_header("Status", 406);
     drupal_json_output(array("result" => t("Username o password sbagliati")));
     return;
   }
@@ -81,14 +97,6 @@ function citynotifier_request() {
 }
 
 function _citynotifier_validate_request($args) {
-  $index = array("scope","type","subtype","lat","lng","radius","timemin","timemax","status");
-  $types = array("all", "problemi_stradali", "emergenze_sanitarie", "reati", "problemi_ambientali", "eventi_pubblici");
-  $subtypes = array("all" => array("all"),
-                    "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-                    "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
-                    "reati" => array("furto", "attentato"),
-                    "problemi_ambientali" => array("incendio", "tornado", "neve", "alluvione"),
-                    "eventi_pubblici" => array("partita", "manifestazione", "concerto")); 
   
   $args2validate = array();
   foreach($index as $i => $a)
@@ -119,8 +127,6 @@ function _citynotifier_validate_request($args) {
     return;
   }
   
-
-  
   if(!is_float($args2validate['lng'])) {
     drupal_add_http_header("Status", 406, "Not validate lng");
     return;
@@ -133,6 +139,7 @@ function _citynotifier_validate_request($args) {
   
   //var_dump($args2validate);
 }
+
 
 function citynotifier_debug($data) {
   if (is_array($data) || is_object($data))
