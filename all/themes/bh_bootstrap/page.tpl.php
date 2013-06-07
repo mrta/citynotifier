@@ -86,7 +86,7 @@
 								  <option>Select event subtype</option>
 								</select>
 							    <div class="input-append">
-								  <input type="text" placeholder="Address">
+								  <input type="text" id="NotifyAddress" placeholder="Address">
 								  <button class="btn" type="button"><i class="icon-map-marker"></i></button>
 								</div>
 							    <input type="text" placeholder="Description" class="input-block-level">
