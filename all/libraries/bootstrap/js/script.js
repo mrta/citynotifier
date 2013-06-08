@@ -173,9 +173,8 @@ function sendNotify(){
             data: notifyJSON,
             contentType: "application/json; charset=utf-8",
             success: function(datiString, status, richiesta){
-                    $('#notify').fadeOut(1000, function(){
-                            $('#notify').parent().removeClass('open');
-                    });
+            	$('#notify').parent().removeClass('open');
+            	alert("Notifica Inviata!");
             },
             error: function(err) {
                     alert("Ajax Notify error");
