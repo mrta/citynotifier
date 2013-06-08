@@ -43,3 +43,36 @@ function citynotifier_report() {
 }
 
 
+function _citynotifier_validate($data, $type=NULL) {
+  $index = array("scope","type","subtype","lat","lng","radius","timemin","timemax","status");
+  $types = array("all" => array("all"),
+                 "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
+                 "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
+                 "reati" => array("furto", "attentato"),
+                 "problemi_ambientali" => array("incendio", "tornado", "neve", "alluvione"),
+                 "eventi_pubblici" => array("partita", "manifestazione", "concerto")); 
+
+  switch($type) {
+  case "request":
+    if($data['scope'] <> "local" && $data['scope'] <> "remote")
+      return array("code" => 406, $response => t('Scope non valido'));
+    if(!is_float($data['radius']))
+      return array("code" => 406, $response => t('Radius non valido'));
+  }
+  
+  var_dump($data['type']['type']);
+  if(!in_array($data['type']['type'], $types))
+    return array("code" => 406, $response => t('Type non valido'));
+
+  if(!in_array($data['type']['subtype'], $types[$data['type']['type']]))
+    return array("code" => 406, $response => t('Subtype non valido'));
+
+  if(!is_float($data['lat']))
+    return array("code" => 406, $response => t('Latitudine non valida'));
+  
+  if(!is_float($data['lng']))
+    return array("code" => 406, $response => t('Longitudine non valida'));
+  
+  return array("code" => 200, $response => '');
+}
+
