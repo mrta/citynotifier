@@ -20,7 +20,7 @@ $subtypes = array("all" => array("all"),
 */
 
 function citynotifier_menu() {
-  $items['richieste/%'] = array(
+  $items['richieste'] = array(
     'page callback' => 'citynotifier_request',
     'page arguments' => array(1),
     'access arguments' => array('access content'),
@@ -94,6 +94,26 @@ function citynotifier_logout() {
 function citynotifier_request() {
   _citynotifier_validate_request(func_get_args());
   
+  $fake_resp = array("request_time" => 1368095111,
+		"result" => "Messaggio di servizio",
+		"from_server" => "http://ltw1234.web.cs.unibo.it",
+		"events" => array("event_id" => "902438",
+			          "type" => array("type" => "problemi_stradali", "subtype" => "incidente"),
+			          "description" => array("ommioddio","come na catapulta","","",""),
+			          "start_time" => 1368045665,
+			          "freshness" => 1368085800,
+		                  "status" => "open",
+			          "reliability" => 0.8,
+			          "number_of_notifications" => 2,
+			          "locations" => array(array("lat" => 37.42291810, "lng" => -122.08542120),
+						       array("lat" => 37.42291810, "lng" => -122.08542120)
+						      )
+               			  )
+               );
+  citynotifier_debug($fake_resp);
+  drupal_add_http_header("Status", 200);
+  echo drupal_json_output($fake_resp);
+
 }
 
 function _citynotifier_validate_request($args) {

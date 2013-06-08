@@ -36,8 +36,16 @@ function citynotifier_report() {
     "description" => $report['description'],
     );
   
+/*  $record_ev = array (
+    "status" => "open",
+    "type" => array_search($report['type']['type'], $types),
+    "subtype" => array_search($report['type']['subtype'], $subtypes[$report['type']['type']]),
+    "lat" => $report['lat'],
+    "lng" => $report['lng'],
+    );
+*/
   drupal_write_record($schema["citynotifier_notify"], $record);
-  
+    
   $result = array("event_id" => "9806", "result" => "nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo");
   
   drupal_add_http_header("Status", 200);
