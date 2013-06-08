@@ -37,5 +37,9 @@ function citynotifier_report() {
     );
   
   drupal_write_record("citynotifier_notify", $record);
-  citynotifier_debug($record);
+  
+  $result = array("event_id" => "9806", "result" => "nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo");
+  echo drupal_json_output($result);
 }
+
+
