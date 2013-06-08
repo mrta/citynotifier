@@ -2,7 +2,7 @@
 
 function citynotifier_report() {
   global $index, $types, $subtypes, $user;
-  
+
   header('Content-type: application/json');
   $report = drupal_json_decode(file_get_contents("php://input"));
   
@@ -25,7 +25,7 @@ function citynotifier_report() {
     drupal_add_http_header("Status", 406, "Not validate lng");
     return;
   }
-
+  
   $record = array (
     "uid" => $user->uid,
     "created" => time(),
@@ -36,9 +36,11 @@ function citynotifier_report() {
     "description" => $report['description'],
     );
   
-  drupal_write_record("citynotifier_notify", $record);
+  drupal_write_record($schema["citynotifier_notify"], $record);
   
   $result = array("event_id" => "9806", "result" => "nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo");
+  
+  drupal_add_http_header("Status", 200);
   echo drupal_json_output($result);
 }
 
