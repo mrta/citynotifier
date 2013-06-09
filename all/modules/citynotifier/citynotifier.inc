@@ -57,8 +57,6 @@ function _citynotifier_validate($data, $function_type=NULL) {
     unset($data['subtype']);
   }
   
-  var_dump($data);
-  
   if(!isset($data['type']['type']))
     return array("code" => 406, "response" => t('Type non valido'));
   
