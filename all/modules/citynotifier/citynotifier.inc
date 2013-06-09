@@ -37,6 +37,55 @@ function citynotifier_report() {
   echo drupal_json_output($result);
 }
 
+function create_ev() {
+
+	$location = array();
+
+	$query_result = db_select($schema["citynotifier_notify"], 'n')
+			->fields('n')
+			->condition('type', $_GET['type'],'=')
+			->condition('subtype', $_GET['subtype'],'=')
+			->condition('lat', $_GET['lat']-$_GET['radius'],'>')
+			->condition('lat', $_GET['lat']+$_GET['radius'],'<')
+			->condition('lng', $_GET['lng']-$_GET['radius'],'>')
+			->condition('lng', $_GET['lng']+$_GET['radius'],'<')
+			->condition('status', $_GET['status'],'=')
+			->condition('created', $_GET['timemin'],'>')
+			->condition('created', $_GET['timemax'],'<')
+			->execute()
+			->fetchAssoc();
+
+	foreach($query_result as $pippo){
+		array_push_assoc($location, "lat", $pippo->lat);
+		array_push_assoc($location, "lng", $pippo->lng);
+	}
+	$start_time = min($query_result->created);
+	$fresh = max($query_result->created);
+	$nOn = length($query_result);
+	$reliability = get_reliability();
+
+	$record_ev = array (
+			"status" => "open",
+			"type" => $_GET['type'],
+			"subtype" => $_GET['subtype'],
+			"lat" => $location['lat'],
+			"lng" => $location['lng'],
+	);
+
+	drupal_write_record($schema["citynotifier_event"], $record_ev);
+
+	$event = array("event_id" => "",
+			   "type" => array("type" => $_GET['type'], "subtype" => $_GET['subtype']),
+			   "description" => array("","","","",""),
+			   "start_time" => $start_time,
+			   "freshness" => $fresh,
+			   "status" => $stat,
+			   "reliability" => $reliability,
+			   "number_of_notifications" => $nOn,
+			   "locations" => $location
+		 );
+
+}
 
 function _citynotifier_validate($data, $function_type=NULL) {
   $types = array("all" => array("all"),
