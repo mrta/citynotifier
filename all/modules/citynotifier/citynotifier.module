@@ -16,6 +16,7 @@ function citynotifier_menu() {
   );
     
   $items['richieste'] = array(
+    'title'=>t('Richiesta'),
     'page callback' => 'citynotifier_request',
     'access arguments' => array('access content'),
     'access callback' => true,
@@ -88,11 +89,7 @@ function citynotifier_logout() {
 function citynotifier_request() {
   header('Content-type: application/json');
   
-  $data = array();
-  foreach(func_get_args() as $i => $a)
-    $data[$a] = $args[$i];
-  
-  $validation =_citynotifier_validate($data);
+  $validation =_citynotifier_validate($_GET, 'request');
   
   if($validation['code'] <> 200) {
     drupal_add_http_header("Status", $validation['code'], $validation['response']);

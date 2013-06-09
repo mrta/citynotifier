@@ -50,9 +50,14 @@ function _citynotifier_validate($data, $function_type=NULL) {
   case "request":
     if($data['scope'] <> "local" && $data['scope'] <> "remote")
       return array("code" => 406, "response" => t('Scope non valido'));
-    if(!is_float($data['radius']))
+    if(!is_float(floatval($data['radius'])))
       return array("code" => 406, "response" => t('Radius non valido'));
+    
+    $data['type'] = array('type' => $data['type'], 'subtype' => $data['subtype']);
+    unset($data['subtype']);
   }
+  
+  var_dump($data);
   
   if(!isset($data['type']['type']))
     return array("code" => 406, "response" => t('Type non valido'));
@@ -76,10 +81,10 @@ function _citynotifier_validate($data, $function_type=NULL) {
   if(!$validate_subtype)
     return array("code" => 406, "response" => t('Subtype non valido'));
 
-  if(!is_float($data['lat']))
+  if(!is_float(floatval($data['lat'])))
     return array("code" => 406, "response" => t('Latitudine non valida'));
   
-  if(!is_float($data['lng']))
+  if(!is_float(floatval($data['lng'])))
     return array("code" => 406, "response" => t('Longitudine non valida'));
   
   return array("code" => 200, "response" => '');
