@@ -7,7 +7,7 @@ module_load_include('inc', 'citynotifier');
 */
 
 function citynotifier_menu() {
-  $items['richieste'] = array(
+  $items['richieste/%'] = array(
     'page callback' => 'citynotifier_request',
     'page arguments' => array(1),
     'access arguments' => array('access content'),
