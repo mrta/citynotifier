@@ -2,19 +2,6 @@
 
 module_load_include('inc', 'citynotifier');
 
-global $index, $types, $subtypes;
-
-$index = array("scope","type","subtype","lat","lng","radius","timemin","timemax","status");
-$types = array("all", "problemi_stradali", "emergenze_sanitarie", "reati", "problemi_ambientali", "eventi_pubblici");
-$subtypes = array("all" => array("all"),
-                         "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-                         "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
-                         "reati" => array("furto", "attentato"),
-                         "problemi_ambientali" => array("incendio", "tornado", "neve", "alluvione"),
-                         "eventi_pubblici" => array("partita", "manifestazione", "concerto")); 
-
-
-
 /**
 * Implements hook_menu().
 */
@@ -92,7 +79,18 @@ function citynotifier_logout() {
 }
 
 function citynotifier_request() {
-  _citynotifier_validate_request(func_get_args());
+  header('Content-type: application/json');
+  
+  $data = array();
+  foreach(func_get_args() as $i => $a)
+    $data[$a] = $args[$i];
+  
+  $validation =_citynotifier_validate($data);
+  
+  if($validation['code'] <> 200) {
+    drupal_add_http_header("Status", $validation['code'], $validation['response']);
+    return;
+  }
   
   $fake_resp = array("request_time" => 1368095111,
 		"result" => "Messaggio di servizio",
@@ -128,50 +126,6 @@ function citynotifier_request() {
   drupal_add_http_header("Status", 200);
   echo drupal_json_output($fake_resp);
 
-}
-
-function _citynotifier_validate_request($args) {
-  
-  $args2validate = array();
-  foreach($index as $i => $a)
-    $args2validate[$a] = $args[$i];
-  
-  if($args2validate['scope'] <> "local" && $args2validate['scope'] <> "remote") {
-    drupal_add_http_header("Status", 406, "Not validate scope");
-    return;
-  }
-  
-  if(!in_array($args2validate['type'], $types)) {
-    drupal_add_http_header("Status", 406, "Not validate type");
-    return;
-  }
-  
-  if(!in_array($args2validate['subtype'], $subtypes[$args2validate['type']])) {
-    drupal_add_http_header("Status", 406, "Not validate subtype");
-    return;
-  }
-
-  if(!in_array($args2validate['subtype'], $subtypes[$args2validate['type']])) {
-    drupal_add_http_header("Status", 406, "Not validate subtype");
-    return;
-  }
-  
-  if(!is_float($args2validate['lat'])) {
-    drupal_add_http_header("Status", 406, "Not validate lat");
-    return;
-  }
-  
-  if(!is_float($args2validate['lng'])) {
-    drupal_add_http_header("Status", 406, "Not validate lng");
-    return;
-  }
-  
-  if(!is_float($args2validate['radius'])) {
-    drupal_add_http_header("Status", 406, "Not validate radius");
-    return;
-  }
-  
-  //var_dump($args2validate);
 }
 
 
