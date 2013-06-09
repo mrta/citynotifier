@@ -7,6 +7,9 @@
 function citynotifier_install() {
   drupal_install_schema('citynotifier_notify');
   drupal_install_schema('citynotifier_event');
+  
+  variable_set('citynotifier_settings_catalogue', '');
+  variable_set('citynotifier_settings_servers', array('servers' => array()));
 }
 
 /**
@@ -15,6 +18,9 @@ function citynotifier_install() {
 function citynotifier_uninstall() {
   drupal_uninstall_schema('citynotifier_notify');
   drupal_uninstall_schema('citynotifier_event');
+  
+  variable_set('citynotifier_settings_catalogue');
+  variable_set('citynotifier_settings_servers');
 }
 
 
@@ -27,21 +33,27 @@ function citynotifier_schema() {
   $schema['citynotifier_notify'] = array(
     'description' => t('Stores notifications.'),
     'fields' => array(
-      'id' => array(
+      'notify_id' => array(
         'description' => t('The primary identifier for a notify.'),
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
+      'event_id' => array(
+        'description' => t('The identifier of an event from wich notify belong to'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
       'uid' => array(
-        'description' => t('The user that created the notify.'),
+        'description' => t('The user that created this notify.'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
       ),
       'created' => array(
-        'description' => t('The timestamp for when the notify was created.'),
+        'description' => t('The timestamp when this notify was created.'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -79,13 +91,13 @@ function citynotifier_schema() {
         'length' => 255,
       ),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('notify_id'),
   );
   
   $schema['citynotifier_event'] = array(
     'description' => t('Stores events.'),
     'fields' => array(
-      'id' => array(
+      'event_id' => array(
         'description' => t('The primary identifier for an event.'),
         'type' => 'serial',
         'unsigned' => TRUE,
@@ -125,7 +137,7 @@ function citynotifier_schema() {
         'default' => 0,
       ),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('event_id'),
   );
   
   return $schema;
