@@ -10,7 +10,7 @@ function citynotifier_menu() {
   $items['admin/citynotifier'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_citynotifier_admin_form'),
-    'access arguments' => array('administer node'),
+    'access arguments' => array('citynotifier administrator'),
     'type' => MENU_CALLBACK,
     'file' => 'citynotifier.admin.inc',
   );
@@ -57,6 +57,20 @@ function citynotifier_menu() {
     
   return $items;
 }
+
+/**
+* Implements hook_permission().
+*/
+function citynotifier_permission(){
+    return array(
+        'citynotifier administrator' => array(
+            'title' => t('Amministratore di Citynotifier'),
+            'description' => t('Utenti che possono amministrare Citynotifier'),
+        ),
+    );
+}
+
+
 
 function citynotifier_login() {
   header('Content-type: application/json');

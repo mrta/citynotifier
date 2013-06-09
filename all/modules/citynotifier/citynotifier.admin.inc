@@ -1,7 +1,7 @@
 <?php
 // citynotifier.admin.inc
 
-function _citynotifier_admin_form($node, &$form_state) {
+function _citynotifier_admin_form($form, &$form_state) {
   $form = array();
   
   $form['catalogue'] = array(
@@ -20,7 +20,7 @@ function _citynotifier_admin_form($node, &$form_state) {
 }
 
 
-function _citynotifier_admin_form_submit(&$form_state) {
+function _citynotifier_admin_form_submit($form_id, &$form_state) {
   variable_set('citynotifier_settings_catalogue', $form_state['values']['catalogue']);
   drupal_set_message(t('Aggiornato il catalogo.'));
 }
