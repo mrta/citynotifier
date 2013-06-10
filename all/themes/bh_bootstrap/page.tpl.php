@@ -71,6 +71,7 @@
 	    <div class="navbar navbar-inverse navbar-fixed-top">
 	      <div class="navbar-inner">
 	        <div class="container">
+	        <div style="position:absolute; left:212px; top:127px;" id="info"></div>
 	          <a class="brand" href="#">City<span class="text-error">Notifier</span></a>
 	            <ul class="nav pull-right">
 	              
@@ -112,9 +113,21 @@
 	              	<ul class="dropdown-menu">
 						  <form>
 							  <fieldset>
-							  	<select>
-								  <option>Select event type</option>
-								</select>
+							  	<div class="control-group">
+									<select id="searchType">
+										<option disabled selected>Select type</option>
+										<option>Problemi stradali</option>
+										<option>Emergenze sanitarie</option>
+										<option>Reati</option>
+										<option>Problemi ambientali</option>
+										<option>Eventi pubblici</option>
+									</select>
+								</div>
+								<div class="control-group">
+									<select id="searchSubType" disabled>
+									  <option disabled selected>Select subtype</option>
+									</select>
+								</div>
 								<select>
 								  <option>Select radius</option>
 								</select>
@@ -136,7 +149,7 @@
 								  <input type="checkbox" value="">
 								  Skeptical
 								</label>
-							    <button type="submit" class="btn btn-inverse pull-right">Search</button>
+							    <button id="searchSubmit" type="button" class="btn btn-inverse pull-right">Search</button>
 							  </fieldset>
 						  </form>
 					</ul>

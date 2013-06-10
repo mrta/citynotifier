@@ -96,7 +96,8 @@ $("#account").next().delegate("#logout", "click", function(){
 		error: function(err) {}
 	});
 });
-     
+
+
 $("#notifyType").on('click', function(){
 	var conceptName = $('#notifyType').find(":selected").text();
 	if(conceptName != "Select Type"){
@@ -138,10 +139,54 @@ $("#notifyType").on('click', function(){
 		}
 	}
 });
+
+$("#searchType").on('click', function(){
+	var conceptName = $('#searchType').find(":selected").text();
+	if(conceptName != "Select Type"){
+		$('#searchSubType').removeAttr("disabled");
+		$('#searchSubType').html('<option disabled selected>Select subtype</option>');
+		switch (conceptName) {
+			case "Problemi stradali":
+				$('#searchSubType').html('<option disabled selected>Select subtype</option>\
+												<option>Incidente</option>\
+												<option>Buca</option>\
+												<option>Coda</option>\
+												<option>Lavori in corso</option>\
+												<option>Strada impraticabile</option>');       
+				break;
+			case "Emergenze sanitarie":
+				$('#searchSubType').html('<option disabled selected>Select subtype</option>\
+												<option>Incidente</option>\
+												<option>Malore</option>\
+												<option>Ferito</option>');     
+				break;
+			case "Reati":
+				$('#searchSubType').html('<option disabled selected>Select subtype</option>\
+												<option>Furto</option>\
+												<option>Attentato</option>');  
+				break;
+			case "Problemi ambientali":
+				$('#searchSubType').html('<option disabled selected>Select subtype</option>\
+												<option>Incendio</option>\
+												<option>Tornado</option>\
+												<option>Neve</option>\
+												<option>Alluvione</option>');  
+				break;
+			case "Eventi pubblici":
+				$('#searchSubType').html('<option disabled selected>Select subtype</option>\
+												<option>Partita</option>\
+												<option>Manifestazione</option>\
+												<option>Concerto</option>');   
+				break;
+		}
+	}
+});
      
 $("#notify").next().delegate("#notifySubmit", "click", function(){ 
 	sendNotify(); 
 });
+
+
      
 function sendNotify(){
 	xmlhttp = new XMLHttpRequest();
@@ -242,3 +287,84 @@ function getLocation(){
       alert("Sorry, browser does not support geolocation!");
    }
 }
+
+
+$("#search").next().delegate("#searchSubmit", "click", function(){ 
+	searchEvent(); 
+});
+
+function buildUrl(url, parameters){
+  var qs = "";
+  for(var key in parameters) {
+    var value = parameters[key];
+    qs += encodeURIComponent(key) + "=" + encodeURIComponent(value) + "&";
+  }
+  if (qs.length > 0){
+    qs = qs.substring(0, qs.length-1); //chop off last "&"
+    url = url + "?" + qs;
+  }
+  return url;
+}
+
+function searchEvent(){
+	var d = new Date();
+	
+	xmlhttp = new XMLHttpRequest();
+	domain = "http://";
+	
+	var parameters = new Array();		
+	parameters["scope"] = "remote";
+	parameters["type"] = ($('#searchType').find(":selected").text()).toLowerCase().replace(/ /g,"_");
+	parameters["subtype"] = ($('#searchSubType').find(":selected").text()).toLowerCase().replace(/ /g,"_");
+	parameters["lat"] = 44.495281; //CENTRO DI BOLOGNA
+	parameters["lng"] = 11.349735;
+	parameters["radius"] = 1000.0;
+	parameters["timemin"] = (d.getTime()-1000*60*60); //DA 1 ORA FA
+	parameters["timemax"] = d.getTime()  //AD ORA
+	parameters["status"] = "open";
+	
+	url =  domain.concat(document.location.hostname, buildUrl("/richieste", parameters));
+
+	/*var typeError = $('<span id="type_span" class="help-inline">Select a type</span>');
+	var subTypeError = $('<span id="sybtype_span" class="help-inline">Select a subtype</span>');*/
+	//var addressError = $('<span id="address_span">Select an address on map</span>');
+
+
+	if( (parameters["type"] != "select_type") && (parameters["subtype"] != "select_subtype") ){
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(datiString, status, richiesta){
+            	$('#search').parent().removeClass('open');
+            	alert("Ricerca Inviata..ecco i risultati!");
+            },
+            error: function(err) {
+                    alert("Ajax Notify error");
+            }
+          });                  
+	}
+	/*if( (notifyType.type == "select_type") ){    
+	    $('#notifyType').parent().addClass("error");
+	}
+	else
+	if( (notifyType.subtype == "select_subtype") && (!$('#notifySubType').attr('disabled')) ){
+	    $('#notifySubType').parent().addClass("error");
+	}
+	if( !$('#notifyAddress').val() && $('#notifyAddress').next().is('button')){
+	    $('#notifyAddress').parent().addClass("error");
+	    $('#notifyAddress').next().addClass("btn-danger");
+	    $('#addressMarker').addClass("icon-white");
+	    $('#notifyAddress').next().after(addressError); //NON VA!!!!!!!!!!!!!!!!!
+	}
+	
+	$("#notifyType").on("change", function() {
+    	$('#notifyType').parent().removeClass("error");
+	});
+	$("#notifySubType").on("change", function() {
+    	$('#notifySubType').parent().removeClass("error");
+	});
+	$('#notifyAddress').on("keypress", function(){
+	    $('#notifyAddress').parent().removeClass("error");
+	});*/
+}
+
