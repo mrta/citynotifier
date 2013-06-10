@@ -16,11 +16,38 @@ function _citynotifier_admin_form($form, &$form_state) {
     '#value' => t('Aggiorna'),
     );
   
+  
+  if(variable_get('citynotifier_settings_servers', "")) {
+    $form['servers'] = array('#tree' => TRUE);
+    
+    $servers = array();
+    foreach(variable_get('citynotifier_settings_servers', '') as $index => $server) {
+      $extra['#tree'] = TRUE;
+      $extra['subscribed'] = array('#type' => 'checkbox', '#title' => t('Sottosvrivi'), '#default_value'  => (bool)$server['subscribed']);
+      $extra['name'] = array('#markup' => $server['name']);
+      $extra['link'] = array('#markup' => $server['url']);
+      $servers[]=$extra;
+    }
+    $form['servers'] = $servers;
+  }
   return $form;
 }
 
 
 function _citynotifier_admin_form_submit($form_id, &$form_state) {
-  variable_set('citynotifier_settings_catalogue', $form_state['values']['catalogue']);
-  drupal_set_message(t('Aggiornato il catalogo.'));
+  $http_result = drupal_http_request($form_state['values']['catalogue']);
+  if ($http_result->code == 200) {
+    $catalogue = simplexml_load_string($http_result->data);
+    
+    $servers = array();
+    foreach($catalogue->server as $server) {
+      $servers[] = array('subscribed' => FALSE, 'name' => (string)$server->attributes()->gruppo, 'url' => (string)$server->attributes()->url);
+    };
+    
+    variable_set('citynotifier_settings_servers', $servers);
+    drupal_set_message(t('Aggiornato il catalogo.'));
+  }
+  else {
+    drupal_set_message(t('Impossibile aggiornare il catalogo.'));
+  }
 }

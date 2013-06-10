@@ -71,6 +71,19 @@ function citynotifier_permission(){
 }
 
 
+/**
+ * Implements hook_help().
+ */
+function citynotifier_help($path, $arg) {
+  switch ($path) {
+    case 'admin/citynotifier':
+      $output = '';
+      $output .= '<h3>' . t('Amministrazione di citynotifier') . '</h3>';
+      $output .= '<p>' . t('Seleziona la url da dove scaricare i server da interrogare e quindi seleziona i server scelti') . '</p>';
+      return $output;
+  }
+}
+
 
 function citynotifier_login() {
   header('Content-type: application/json');
