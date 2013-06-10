@@ -13,8 +13,22 @@ function citynotifier_report() {
     return;
   }
 
-  //_citynotifier_check_event($data);
+  $event_exist = _citynotifier_check_event($data);
   
+  if(!$event_exist)
+	_citynotifier_create_event($data);
+  else
+
+
+	/* Casi
+	1) Non c'è evento, crealo
+	2) Evento esiste
+	  1) Aperto: collega notifica a questo evento
+	  2) Chiuso:
+	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
+	    2) Freshness > N: aprire un nuovo evento
+	*/
+
   extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
    
   $record = array (
@@ -27,17 +41,9 @@ function citynotifier_report() {
     "lng" => $data['lng'],
     "description" => $data['description'],
     );
-  
-/*  $record_ev = array (
-    "status" => "open",
-    "type" => array_search($report['type']['type'], $types),
-    "subtype" => array_search($report['type']['subtype'], $subtypes[$report['type']['type']]),
-    "lat" => $report['lat'],
-    "lng" => $report['lng'],
-    );
-*/
 
   drupal_write_record("citynotifier_notify", $record);
+
   $result = array("event_id" => $record['notify_id'], "result" => "nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo");
   
   drupal_add_http_header("Status", 200);
@@ -49,75 +55,23 @@ function _citynotifier_check_event($data) {
   extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
   
   
-  $query_result = db_select("citynotifier_event", 'ce')
-      ->fields('cn', array('notify_id','type', "subtype"))
-      ->condition('type', $type, '=')
-      ->condition('subtype', $subtype, '=')
-      ->condition('lat', $data['lat']-$range,'>')
-			->condition('lat', $data['lat']+$range,'<')
-			->condition('lng', $data['lng']-$range,'>')
-			->condition('lng', $data['lng']+$range,'<')
-      ->execute()
-			->fetchAll();
-			
-	/* Casi
-	1) Non c'è evento, crealo
-	2) Evento esiste
-	  1) Aperto: collega notifica a questo evento
-	  2) Chiuso:
-	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
-	    2) Freshness > N: aprire un nuovo evento
-	*/
-}
+  $events = db_select("citynotifier_event", 'ce');
+	
+  $events->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 
-function create_ev() {
+  $events->fields('ce', array('event_id','status'));
 
-	$location = array();
+  $events->condition('cn.type', $type, '=')
+	->condition('cn.subtype', $subtype, '=')
+	->condition('cn.lat', $data['lat']-$range,'>')
+	->condition('cn.lat', $data['lat']+$range,'<')
+	->condition('cn.lng', $data['lng']-$range,'>')
+	->condition('cn.lng', $data['lng']+$range,'<')
+	->orderby('cn.created', 'DESC')
+	->execute()
+	->fetchAssoc();
 
-	$query_result = db_select($schema["citynotifier_notify"], 'n')
-			->fields('n')
-			->condition('type', $_GET['type'],'=')
-			->condition('subtype', $_GET['subtype'],'=')
-			->condition('lat', $_GET['lat']-$_GET['radius'],'>')
-			->condition('lat', $_GET['lat']+$_GET['radius'],'<')
-			->condition('lng', $_GET['lng']-$_GET['radius'],'>')
-			->condition('lng', $_GET['lng']+$_GET['radius'],'<')
-			->condition('status', $_GET['status'],'=')
-			->condition('created', $_GET['timemin'],'>')
-			->condition('created', $_GET['timemax'],'<')
-			->execute()
-			->fetchAssoc();
-
-	foreach($query_result as $pippo){
-		array_push_assoc($location, "lat", $pippo->lat);
-		array_push_assoc($location, "lng", $pippo->lng);
-	}
-	$start_time = min($query_result->created);
-	$fresh = max($query_result->created);
-	$nOn = length($query_result);
-	$reliability = get_reliability();
-
-	$record_ev = array (
-			"status" => "open",
-			"type" => $_GET['type'],
-			"subtype" => $_GET['subtype'],
-			"lat" => $location['lat'],
-			"lng" => $location['lng'],
-	);
-
-	drupal_write_record($schema["citynotifier_event"], $record_ev);
-
-	$event = array("event_id" => "",
-			   "type" => array("type" => $_GET['type'], "subtype" => $_GET['subtype']),
-			   "description" => array("","","","",""),
-			   "start_time" => $start_time,
-			   "freshness" => $fresh,
-			   "status" => $stat,
-			   "reliability" => $reliability,
-			   "number_of_notifications" => $nOn,
-			   "locations" => $location
-		 );
-
+  return $events;
 }
 
 function _citynotifier_validate($data, $function_type=NULL) {
