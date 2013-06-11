@@ -5,6 +5,8 @@ var map;
 var userMarker; var sizer;
 var distanceWidget;
 var radiusWidget;
+var radiusWidgetCheck = false;
+var distanceDefault = 2;
 
 function initialize() {
     var mapOptions = {
@@ -25,7 +27,7 @@ function initialize() {
         if (distanceWidget)
             radiusWidget = null;
             
-        $('#searchRadius').val(0.5 + " km");
+        $('#searchRadius').val(Math.round(distanceDefault * 1000) / 1000 + " km");
 
         userMarker = new google.maps.Marker({
             position: new google.maps.LatLng(lat, lng),
@@ -34,6 +36,8 @@ function initialize() {
             title: "Appaio se rimango sopra col mouse",
             animation: google.maps.Animation.DROP
         });
+        
+        radiusWidgetCheck = false;
 
         google.maps.event.addListener(userMarker, 'dragend', function(event) {
             var lat = event.latLng.lat();
@@ -50,15 +54,16 @@ function initialize() {
 
 $('#search').on('click', function() {
 	
-	sizer.bindTo('map', this);
-    sizer.bindTo('position', this, 'sizer_position');
+	/*sizer.bindTo('map', this);
+    sizer.bindTo('position', this, 'sizer_position');*/
     
-    if (!(radiusWidget))
+    if (!(radiusWidgetCheck)){
         distanceWidget = new DistanceWidget(map);
-    else
-        return;
+        radiusWidgetCheck = true;
+    }
+        
     google.maps.event.addListener(distanceWidget, 'distance_changed', function() {
-        $('#searchRadius').val((Math.round(distanceWidget.get('distance') * 1000) / 1000) + " km");
+        $('#searchRadius').val(Math.round(distanceDefault * 1000) / 1000 + " km");
     });
 
     google.maps.event.addListener(distanceWidget, 'position_changed', function() {
@@ -68,15 +73,18 @@ $('#search').on('click', function() {
 
 $('#update').on('click', function() {
     userMarker.setMap(null);
-    $('#searchRadius').val(null);
+    radiusWidgetCheck = false;
 });
 
 $('#notify').on('click', function() {
-    radiusWidget.set('distance', 0);
-    sizer.unbind('map');
-    sizer.unbind('position');
-    sizer.setMap(null);
-    $('#searchRadius').val(null);
+    if(radiusWidget)
+    	radiusWidget.set('distance', 0);
+    if(sizer){
+    	sizer.unbind('map');
+    	sizer.unbind('position');
+    	sizer.setMap(null);
+    }
+    radiusWidgetCheck = false;
 });
 
 
@@ -166,7 +174,7 @@ function RadiusWidget() {
 
 
     // Set the distance property value, default to 50km.
-    this.set('distance', 0.5);
+    this.set('distance', distanceDefault);
 
     // Bind the RadiusWidget bounds property to the circle bounds property.
     this.bindTo('bounds', circle);
@@ -202,7 +210,7 @@ RadiusWidget.prototype.addSizer_ = function() {
         draggable: true,
         title: 'Drag me!'
     });
-
+    
     sizer.bindTo('map', this);
     sizer.bindTo('position', this, 'sizer_position');
 
@@ -210,7 +218,6 @@ RadiusWidget.prototype.addSizer_ = function() {
     google.maps.event.addListener(sizer, 'drag', function() {
         // Set the circle distance (radius)
         me.setDistance();
-        
     });
 };
 
@@ -270,6 +277,7 @@ RadiusWidget.prototype.setDistance = function() {
 
     // Set the distance property for any objects that are bound to it
     this.set('distance', distance);
+    distanceDefault = distance;
 };
 
 function displayInfo(widget) {
