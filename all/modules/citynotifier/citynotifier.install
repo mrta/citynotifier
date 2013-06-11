@@ -19,8 +19,8 @@ function citynotifier_uninstall() {
   drupal_uninstall_schema('citynotifier_notify');
   drupal_uninstall_schema('citynotifier_event');
   
-  variable_set('citynotifier_settings_catalogue');
-  variable_set('citynotifier_settings_servers');
+  variable_del('citynotifier_settings_catalogue');
+  variable_del('citynotifier_settings_servers');
 }
 
 
@@ -110,18 +110,6 @@ function citynotifier_schema() {
         'description' => t('The event\'s subtype.'),
         'type' => 'int',
         'unsigned' => TRUE,
-        'default' => 0,
-      ),
-      'lat' => array(
-        'description' => t('The notify\'s latitude.'),
-        'type' => 'float',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'lng' => array(
-        'description' => t('The notify\'s longitude.'),
-        'type' => 'float',
-        'not null' => TRUE,
         'default' => 0,
       ),
       'status' => array(
