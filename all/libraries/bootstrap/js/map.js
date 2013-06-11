@@ -2,7 +2,7 @@
 google.maps.visualRefresh = true;
 
 var map;
-var userMarker;
+var userMarker; var sizer;
 var distanceWidget;
 var radiusWidget;
 
@@ -24,6 +24,8 @@ function initialize() {
             userMarker.setMap(null);
         if (distanceWidget)
             radiusWidget = null;
+            
+        $('#searchRadius').val(0.5 + " km");
 
         userMarker = new google.maps.Marker({
             position: new google.maps.LatLng(lat, lng),
@@ -39,7 +41,7 @@ function initialize() {
             geocodePosition(new google.maps.LatLng(lat, lng));
             var point = userMarker.getPosition();
             map.panTo(point);
-        });
+        });       
 
         geocodePosition(new google.maps.LatLng(lat, lng));
 
@@ -47,6 +49,9 @@ function initialize() {
 }
 
 $('#search').on('click', function() {
+	sizer.bindTo('map', this);
+    sizer.bindTo('position', this, 'sizer_position');
+    
     if (!(radiusWidget))
         distanceWidget = new DistanceWidget(map);
     else
@@ -62,7 +67,18 @@ $('#search').on('click', function() {
 
 $('#update').on('click', function() {
     userMarker.setMap(null);
+    $('#searchRadius').val(null);
 });
+
+$('#notify').on('click', function() {
+    radiusWidget.set('distance', 0);
+    sizer.unbind('map');
+    sizer.unbind('position');
+    sizer.setMap(null);
+    $('#searchRadius').val(null);
+});
+
+
 
 var geocoder = new google.maps.Geocoder();
 var latitude;
@@ -75,6 +91,8 @@ function geocodePosition(position) {
                 latitude = matchingAddresses[0].geometry.location.lat();
                 longitude = matchingAddresses[0].geometry.location.lng();
                 $('#notifyAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
+                $('#searchAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
+                $('#infoAddress').html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
                 $('#notifyAddress').parent().removeClass("error");
                 $('#notifyAddress').next().removeClass("btn-danger");
                 $('#addressMarker').removeClass("icon-white");
@@ -179,7 +197,7 @@ RadiusWidget.prototype.distance_changed = function() {
  * @private
  */
 RadiusWidget.prototype.addSizer_ = function() {
-    var sizer = new google.maps.Marker({
+    	sizer = new google.maps.Marker({
         draggable: true,
         title: 'Drag me!'
     });
@@ -191,6 +209,7 @@ RadiusWidget.prototype.addSizer_ = function() {
     google.maps.event.addListener(sizer, 'drag', function() {
         // Set the circle distance (radius)
         me.setDistance();
+        
     });
 };
 
@@ -253,6 +272,6 @@ RadiusWidget.prototype.setDistance = function() {
 };
 
 function displayInfo(widget) {
-    $('#infoAddress').text('Position: ' + widget.get('position') + ', distance: ' +
-            widget.get('distance'));
+
+    //$('#infoAddress').text($('#searchAddress').val);
 }
