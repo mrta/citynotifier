@@ -49,6 +49,7 @@ function initialize() {
 }
 
 $('#search').on('click', function() {
+	
 	sizer.bindTo('map', this);
     sizer.bindTo('position', this, 'sizer_position');
     
