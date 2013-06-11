@@ -32,5 +32,9 @@ form fieldset {
     outline: none!important; 
 }
 
+#notifyDescription {
+	margin-top: 10px;	
+}
+
 
 

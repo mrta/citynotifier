@@ -7,6 +7,13 @@ $("#account").next().delegate('#pass', 'keypress', function(e) {
 		loginFunction();
 	}
 });
+
+$("#search").next().delegate('#searchRadius', 'keypress', function(e) {
+	if (e.which === 13) {
+		radiusWidget.set('distance', $(searchRadius).val());
+		radiusWidget.center_changed();
+	}
+});
      
 function loginFunction(){
     xmlhttp = new XMLHttpRequest();
@@ -202,7 +209,7 @@ function sendNotify(){
 	notifyObj.type = notifyType;
 	notifyObj.lat = latitude;
 	notifyObj.lng = longitude;
-	notifyObj.description = $('#notifyDesc').val();
+	notifyObj.description = $('#notifyDescription').val();
 
 	/*var typeError = $('<span id="type_span" class="help-inline">Select a type</span>');
 	var subTypeError = $('<span id="sybtype_span" class="help-inline">Select a subtype</span>');*/

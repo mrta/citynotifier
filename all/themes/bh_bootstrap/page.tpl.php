@@ -91,7 +91,7 @@
 									</select>
 								</div>
 								<div class="control-group">
-									<select id="notifySubType" disabled>
+									<select id="notifySubType" >
 									  <option disabled selected>Select subtype</option>
 									</select>
 								</div>
@@ -101,7 +101,9 @@
 								  	<i id="addressMarker" class="icon-map-marker"></i>
 								  </button>
 								</div>
-							    <input id="notifyDesc" type="text" placeholder="Description" class="input-block-level ">
+								<div class="control-group">
+							    <input id="notifyDescription" type="text" placeholder="Description" class="input-block-level ">
+							    </div>
 							    <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
 							  </fieldset>
 						  </form>
@@ -124,15 +126,19 @@
 									</select>
 								</div>
 								<div class="control-group">
-									<select id="searchSubType" disabled>
+									<select id="searchSubType" >
 									  <option disabled selected>Select subtype</option>
 									</select>
 								</div>
+								<div class="input-append control-group">
+								 <input type="text" id="searchAddress" placeholder="Address">
+								 <button onclick="getLocation()" id="addressButton" class="btn" type="button">
+								  <i id="addressMarker" class="icon-map-marker"></i>
+								 </button>
+								</div>
+								<input type="text" id="searchRadius" placeholder="Radius (km, es. '2.5')">
 								<select>
-								  <option>Select radius</option>
-								</select>
-								<select>
-								  <option>From time</option>
+								  <option>From now</option>
 								</select>
 								<select>
 								  <option>To time</option>
@@ -149,6 +155,7 @@
 								  <input type="checkbox" value="">
 								  Skeptical
 								</label>
+								
 							    <button id="searchSubmit" type="button" class="btn btn-inverse pull-right">Search</button>
 							  </fieldset>
 						  </form>

@@ -3,10 +3,14 @@ google.maps.visualRefresh = true;
 
 var map;
 var userMarker;
+var distanceWidget;
+var radiusWidget;
 
 function initialize() {
 	var mapOptions = {
+		disableDoubleClickZoom: true,
 		zoom: 15,
+		
 		center: new google.maps.LatLng(44.495281,11.349735),
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
@@ -18,6 +22,7 @@ function initialize() {
 		var lng=event.latLng.lng();
 
 		if(userMarker) userMarker.setMap(null);
+		if(distanceWidget) radiusWidget.set('distance', 0);
 
 		userMarker = new google.maps.Marker({
 			position: new google.maps.LatLng(lat, lng),
@@ -26,17 +31,28 @@ function initialize() {
 			title: "Appaio se rimango sopra col mouse",
 			animation: google.maps.Animation.DROP
 		});
+		
+		google.maps.event.addListener(userMarker, 'dragend', function(event) {
+                    var lat=event.latLng.lat();
+                    var lng=event.latLng.lng();
+                    geocodePosition(new google.maps.LatLng(lat, lng));
+                    var point = userMarker.getPosition();
+                    map.panTo(point);
+		}); 
 
 		geocodePosition(new google.maps.LatLng(lat, lng));
-	});  
-	
-	var distanceWidget = new DistanceWidget(map);
-	google.maps.event.addListener(distanceWidget, 'distance_changed', function() {
-  		displayInfo(distanceWidget);
-	});
+		
+		
+		$('#search').on('click', function(){
+			distanceWidget = new DistanceWidget(map);
+			google.maps.event.addListener(distanceWidget, 'distance_changed', function() {
+	  			$('#searchRadius').val((Math.round(distanceWidget.get('distance') * 1000) / 1000)+" km");	
+			});
 
-	google.maps.event.addListener(distanceWidget, 'position_changed', function() {
-  		displayInfo(distanceWidget);
+			google.maps.event.addListener(distanceWidget, 'position_changed', function() {
+	  			displayInfo(distanceWidget);
+			});
+		});
 	});
 }
 
@@ -74,24 +90,25 @@ google.maps.event.addDomListener(window, 'load', initialize);
  * @constructor
  */
 function DistanceWidget(map) {
-  this.set('map', map);
-  this.set('position', map.getCenter());
+	this.set('map', map);
+	this.set('position', userMarker.getPosition());
 
+	/*var marker = new google.maps.Marker({
+    	draggable: true,
+		title: 'Move me!'
+	});*/
+	
+	var marker = userMarker; //Uso il mio userMarker come pin
 
-  var marker = new google.maps.Marker({
-    draggable: true,
-    title: 'Move me!'
-  });
+	// Bind the marker map property to the DistanceWidget map property
+	marker.bindTo('map', this);
 
-  // Bind the marker map property to the DistanceWidget map property
-  marker.bindTo('map', this);
-
-  // Bind the marker position property to the DistanceWidget position
-  // property
-  marker.bindTo('position', this);
+	// Bind the marker position property to the DistanceWidget position
+	// property
+	marker.bindTo('position', this);
   
 	// Create a new radius widget
-	var radiusWidget = new RadiusWidget();
+	radiusWidget = new RadiusWidget();
 
 	// Bind the radiusWidget map to the DistanceWidget map
 	radiusWidget.bindTo('map', this);
@@ -104,9 +121,9 @@ function DistanceWidget(map) {
 
 	// Bind to the radiusWidgets' bounds property
 	this.bindTo('bounds', radiusWidget);	  
-  
 }
 DistanceWidget.prototype = new google.maps.MVCObject();
+
 
 /**
  * A radius widget that add a circle to a map and centers on a marker.
@@ -115,8 +132,11 @@ DistanceWidget.prototype = new google.maps.MVCObject();
  */
 function RadiusWidget() {
   var circle = new google.maps.Circle({
-    strokeWeight: 2
+  	fillColor: "yellow",
+  	strokeColor: "yellow",
+    strokeWeight: 0.5
   });
+  
 
   // Set the distance property value, default to 50km.
   this.set('distance', 0.5);
@@ -151,19 +171,19 @@ RadiusWidget.prototype.distance_changed = function() {
  * @private
  */
 RadiusWidget.prototype.addSizer_ = function() {
-  var sizer = new google.maps.Marker({
-    draggable: true,
-    title: 'Drag me!'
-  });
+	var sizer = new google.maps.Marker({
+		draggable: true,
+		title: 'Drag me!'
+	});
 
-  sizer.bindTo('map', this);
-  sizer.bindTo('position', this, 'sizer_position');
-  
+	sizer.bindTo('map', this);
+	sizer.bindTo('position', this, 'sizer_position');
+
 	var me = this;
 	google.maps.event.addListener(sizer, 'drag', function() {
-	// Set the circle distance (radius)
-	me.setDistance();
-});
+		// Set the circle distance (radius)
+		me.setDistance();
+	});
 };
 
 /**
@@ -177,7 +197,7 @@ RadiusWidget.prototype.center_changed = function() {
 
   // Bounds might not always be set so check that it exists first.
   if (bounds) {
-    var lng = bounds.getNorthEast().lng();
+    var lng = bounds.getSouthWest().lng();
 
     // Put the sizer at center, right on the circle.
     var position = new google.maps.LatLng(this.get('center').lat(), lng);
@@ -202,14 +222,12 @@ RadiusWidget.prototype.distanceBetweenPoints_ = function(p1, p2) {
   var R = 6371; // Radius of the Earth in km
   var dLat = (p2.lat() - p1.lat()) * Math.PI / 180;
   var dLon = (p2.lng() - p1.lng()) * Math.PI / 180;
-  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(p1.lat() * Math.PI / 180) * Math.cos(p2.lat() * Math.PI / 180) *
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(p1.lat() * Math.PI / 180) * Math.cos(p2.lat() * Math.PI / 180) *
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c;
   return d;
 };
-
 
 /**
  * Set the distance of the circle based on the position of the sizer.
