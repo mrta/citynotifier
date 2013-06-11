@@ -67,233 +67,236 @@
  */
 ?>
 
-  	<nav>
-	    <div class="navbar navbar-inverse navbar-fixed-top">
-	      <div class="navbar-inner">
-	        <div class="container">
-	        <div style="position:absolute; left:212px; top:127px;" id="info"></div>
-	          <a class="brand" href="#">City<span class="text-error">Notifier</span></a>
-	            <ul class="nav pull-right">
-	              
-	              <li class="dropdown">
-	              	<a href="#" id="notify" class="dropdown-toggle" data-toggle="dropdown">Notify <i class="icon-plus icon-white"></i></a>
-	              	<ul class="dropdown-menu">
-						  <form>
-							  <fieldset>
-							  	<div class="control-group">
-									<select id="notifyType">
-										<option disabled selected>Select type</option>
-										<option>Problemi stradali</option>
-										<option>Emergenze sanitarie</option>
-										<option>Reati</option>
-										<option>Problemi ambientali</option>
-										<option>Eventi pubblici</option>
-									</select>
-								</div>
-								<div class="control-group">
-									<select id="notifySubType" >
-									  <option disabled selected>Select subtype</option>
-									</select>
-								</div>
-							    <div class="input-append control-group">
-								  <input type="text" id="notifyAddress" placeholder="Address">
-								  <button onclick="getLocation()" id="addressButton" class="btn" type="button">
-								  	<i id="addressMarker" class="icon-map-marker"></i>
-								  </button>
-								</div>
-								<div class="control-group">
-							    <input id="notifyDescription" type="text" placeholder="Description" class="input-block-level ">
-							    </div>
-							    <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
-							  </fieldset>
-						  </form>
-					</ul>
-	              </li>
+<nav>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <div style="position:absolute; left:212px; top:127px;" id="info"></div>
+                <a class="brand" href="#">City<span class="text-error">Notifier</span></a>
+                <ul class="nav pull-right">
 
-	              <li class="dropdown">
-	              	<a href="#" id="search" class="dropdown-toggle" data-toggle="dropdown">Search <i class="icon-search icon-white"></i></a>
-	              	<ul class="dropdown-menu">
-						  <form>
-							  <fieldset>
-							  	<div class="control-group">
-									<select id="searchType">
-										<option disabled selected>Select type</option>
-										<option>Problemi stradali</option>
-										<option>Emergenze sanitarie</option>
-										<option>Reati</option>
-										<option>Problemi ambientali</option>
-										<option>Eventi pubblici</option>
-									</select>
-								</div>
-								<div class="control-group">
-									<select id="searchSubType" >
-									  <option disabled selected>Select subtype</option>
-									</select>
-								</div>
-								<div class="input-append control-group">
-								 <input type="text" id="searchAddress" placeholder="Address">
-								 <button onclick="getLocation()" id="addressButton" class="btn" type="button">
-								  <i id="addressMarker" class="icon-map-marker"></i>
-								 </button>
-								</div>
-								<input type="text" id="searchRadius" placeholder="Radius (km, es. '2.5')">
-								<select>
-								  <option>From now</option>
-								</select>
-								<select>
-								  <option>To time</option>
-								</select>
-								<label class="checkbox inline">
-								  <input type="checkbox" value="" checked>
-								  Open
-								</label>
-								<label class="checkbox inline">
-								  <input type="checkbox" value="">
-								  Closed
-								</label>
-								<label class="checkbox">
-								  <input type="checkbox" value="">
-								  Skeptical
-								</label>
-								
-							    <button id="searchSubmit" type="button" class="btn btn-inverse pull-right">Search</button>
-							  </fieldset>
-						  </form>
-					</ul>
-	              </li>
-	              
-	              <li><a href="#" id="update">Update <i class="icon-repeat icon-white"></i></a></li>
-	              
-	              <li class="divider-vertical"></li>
-	              
-	              <li class="dropdown">
-	              	<a href="#" id="account" class="dropdown-toggle" data-toggle="dropdown">Account <i class="icon-user icon-white"></i></a>
-	              	<ul class="dropdown-menu">
-						  <form>
-							  <fieldset>
-								<div class="control-group">
-							    <input id="user" type="text" placeholder="Username"></div>
-								<div class="control-group">
-								<input id="pass" type="password" placeholder="Password"></div>
-							    <button id="login" type="button" class="btn btn-inverse pull-right">Login</button>
-							  </fieldset>
-						  </form>
-					</ul>
-	              </li>
-	              
-	            </ul>
-	        </div>
-	      </div>
-	    </div>
-	</nav>
+                    <li class="dropdown">
+                        <a href="#" id="notify" class="dropdown-toggle" data-toggle="dropdown">Notify <i class="icon-plus icon-white"></i></a>
+                        <ul class="dropdown-menu">
+                            <form>
+                                <fieldset>
+                                    <div class="control-group">
+                                        <select id="notifyType">
+                                            <option disabled selected>Select type</option>
+                                            <option>Problemi stradali</option>
+                                            <option>Emergenze sanitarie</option>
+                                            <option>Reati</option>
+                                            <option>Problemi ambientali</option>
+                                            <option>Eventi pubblici</option>
+                                        </select>
+                                    </div>
+                                    <div class="control-group">
+                                        <select id="notifySubType" >
+                                            <option disabled selected>Select subtype</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-append control-group">
+                                        <input type="text" id="notifyAddress" placeholder="Address">
+                                        <button onclick="getLocation()" id="addressButton" class="btn" type="button">
+                                            <i id="addressMarker" class="icon-map-marker"></i>
+                                        </button>
+                                    </div>
+                                    <div class="control-group">
+                                        <input id="notifyDescription" type="text" placeholder="Description" class="input-block-level ">
+                                    </div>
+                                    <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
+                                </fieldset>
+                            </form>
+                        </ul>
+                    </li>
 
-  <div id="map_canvas"></div>
-    
-	<nav>
-	    <div class="navbar navbar-inverse navbar-fixed-bottom">
-	      <div class="navbar-inner">
-	        <div class="container">
-	            <ul class="nav pull-left">
-	                <li>
-	                    <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>
-	                </li>
-	         	  </ul>
-	        </div>
-	      </div>
-	    </div>
-	</nav>
-	
-	 <!-- Modal -->
-  <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-header">
+                    <li class="dropdown">
+                        <a href="#" id="search" class="dropdown-toggle" data-toggle="dropdown">Search <i class="icon-search icon-white"></i></a>
+                        <ul class="dropdown-menu">
+                            <form>
+                                <fieldset>
+                                    <div class="control-group">
+                                        <select id="searchType">
+                                            <option disabled selected>Select type</option>
+                                            <option>Problemi stradali</option>
+                                            <option>Emergenze sanitarie</option>
+                                            <option>Reati</option>
+                                            <option>Problemi ambientali</option>
+                                            <option>Eventi pubblici</option>
+                                        </select>
+                                    </div>
+                                    <div class="control-group">
+                                        <select id="searchSubType" >
+                                            <option disabled selected>Select subtype</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-append control-group">
+                                        <input type="text" id="searchAddress" placeholder="Address">
+                                        <button onclick="getLocation()" id="addressButton" class="btn" type="button">
+                                            <i id="addressMarker" class="icon-map-marker"></i>
+                                        </button>
+                                    </div>
+                                    <input type="text" id="searchRadius" placeholder="Radius (km, es. '2.5')">
+                                    <select>
+                                        <option>From now</option>
+                                    </select>
+                                    <select>
+                                        <option>To time</option>
+                                    </select>
+                                    <label class="checkbox inline">
+                                        <input type="checkbox" value="" checked>
+                                        Open
+                                    </label>
+                                    <label class="checkbox inline">
+                                        <input type="checkbox" value="">
+                                        Closed
+                                    </label>
+                                    <label class="checkbox">
+                                        <input type="checkbox" value="">
+                                        Skeptical
+                                    </label>
+
+                                    <button id="searchSubmit" type="button" class="btn btn-inverse pull-right">Search</button>
+                                </fieldset>
+                            </form>
+                        </ul>
+                    </li>
+
+                    <li><a href="#" id="update">Update <i class="icon-repeat icon-white"></i></a></li>
+
+                    <li class="divider-vertical"></li>
+
+                    <li class="dropdown">
+                        <a href="#" id="account" class="dropdown-toggle" data-toggle="dropdown">Account <i class="icon-user icon-white"></i></a>
+                        <ul class="dropdown-menu">
+                            <form>
+                                <fieldset>
+                                    <div class="control-group">
+                                        <input id="user" type="text" placeholder="Username"></div>
+                                    <div class="control-group">
+                                        <input id="pass" type="password" placeholder="Password"></div>
+                                    <button id="login" type="button" class="btn btn-inverse pull-right">Login</button>
+                                </fieldset>
+                            </form>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div id="map_canvas"></div>
+
+<nav>
+    <div class="navbar navbar-inverse navbar-fixed-bottom">
+        <div class="navbar-inner">
+            <div class="container">
+                <ul class="nav pull-left">
+                    <li>
+                        <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>
+                    </li>
+                </ul>
+                <ul>
+                    <p id="infoAddress" class="text-center"> Pota pota pota </p>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Modal -->
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="myModalLabel">Search matches</h3>
-      </div>
-      <div class="modal-body">
+    </div>
+    <div class="modal-body">
         <table class="table table-striped">
-              <thead>
+            <thead>
                 <tr>
-                  <th>Type/Subtype</th>
-                  <th>Date</th>
-                  <th>Location</th>
-                  <th>Descriptions</th>
-                  <th>Credibility</th>
-                  <th>Status</th>  
+                    <th>Type/Subtype</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Descriptions</th>
+                    <th>Credibility</th>
+                    <th>Status</th>  
                 </tr>
-              </thead>
-              <tbody>
+            </thead>
+            <tbody>
                 <tr>
-                  <td>Stradale > Buca</td>
-                  <td>23/06/2013 12:03</td>
-                  <td>Via Fiesso, 7</td>
-				  <td><div class="btn-group">
-                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                        <ul class="dropdown-menu">
-                          <li><p>Incidente stradale, tamponamento.</p></li>
-                          <li><p>Un ferito lieve.</p></li>
-                          <li><p>Un mare di figa qui.</p></li>
-                          <li><p>A Davide però la figa non piace tanto.</p></li> 
-                        </ul>
-                      </div></td>
-                  <td>13 / 0.81</td>
-                  <td><button class="btn btn-success">Open</td>
-                </tr>
-                <tr>
-                  <td>Stradale > Buca</td>
-                  <td>23/06/2013 12:03</td>
-                  <td>Via Fiesso, 7</td>
-				  <td><div class="btn-group">
-                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                        <ul class="dropdown-menu">
-                          <li><p>Incidente stradale, tamponamento.</p></li>
-                          <li><p>Un ferito lieve.</p></li>
-                          <li><p>Un mare di figa qui.</p></li>
-                          <li><p>A Davide però la figa non piace tanto.</p></li> 
-                        </ul>
-                      </div></td>
-                  <td>13 / 0.81</td>
-                  <td><button class="btn btn-warning">Skeptical</td>
+                    <td>Stradale > Buca</td>
+                    <td>23/06/2013 12:03</td>
+                    <td>Via Fiesso, 7</td>
+                    <td><div class="btn-group">
+                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                            <ul class="dropdown-menu">
+                                <li><p>Incidente stradale, tamponamento.</p></li>
+                                <li><p>Un ferito lieve.</p></li>
+                                <li><p>Un mare di figa qui.</p></li>
+                                <li><p>A Davide però la figa non piace tanto.</p></li> 
+                            </ul>
+                        </div></td>
+                    <td>13 / 0.81</td>
+                    <td><button class="btn btn-success">Open</td>
                 </tr>
                 <tr>
-                  <td>Stradale > Buca</td>
-                  <td>23/06/2013 12:03</td>
-                  <td>Via Fiesso, 7</td>
-				  <td><div class="btn-group">
-                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                        <ul class="dropdown-menu">
-                          <li><p>Incidente stradale, tamponamento.</p></li>
-                          <li><p>Un ferito lieve.</p></li>
-                          <li><p>Un mare di figa qui.</p></li>
-                          <li><p>A Davide però la figa non piace tanto.</p></li> 
-                        </ul>
-                      </div></td>
-                  <td>13 / 0.81</td>
-                  <td><button class="btn btn-success">Open</td>
+                    <td>Stradale > Buca</td>
+                    <td>23/06/2013 12:03</td>
+                    <td>Via Fiesso, 7</td>
+                    <td><div class="btn-group">
+                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                            <ul class="dropdown-menu">
+                                <li><p>Incidente stradale, tamponamento.</p></li>
+                                <li><p>Un ferito lieve.</p></li>
+                                <li><p>Un mare di figa qui.</p></li>
+                                <li><p>A Davide però la figa non piace tanto.</p></li> 
+                            </ul>
+                        </div></td>
+                    <td>13 / 0.81</td>
+                    <td><button class="btn btn-warning">Skeptical</td>
                 </tr>
                 <tr>
-                  <td>Stradale > Buca</td>
-                  <td>23/06/2013 12:03</td>
-                  <td>Via Fiesso, 7</td>
-				  <td><div class="btn-group">
-                        <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                        <ul class="dropdown-menu">
-                          <li><p>Incidente stradale, tamponamento.</p></li>
-                          <li><p>Un ferito lieve.</p></li>
-                          <li><p>Un mare di figa qui.</p></li>
-                          <li><p>A Davide però la figa non piace tanto.</p></li> 
-                        </ul>
-                      </div></td>
-                  <td>13 / 0.81</td>
-                  <td><button class="btn btn-danger">Closed</td>
+                    <td>Stradale > Buca</td>
+                    <td>23/06/2013 12:03</td>
+                    <td>Via Fiesso, 7</td>
+                    <td><div class="btn-group">
+                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                            <ul class="dropdown-menu">
+                                <li><p>Incidente stradale, tamponamento.</p></li>
+                                <li><p>Un ferito lieve.</p></li>
+                                <li><p>Un mare di figa qui.</p></li>
+                                <li><p>A Davide però la figa non piace tanto.</p></li> 
+                            </ul>
+                        </div></td>
+                    <td>13 / 0.81</td>
+                    <td><button class="btn btn-success">Open</td>
                 </tr>
-              </tbody>
-            </table>
-      </div>
-      <div class="modal-footer">
+                <tr>
+                    <td>Stradale > Buca</td>
+                    <td>23/06/2013 12:03</td>
+                    <td>Via Fiesso, 7</td>
+                    <td><div class="btn-group">
+                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
+                            <ul class="dropdown-menu">
+                                <li><p>Incidente stradale, tamponamento.</p></li>
+                                <li><p>Un ferito lieve.</p></li>
+                                <li><p>Un mare di figa qui.</p></li>
+                                <li><p>A Davide però la figa non piace tanto.</p></li> 
+                            </ul>
+                        </div></td>
+                    <td>13 / 0.81</td>
+                    <td><button class="btn btn-danger">Closed</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
         <button class="btn btn-primary">Save changes</button>
-      </div>
-  </div>
-    
-    <script src="http://code.jquery.com/jquery.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false"></script>
+    </div>
+</div>
+
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false"></script>
