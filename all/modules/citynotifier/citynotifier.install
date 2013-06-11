@@ -112,18 +112,6 @@ function citynotifier_schema() {
         'unsigned' => TRUE,
         'default' => 0,
       ),
-      'lat' => array(
-        'description' => t('The notify\'s latitude.'),
-        'type' => 'float',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-      'lng' => array(
-        'description' => t('The notify\'s longitude.'),
-        'type' => 'float',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
       'status' => array(
         'description' => t('The event\'s status.'),
         'type' => 'int',
