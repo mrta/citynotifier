@@ -8,11 +8,12 @@ module_load_include('inc', 'citynotifier');
 
 function citynotifier_menu() {
   $items['admin/citynotifier'] = array(
+    'title'=>t('Amministrazione di Citynotifier'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_citynotifier_admin_form'),
     'access arguments' => array('citynotifier administrator'),
-    'type' => MENU_CALLBACK,
     'file' => 'citynotifier.admin.inc',
+    'type' => MENU_CALLBACK
   );
     
   $items['richieste'] = array(
@@ -28,12 +29,13 @@ function citynotifier_menu() {
     'page callback' => 'citynotifier_report',
     'access arguments' => array('access content'),
     'access callback' => true,
+    'file' => 'citynotifier.admin.inc',
     'type' => MENU_CALLBACK,
     );
   
-  $items['notifica/%'] = array(
+  $items['notifica'] = array(
+    'title'=>t('Notifica'),
     'page callback' => 'citynotifier_notify',
-    'page arguments' => array(1),
     'access arguments' => array('access content'),
     'access callback' => true,
     'type' => MENU_CALLBACK,
