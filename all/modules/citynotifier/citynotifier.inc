@@ -2,7 +2,8 @@
 
 function citynotifier_report() {
   global $user;
-  
+  $time_const = 1200;
+
   header('Content-type: application/json');
   $data = drupal_json_decode(file_get_contents("php://input"));
   
@@ -15,10 +16,14 @@ function citynotifier_report() {
 
   $event_exist = _citynotifier_check_event($data);
   
-  if(!$event_exist)
-	_citynotifier_create_event($data);
-  else
-
+	if(!$event_exist || $event_exist['status'] == "archived")
+		$event_id = _citynotifier_create_event($data);
+	if($event_exist['status'] == "open")
+		$event_id = $event_exist['event_id'];
+	if($event_exist['status'] == "closed"){
+		//status scettico cosa fare?
+		$event_id = _citynotifier_update_event();
+	}
 
 	/* Casi
 	1) Non c'è evento, crealo
@@ -33,7 +38,7 @@ function citynotifier_report() {
    
   $record = array (
     "uid" => $user->uid,
-    "event_id" => 0,
+    "event_id" => $event_id,
     "created" => time(),
     "type" => $type,
     "subtype" => $subtype,
@@ -44,10 +49,24 @@ function citynotifier_report() {
 
   drupal_write_record("citynotifier_notify", $record);
 
-  $result = array("event_id" => $record['notify_id'], "result" => "nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo");
+  $result = array("event_id" => $record['event_id'], "result" => "nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo");
   
   drupal_add_http_header("Status", 200);
   echo drupal_json_output($result);
+}
+
+function _citynotifier_create_event($data) {
+	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
+
+	$record = array (
+		"type" => $type,
+		"subtype" => $subtype,
+		"status" => "open",
+	);
+
+	drupal_write_record("citynotifier_event", $record);
+
+	return $record['event_id'];
 }
 
 function _citynotifier_check_event($data) {
@@ -58,8 +77,8 @@ function _citynotifier_check_event($data) {
   $events = db_select("citynotifier_event", 'ce');
 	
   $events->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-
-  $events->fields('ce', array('event_id','status'));
+//l ultimo campo di fields dovrebbe essere sbagliato
+  $events->fields('ce', array('event_id','status','created'));
 
   $events->condition('cn.type', $type, '=')
 	->condition('cn.subtype', $subtype, '=')
