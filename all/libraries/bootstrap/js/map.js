@@ -16,6 +16,7 @@ function initialize() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+    getLocation();
 
 
     google.maps.event.addListener(map, 'click', function(event) {
@@ -47,22 +48,20 @@ function initialize() {
             map.panTo(point);
         });       
 
-        geocodePosition(new google.maps.LatLng(lat, lng));
-
+        geocodePosition(new google.maps.LatLng(lat, lng));	
     });
 }
 
 $('#search').on('click', function() {
-	
-	/*sizer.bindTo('map', this);
-    sizer.bindTo('position', this, 'sizer_position');*/
     
-    if (!(radiusWidgetCheck)){
+    if (!(radiusWidgetCheck) && userMarker){
         distanceWidget = new DistanceWidget(map);
         radiusWidgetCheck = true;
     }
         
     google.maps.event.addListener(distanceWidget, 'distance_changed', function() {
+    	if(radiusWidget.get('distance') != 0)
+    		distanceDefault = radiusWidget.get('distance');
         $('#searchRadius').val(Math.round(distanceDefault * 1000) / 1000 + " km");
     });
 
@@ -72,7 +71,11 @@ $('#search').on('click', function() {
 });
 
 $('#update').on('click', function() {
-    userMarker.setMap(null);
+	if(userMarker){	
+    	userMarker.setMap(null);
+    	userMarker = null;
+    }
+
     radiusWidgetCheck = false;
 });
 

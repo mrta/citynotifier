@@ -152,7 +152,7 @@ $("#notifyType").on('click', function() {
 
 $("#searchType").on('click', function() {
     var conceptName = $('#searchType').find(":selected").text();
-    if (conceptName != "Select Type") {
+    if (conceptName != "All") {
         $('#searchSubType').removeAttr("disabled");
         $('#searchSubType').html('<option disabled selected>Select subtype</option>');
         switch (conceptName) {
@@ -189,6 +189,10 @@ $("#searchType").on('click', function() {
 												<option>Concerto</option>');
                 break;
         }
+    }
+    else{
+    	$('#searchSubType').attr('disabled', 'disabled');
+    	$('#searchSubType').html('<option disabled selected>Select subtype</option>');
     }
 });
 
@@ -263,12 +267,24 @@ function sendNotify() {
 }
 
 
+/*****************GEOLOCALIZZAZIONE***************************/
+function getLocation() {
+    if (navigator.geolocation) {
+        // timeout at 60000 milliseconds (60 seconds)
+        var options = {timeout: 60000};
+        navigator.geolocation.getCurrentPosition(showLocation, errorHandler, options);
+    } else {
+        alert("Sorry, browser does not support geolocation!");
+    }
+}
 function showLocation(position) {
     var latitude = position.coords.latitude;
     var longitude = position.coords.longitude;
 
     if (userMarker)
         userMarker.setMap(null);
+    radiusWidgetCheck = false;
+        
     userMarker = new google.maps.Marker({
         position: new google.maps.LatLng(latitude, longitude),
         map: map,
@@ -278,6 +294,8 @@ function showLocation(position) {
     });
     map.panTo(new google.maps.LatLng(latitude, longitude));
     geocodePosition(new google.maps.LatLng(latitude, longitude));
+    $('#notify').parent().removeClass('open');
+    $('#search').parent().removeClass('open');
 }
 
 function errorHandler(err) {
@@ -287,18 +305,7 @@ function errorHandler(err) {
         alert("Error: Position is unavailable!");
     }
 }
-function getLocation() {
-
-    if (navigator.geolocation) {
-        // timeout at 60000 milliseconds (60 seconds)
-        var options = {timeout: 60000};
-        navigator.geolocation.getCurrentPosition(showLocation,
-                errorHandler,
-                options);
-    } else {
-        alert("Sorry, browser does not support geolocation!");
-    }
-}
+/********************************************/
 
 
 $("#search").next().delegate("#searchSubmit", "click", function() {
@@ -379,4 +386,11 @@ function searchEvent() {
      $('#notifyAddress').parent().removeClass("error");
      });*/
 }
+
+$('#liveButton').click(function(){
+    $(this).toggleClass('loading');
+    $(this).html() == "Stop Live" ? $('#timeMax').removeAttr('disabled') : $('#timeMax').attr('disabled', 'disabled');
+    $(this).html() == "Stop Live" ? $(this).html("Live") : $(this).html("Stop Live");
+    	
+});
 

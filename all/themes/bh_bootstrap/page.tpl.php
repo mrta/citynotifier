@@ -117,7 +117,7 @@
                                 <fieldset>
                                     <div class="control-group">
                                         <select id="searchType">
-                                            <option disabled selected>Select type</option>
+                                            <option selected>All</option>
                                             <option>Problemi stradali</option>
                                             <option>Emergenze sanitarie</option>
                                             <option>Reati</option>
@@ -126,7 +126,7 @@
                                         </select>
                                     </div>
                                     <div class="control-group">
-                                        <select id="searchSubType" >
+                                        <select disabled id="searchSubType">
                                             <option disabled selected>Select subtype</option>
                                         </select>
                                     </div>
@@ -137,9 +137,12 @@
                                         </button>
                                     </div>
                                     <input type="text" id="searchRadius" placeholder="Radius (km, es. '2.5')">
-                                    <select>
-                                        <option>From now</option>
-                                    </select>
+                                    <div class="input-append control-group">
+		                                <select id="timeMax">
+		                                    <option>From now</option>
+		                                </select>
+		                                <button id="liveButton" type="button" class="btn btn-info">Live</button>
+		                            </div>
                                     <select>
                                         <option>To time</option>
                                     </select>
