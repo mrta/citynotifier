@@ -1,5 +1,24 @@
 <?php
 
+function citynotifier_notify() {
+	header('Content-type: application/json');
+	$data = drupal_json_decode(file_get_contents("php://input"));
+
+	$event = db_select("citynotifier_event", 'ce')
+		->fields('ce', array('type','subtype','status'))
+		->execute()
+		->fetchAssoc();
+
+	$event['status'] = $data['status'];
+
+	drupal_write_record("citynotifier_event", $event, $data['event_id']);
+
+	$result = array("result" => "notifica inviata con successo");
+
+	drupal_add_http_header("Status", 200);
+	echo drupal_json_output($result);
+}
+
 function citynotifier_report() {
   global $user;
   $time_const = 1200;
