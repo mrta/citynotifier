@@ -38,6 +38,13 @@ function loginFunction() {
             data: loginJSON,
             contentType: "application/json; charset=utf-8",
             success: function(datiString, status, richiesta) {
+            	//success code
+       			var sessid = datiString.sessid;
+        		var session_name = datiString.session_name;      
+        		console.log('session_name',session_name);
+        		console.log('sessid',sessid);
+            
+            
                 $('#account').fadeOut(1000, function() {
                     $('#account').html((loginObj.username)[0].toUpperCase() + (loginObj.username).slice(1) + ' <i class="icon-user icon-white"></i>');
                     $('#account').fadeIn(1000);
