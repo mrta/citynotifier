@@ -1,8 +1,14 @@
 <?php
 
 function citynotifier_notify() {
-	header('Content-type: application/json');
-	$data = drupal_json_decode(file_get_contents("php://input"));
+  global $user;
+	header('Content-type: application/json; charset=utf-8');
+  $data = drupal_json_decode(file_get_contents("php://input"));
+  
+  if(!$user) {
+    drupal_add_http_header("Status", 401);
+    return drupal_json_output(array("result" => t("Per inviare una notifica bisogna essere loggati")));
+  }
 
 	$event = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('type','subtype','status'))
@@ -13,17 +19,15 @@ function citynotifier_notify() {
 
 	drupal_write_record("citynotifier_event", $event, $data['event_id']);
 
-	$result = array("result" => "notifica inviata con successo");
-
 	drupal_add_http_header("Status", 200);
-	echo drupal_json_output($result);
+	return drupal_json_output(array("result" => t("notifica inviata con successo")));
 }
 
 function citynotifier_report() {
   global $user;
   $time_const = 1200;
 
-  header('Content-type: application/json');
+  header('Content-type: application/json; charset=utf-8');
   $data = drupal_json_decode(file_get_contents("php://input"));
   
   $validation = _citynotifier_validate($data, "report");
