@@ -8,11 +8,12 @@ var radiusWidget;
 var radiusWidgetCheck = false;
 var distanceDefault = 2;
 
+
 function initialize() {
     var mapOptions = {
         disableDoubleClickZoom: true,
         zoom: 15,
-        center: new google.maps.LatLng(44.495281, 11.349735),
+        center: new google.maps.LatLng(44.494860,11.342598),
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
@@ -29,6 +30,7 @@ function initialize() {
             radiusWidget = null;
             
         $('#searchRadius').val(Math.round(distanceDefault * 1000) / 1000 + " km");
+        $('#searchRadius').val(($('#searchRadius').val().replace('.',',')));
 
         userMarker = new google.maps.Marker({
             position: new google.maps.LatLng(lat, lng),
@@ -40,20 +42,23 @@ function initialize() {
         
         radiusWidgetCheck = false;
 
-        google.maps.event.addListener(userMarker, 'dragend', function(event) {
-            var lat = event.latLng.lat();
-            var lng = event.latLng.lng();
-            geocodePosition(new google.maps.LatLng(lat, lng));
-            var point = userMarker.getPosition();
-            map.panTo(point);
-        });       
+        google.maps.event.addListener(userMarker, 'dragend', updateMarker);
 
         geocodePosition(new google.maps.LatLng(lat, lng));	
     });
 }
 
+function updateMarker(event){
+	var lat = event.latLng.lat();
+	var lng = event.latLng.lng();
+	geocodePosition(new google.maps.LatLng(lat, lng));
+	var point = userMarker.getPosition();
+	map.panTo(point);
+}
+
+
 $('#search').on('click', function() {
-    
+    	
     if (!(radiusWidgetCheck) && userMarker){
         distanceWidget = new DistanceWidget(map);
         radiusWidgetCheck = true;
@@ -63,6 +68,7 @@ $('#search').on('click', function() {
     	if(radiusWidget.get('distance') != 0)
     		distanceDefault = radiusWidget.get('distance');
         $('#searchRadius').val(Math.round(distanceDefault * 1000) / 1000 + " km");
+        $('#searchRadius').val(($('#searchRadius').val().replace('.',',')));
     });
 
     google.maps.event.addListener(distanceWidget, 'position_changed', function() {
@@ -70,7 +76,7 @@ $('#search').on('click', function() {
     });
 });
 
-$('#update').on('click', function() {
+$('#refresh').on('click', function() {
 	if(userMarker){	
     	userMarker.setMap(null);
     	userMarker = null;

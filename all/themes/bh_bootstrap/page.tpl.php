@@ -115,6 +115,7 @@
                         <ul class="dropdown-menu">
                             <form>
                                 <fieldset>
+                                
                                     <div class="control-group">
                                         <select id="searchType">
                                             <option selected>All</option>
@@ -125,47 +126,59 @@
                                             <option>Eventi pubblici</option>
                                         </select>
                                     </div>
+                                    
                                     <div class="control-group">
                                         <select disabled id="searchSubType">
                                             <option disabled selected>Select subtype</option>
                                         </select>
                                     </div>
+                                    
                                     <div class="input-append control-group">
                                         <input type="text" id="searchAddress" placeholder="Address">
                                         <button onclick="getLocation()" id="addressButton" class="btn" type="button">
                                             <i id="addressMarker" class="icon-map-marker"></i>
                                         </button>
                                     </div>
-                                    <input type="text" id="searchRadius" placeholder="Radius (km, es. '2.5')">
-                                    <div class="input-append control-group">
-		                                <select id="timeMax">
-		                                    <option>From now</option>
-		                                </select>
-		                                <button id="liveButton" type="button" class="btn btn-info">Live</button>
+                                    
+                                    <input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')">
+                                    
+			  						<div class="input-append date" id="dateMin" data-date="dateValue: startTime" data-date-format="dd-mm-yyyy" data-start-date="2013-01-01">
+										<input class="span2" type="text" placeholder="From time" data-bind="value: startTime" readonly="readonly" />
+	   									<span class="add-on"><i class="icon-calendar"></i></span>
+	   									<input type="text" class="timePicker span1" size="4" placeholder="20:30">
 		                            </div>
-                                    <select>
-                                        <option>To time</option>
-                                    </select>
+		                            
+		       
+		                            <div class="input-append date" id="dateMax" data-date="dateValue: toTime" data-date-format="dd-mm-yyyy">
+										<input class="span2" size="16" type="text" placeholder="To time" data-bind="value: toTime" readonly="readonly"/>
+		   								<span class="add-on"><i class="icon-calendar"></i></span>        
+				                    	<input type="text" class="timePicker span1" size="4" placeholder="20:30">
+				                    </div>
+				                   
+
+                                    
                                     <label class="checkbox inline">
                                         <input type="checkbox" value="" checked>
                                         Open
                                     </label>
+                                    
                                     <label class="checkbox inline">
                                         <input type="checkbox" value="">
                                         Closed
                                     </label>
+                                    
                                     <label class="checkbox">
                                         <input type="checkbox" value="">
                                         Skeptical
                                     </label>
-
-                                    <button id="searchSubmit" type="button" class="btn btn-inverse pull-right">Search</button>
+									
+                                    <button id="searchSubmit" type="button" class="btn btn-inverse pull-right">Search</button> 
                                 </fieldset>
                             </form>
                         </ul>
                     </li>
 
-                    <li><a href="#" id="update">Update <i class="icon-repeat icon-white"></i></a></li>
+                    <li><a href="#" id="refresh">Refresh <i class="icon-remove icon-white"></i></a></li>
 
                     <li class="divider-vertical"></li>
 
@@ -198,11 +211,16 @@
             <div class="container">
                 <ul class="nav pull-left">
                     <li>
-                        <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>
+                        <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>  
+                    </li>
+                    <li>
+                    	<p id="infoAddress" class="span3 text-center"> Pota pota pota </p>
                     </li>
                 </ul>
-                <ul>
-                    <p id="infoAddress" class="text-center"> Pota pota pota </p>
+                <ul class="nav pull-right">
+                	<li>
+                		<button id="liveButton" type="button" class="span1 btn btn-danger">Live <i class="icon-eye-open icon-white"></i></button>
+                	</li>
                 </ul>
             </div>
         </div>
@@ -302,4 +320,8 @@
 </div>
 
 <script src="http://code.jquery.com/jquery.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<script type='text/javascript' src="http://www.eyecon.ro/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="http://www.eyecon.ro/bootstrap-datepicker/css/datepicker.css">
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false"></script>
+

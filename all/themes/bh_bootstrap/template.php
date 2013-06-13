@@ -566,13 +566,15 @@ function bh_bootstrap_preprocess_page(&$variables, $hook) {
   $variables[sprintf(BH_BOOTSTRAP_PAGE_TEMPLATE_VARIABLE_PATTERN, 'content')] = BH_BOOTSTRAP_GRID_COLUMNS - $sidebar_total_width;
 
   // CSS
-  drupal_add_css($bootstrap_path . '/css/bootstrap.css', array('media' => 'all'));
-  drupal_add_css($bootstrap_path . '/css/bootstrap-responsive.css', array('media' => 'screen'));
+	drupal_add_css($bootstrap_path . '/css/bootstrap.css', array('media' => 'all'));
+	drupal_add_css($bootstrap_path . '/css/bootstrap-responsive.css', array('media' => 'screen'));
 	drupal_add_css($bootstrap_path . '/css/citynotifier.css', array('media' => 'all'));
+	//drupal_add_css($bootstrap_path . '/css/datepicker.css', array('media' => 'all'));
   // JS
-  drupal_add_js($bootstrap_path . '/js/bootstrap.min.js', array('scope' => 'footer'));
+	drupal_add_js($bootstrap_path . '/js/bootstrap.min.js', array('scope' => 'footer'));
 	drupal_add_js($bootstrap_path . '/js/map.js', array('scope' => 'footer'));
 	drupal_add_js($bootstrap_path . '/js/script.js', array('scope' => 'footer'));
+	//drupal_add_js($bootstrap_path . '/js/bootstrap-datepicker.js', array('scope' => 'footer'));
 
   // Main menu
   //

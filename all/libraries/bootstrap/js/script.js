@@ -295,15 +295,24 @@ function showLocation(position) {
     map.panTo(new google.maps.LatLng(latitude, longitude));
     geocodePosition(new google.maps.LatLng(latitude, longitude));
     $('#notify').parent().removeClass('open');
-    $('#search').parent().removeClass('open');
+    //$('#search').parent().removeClass('open');
+    
+    google.maps.event.addListener(userMarker, 'dragend', updateMarker);
 }
 
 function errorHandler(err) {
-    if (err.code == 1) {
-        alert("Error: Access is denied!");
-    } else if (err.code == 2) {
-        alert("Error: Position is unavailable!");
-    }
+    if (err.code == 1 || err.code == 2) {
+        alert("Error: Position is not available!");
+        userMarker = new google.maps.Marker({
+        position: new google.maps.LatLng(44.494860,11.342598),
+        map: map,
+        draggable: true,
+        title: "SONO QUI!",
+        animation: google.maps.Animation.DROP
+    });
+    
+   }
+    
 }
 /********************************************/
 
@@ -389,8 +398,17 @@ function searchEvent() {
 
 $('#liveButton').click(function(){
     $(this).toggleClass('loading');
-    $(this).html() == "Stop Live" ? $('#timeMax').removeAttr('disabled') : $('#timeMax').attr('disabled', 'disabled');
-    $(this).html() == "Stop Live" ? $(this).html("Live") : $(this).html("Stop Live");
+    if($(this).hasClass('loading')){
+    	$(this).removeClass('btn-danger');
+    	$(this).addClass('btn-success');
+     }      
+     else {
+      	$(this).removeClass('btn-success');
+    	$(this).addClass('btn-danger');
+      }
     	
 });
+
+$('#dateMin').datepicker();
+$('#dateMax').datepicker();
 
