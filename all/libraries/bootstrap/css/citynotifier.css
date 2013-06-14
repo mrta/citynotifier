@@ -41,8 +41,8 @@ form fieldset {
     color: silver;
 }
 
-.datepicker {
-	z-index: 3000
+div.datetimepicker {
+	z-index:3011!important;
 }
 
 

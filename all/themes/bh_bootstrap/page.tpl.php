@@ -142,21 +142,16 @@
                                     
                                     <input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')">
                                     
-			  						<div class="input-append date" id="dateMin" data-date="dateValue: startTime" data-date-format="dd-mm-yyyy" data-start-date="2013-01-01">
-										<input class="span2" type="text" placeholder="From time" data-bind="value: startTime" readonly="readonly" />
-	   									<span class="add-on"><i class="icon-calendar"></i></span>
-	   									<input type="text" class="timePicker span1" size="4" placeholder="20:30">
-		                            </div>
-		                            
-		       
-		                            <div class="input-append date" id="dateMax" data-date="dateValue: toTime" data-date-format="dd-mm-yyyy">
-										<input class="span2" size="16" type="text" placeholder="To time" data-bind="value: toTime" readonly="readonly"/>
-		   								<span class="add-on"><i class="icon-calendar"></i></span>        
-				                    	<input type="text" class="timePicker span1" size="4" placeholder="20:30">
-				                    </div>
-				                   
-
-                                    
+									<div class="input-append date" id="datetimepickerFrom" data-date="12-02-2012" data-date-format="dd-mm-yyyy">
+										<input type="text" value="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+    									<span class="add-on"><i class="icon-th"></i></span>
+									</div>
+									
+									<div class="input-append date" id="datetimepickerTo" data-date-format="dd-mm-yyyy">
+										<input type="text" value="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+    									<span class="add-on"><i class="icon-th"></i></span>
+									</div>
+                              
                                     <label class="checkbox inline">
                                         <input type="checkbox" value="" checked>
                                         Open
@@ -319,9 +314,6 @@
     </div>
 </div>
 
-<script src="http://code.jquery.com/jquery.js"></script>
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-<script type='text/javascript' src="http://www.eyecon.ro/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="http://www.eyecon.ro/bootstrap-datepicker/css/datepicker.css">
+<script src="http://code.jquery.com/jquery.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false"></script>
-

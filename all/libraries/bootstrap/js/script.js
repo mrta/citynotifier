@@ -416,6 +416,33 @@ $('#liveButton').click(function(){
     	
 });
 
-$('#dateMin').datepicker();
-$('#dateMax').datepicker();
+var date = new Date();
+var today = new Date();
+date.setMonth(date.getMonth() - 6, 1);
 
+
+/*$('#datetimepickerTo').datetimepicker({
+	initialDate: "13-05-2013",
+	format: 'yyyy-mm-dd hh:ii',
+	pickerPosition: 'bottom-left',
+	endDate: today,
+	autoclose: true,
+	todayBtn: true,
+	todayHighlight: true,
+	
+});*/
+
+$('#datetimepickerTo').datetimepicker({
+        format: "dd MM yyyy - hh:ii"
+});
+
+
+/*$('#datetimepickerFrom').datetimepicker({
+	format: 'yyyy-mm-dd hh:ii',
+	pickerPosition: 'bottom-left',
+	startDate: date,
+	autoclose: true,
+	todayBtn: true,
+	todayHighlight: true,
+	initialDate: today.getDate()
+});*/
