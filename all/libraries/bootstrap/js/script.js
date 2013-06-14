@@ -432,9 +432,9 @@ date.setMonth(date.getMonth() - 6, 1);
 	
 });*/
 
-$('#datetimepickerTo').datetimepicker({
+.datetimepicker({
         format: "dd MM yyyy - hh:ii"
-});
+    });
 
 
 /*$('#datetimepickerFrom').datetimepicker({
