@@ -142,13 +142,13 @@
                                     
                                     <input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')">
                                     
-									<div class="input-append date" id="datetimepickerFrom" data-date="12-02-2012" data-date-format="dd-mm-yyyy">
-										<input type="text" value="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+									<div class="input-append date" id="datetimepickerFrom" data-date-format="dd-mm-yyyy">
+										<input type="text" placeholder="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
 									
 									<div class="input-append date" id="datetimepickerTo" data-date-format="dd-mm-yyyy">
-										<input type="text" value="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+										<input type="text" placeholder="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
                               

@@ -416,33 +416,30 @@ $('#liveButton').click(function(){
     	
 });
 
-var date = new Date();
+var dateStart = new Date();
 var today = new Date();
-date.setMonth(date.getMonth() - 6, 1);
+dateStart.setMonth(dateStart.getMonth() - 6, 1);
+var todayUpdated = new Date(today.getTime() - 5*60000);
 
-
-/*$('#datetimepickerTo').datetimepicker({
-	initialDate: "13-05-2013",
-	format: 'yyyy-mm-dd hh:ii',
+$('#datetimepickerTo').datetimepicker({
+	format: 'dd-mm-yyyy hh:ii',
 	pickerPosition: 'bottom-left',
+	startDate: dateStart,
 	endDate: today,
 	autoclose: true,
 	todayBtn: true,
-	todayHighlight: true,
-	
-});*/
+	todayHighlight: true,	
+});
 
-$('#datetimepickerTo').datetimepicker({
-        format: "dd MM yyyy - hh:ii"
-    });
-
-
-/*$('#datetimepickerFrom').datetimepicker({
-	format: 'yyyy-mm-dd hh:ii',
+$('#datetimepickerFrom').datetimepicker({
+	format: 'dd-mm-yyyy hh:ii',
 	pickerPosition: 'bottom-left',
-	startDate: date,
+	startDate: dateStart,
+	endDate: todayUpdated,
 	autoclose: true,
 	todayBtn: true,
-	todayHighlight: true,
-	initialDate: today.getDate()
-});*/
+	todayHighlight: true
+});
+
+
+
