@@ -432,7 +432,7 @@ date.setMonth(date.getMonth() - 6, 1);
 	
 });*/
 
-.datetimepicker({
+$('#datetimepickerTo').datetimepicker({
         format: "dd MM yyyy - hh:ii"
     });
 
