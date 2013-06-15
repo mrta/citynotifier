@@ -8,13 +8,40 @@ $("#account").next().delegate('#pass', 'keypress', function(e) {
     }
 });
 
+/*------------------------------*/
 $("#search").next().delegate('#searchRadius', 'keypress', function(e) {
-    if (e.which === 13) {
-        radiusWidget.set('distance', $(searchRadius).val());
-        radiusWidget.center_changed();
-
-    }
+    if (e.which === 13){
+    	var klm = $('#searchRadius').val().split(" ")[0].replace(',','.');
+    	if(jQuery.isNumeric(klm) && klm > 0) {
+    	    radiusWidget.set('distance', klm);
+    	    radiusWidget.center_changed();
+    	    $('#searchRadius').parent().removeClass("error");
+    	}
+    	else if(!(jQuery.isNumeric(klm)) || klm <= 0){
+				$('#searchRadius').parent().addClass("error");
+				$('#searchRadius').val("Insert a valid radius");
+			}
+	}
 });
+$('#searchRadius').blur(function() {
+	var klm = $('#searchRadius').val().split(" ")[0].replace(',','.');
+	if(klm)
+	  	if(jQuery.isNumeric(klm) && klm > 0){
+	  		radiusWidget.set('distance', klm);
+		    radiusWidget.center_changed();
+		    $('#searchRadius').parent().removeClass("error");
+	  	}
+	  	else{
+	  		$('#searchRadius').parent().addClass("error");
+			$('#searchRadius').val("Insert a valid radius");
+	  	}
+});
+$("#searchRadius").on('click', function(){
+	if($('#searchRadius').parent().hasClass('error'))
+			$('#searchRadius').val('');
+});
+/*------------------------------*/
+
 
 function loginFunction() {
     xmlhttp = new XMLHttpRequest();
@@ -164,7 +191,8 @@ $("#searchType").on('click', function() {
         $('#searchSubType').html('<option disabled selected>Select subtype</option>');
         switch (conceptName) {
             case "Problemi stradali":
-                $('#searchSubType').html('<option disabled selected>Select subtype</option>\
+                $('#searchSubType').html('<option disabled>Select subtype</option>\
+                								<option selected>All</option>\
 												<option>Incidente</option>\
 												<option>Buca</option>\
 												<option>Coda</option>\
@@ -172,25 +200,29 @@ $("#searchType").on('click', function() {
 												<option>Strada impraticabile</option>');
                 break;
             case "Emergenze sanitarie":
-                $('#searchSubType').html('<option disabled selected>Select subtype</option>\
+                $('#searchSubType').html('<option disabled >Select subtype</option>\
+                								<option selected>All</option>\
 												<option>Incidente</option>\
 												<option>Malore</option>\
 												<option>Ferito</option>');
                 break;
             case "Reati":
-                $('#searchSubType').html('<option disabled selected>Select subtype</option>\
+                $('#searchSubType').html('<option disabled>Select subtype</option>\
+                								<option selected>All</option>\
 												<option>Furto</option>\
 												<option>Attentato</option>');
                 break;
             case "Problemi ambientali":
-                $('#searchSubType').html('<option disabled selected>Select subtype</option>\
+                $('#searchSubType').html('<option disabled>Select subtype</option>\
+                								<option selected>All</option>\
 												<option>Incendio</option>\
 												<option>Tornado</option>\
 												<option>Neve</option>\
 												<option>Alluvione</option>');
                 break;
             case "Eventi pubblici":
-                $('#searchSubType').html('<option disabled selected>Select subtype</option>\
+                $('#searchSubType').html('<option disabled>Select subtype</option>\
+                								<option selected>All</option>\
 												<option>Partita</option>\
 												<option>Manifestazione</option>\
 												<option>Concerto</option>');
@@ -223,7 +255,6 @@ function sendNotify() {
     notifyObj.type = notifyType;
     notifyObj.lat = latitude;
     notifyObj.lng = longitude;
-    alert(notifyObj.lat + " " + notifyObj.lng);
     notifyObj.description = $('#notifyDescription').val();
 
     /*var typeError = $('<span id="type_span" class="help-inline">Select a type</span>');
@@ -276,6 +307,8 @@ function sendNotify() {
 
 /*****************GEOLOCALIZZAZIONE***************************/
 function getLocation() {
+	$('#search').parent().removeClass('open');
+	$('#notify').parent().removeClass('open');
     if (navigator.geolocation) {
         // timeout at 60000 milliseconds (60 seconds)
         var options = {timeout: 60000};
@@ -307,17 +340,22 @@ function showLocation(position) {
     google.maps.event.addListener(userMarker, 'dragend', updateMarker);
 }
 
-function errorHandler(err) {
+function errorHandler(err) {	
+    if (userMarker)
+        userMarker.setMap(null);
+    radiusWidgetCheck = false;
+    
     if (err.code == 1 || err.code == 2) {
         alert("Error: Position is not available!");
         userMarker = new google.maps.Marker({
-        position: new google.maps.LatLng(44.494860,11.342598),
-        map: map,
-        draggable: true,
-        title: "SONO QUI!",
-        animation: google.maps.Animation.DROP
-    });
-    
+		    position: new google.maps.LatLng(44.494860,11.342598),
+		    map: map,
+		    draggable: true,
+		    title: "SONO QUI!",
+		    animation: google.maps.Animation.DROP
+    	});
+    geocodePosition(new google.maps.LatLng(44.494860, 11.342598));  
+    google.maps.event.addListener(userMarker, 'dragend', updateMarker);  
    }
     
 }
@@ -346,61 +384,47 @@ function searchEvent() {
 
     xmlhttp = new XMLHttpRequest();
     domain = "http://";
-
     var parameters = new Array();
     parameters["scope"] = "remote";
     parameters["type"] = ($('#searchType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
-    parameters["subtype"] = ($('#searchSubType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
-    parameters["lat"] = 44.495281; //CENTRO DI BOLOGNA
-    parameters["lng"] = 11.349735;
-    parameters["radius"] = 1000.0;
-    parameters["timemin"] = (d.getTime() - 1000 * 60 * 60); //DA 1 ORA FA
-    parameters["timemax"] = d.getTime()  //AD ORA
+    
+    var subtypeSelected = ($('#searchSubType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
+    if(subtypeSelected == "select_subtype")
+    	parameters["subtype"] = "all";
+    else
+    	parameters["subtype"] = subtypeSelected;
+    	
+    parameters["lat"] = latitude;
+    parameters["lng"] = longitude;
+    parameters["radius"] = radiusWidget.get('distance');
+    
+    
+    var timeMin = toTimestamp(parseDate($("#timeFromText").val().replace(/\-/g,'/')));
+    if(isNaN(timeMin))
+    	timeMin = toTimestamp(dateStart);
+    parameters["timemin"] = timeMin;
+    
+    var timeMax = toTimestamp(parseDate($("#timeToText").val().replace(/\-/g,'/')));
+    if(isNaN(timeMax))
+    	timeMax = toTimestamp(today);
+    parameters["timemax"] = timeMax;
+    
     parameters["status"] = "open";
-
+	
+	console.log("scope="+parameters["scope"]+"&type="+parameters["type"]+"&subtype="+parameters["subtype"]+"&lat="+parameters["lat"]+"&lng="+parameters["lng"]+"&radius="+parameters["radius"]+"&timemin="+parameters["timemin"]+"&timemax="+parameters["timemax"]+"&status="+parameters["status"]);
     url = domain.concat(document.location.hostname, buildUrl("/richieste", parameters));
 
-    /*var typeError = $('<span id="type_span" class="help-inline">Select a type</span>');
-     var subTypeError = $('<span id="sybtype_span" class="help-inline">Select a subtype</span>');*/
-    //var addressError = $('<span id="address_span">Select an address on map</span>');
-
-
-    if ((parameters["type"] != "select_type") && (parameters["subtype"] != "select_subtype")) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function(datiString, status, richiesta) {
-                $('#search').parent().removeClass('open');
-                alert("Ricerca Inviata..ecco i risultati!");
-            },
-            error: function(err) {
-                alert("Ajax Notify error");
-            }
-        });
-    }
-    /*if( (notifyType.type == "select_type") ){    
-     $('#notifyType').parent().addClass("error");
-     }
-     else
-     if( (notifyType.subtype == "select_subtype") && (!$('#notifySubType').attr('disabled')) ){
-     $('#notifySubType').parent().addClass("error");
-     }
-     if( !$('#notifyAddress').val() && $('#notifyAddress').next().is('button')){
-     $('#notifyAddress').parent().addClass("error");
-     $('#notifyAddress').next().addClass("btn-danger");
-     $('#addressMarker').addClass("icon-white");
-     $('#notifyAddress').next().after(addressError); //NON VA!!!!!!!!!!!!!!!!!
-     }
-     
-     $("#notifyType").on("change", function() {
-     $('#notifyType').parent().removeClass("error");
-     });
-     $("#notifySubType").on("change", function() {
-     $('#notifySubType').parent().removeClass("error");
-     });
-     $('#notifyAddress').on("keypress", function(){
-     $('#notifyAddress').parent().removeClass("error");
-     });*/
+    $.ajax({
+        url: url,
+        type: 'GET',
+        success: function(datiString, status, richiesta) {
+            $('#search').parent().removeClass('open');
+            alert("Ricerca Inviata..ecco i risultati!");
+        },
+        error: function(err) {
+            alert("Ajax Notify error");
+        }
+    });
 }
 
 $('#liveButton').click(function(){
@@ -408,28 +432,18 @@ $('#liveButton').click(function(){
     if($(this).hasClass('loading')){
     	$(this).removeClass('btn-danger');
     	$(this).addClass('btn-success');
+    	$('#timeToText').val('');
      }      
      else {
       	$(this).removeClass('btn-success');
-    	$(this).addClass('btn-danger');
-      }
-    	
+    	$(this).addClass('btn-danger');	
+      }	
 });
 
 var dateStart = new Date();
 var today = new Date();
-dateStart.setMonth(dateStart.getMonth() - 6, 1);
+dateStart.setMonth(dateStart.getMonth() - 6);
 var todayUpdated = new Date(today.getTime() - 5*60000);
-
-$('#datetimepickerTo').datetimepicker({
-	format: 'dd-mm-yyyy hh:ii',
-	pickerPosition: 'bottom-left',
-	startDate: dateStart,
-	endDate: today,
-	autoclose: true,
-	todayBtn: true,
-	todayHighlight: true,	
-});
 
 $('#datetimepickerFrom').datetimepicker({
 	format: 'dd-mm-yyyy hh:ii',
@@ -438,8 +452,36 @@ $('#datetimepickerFrom').datetimepicker({
 	endDate: todayUpdated,
 	autoclose: true,
 	todayBtn: true,
-	todayHighlight: true
+	todayHighlight: true,
+	initialDate: dateStart
 });
 
+$('#datetimepickerTo').datetimepicker({
+	format: 'dd-mm-yyyy hh:ii',
+	pickerPosition: 'bottom-left',
+	startDate: dateStart,
+	endDate: today,
+	autoclose: true,
+	todayBtn: true,
+	todayHighlight: true,
+});
+
+
+$('#timeToText').change(function(){
+      	$('#liveButton').removeClass('btn-success loading');
+    	$('#liveButton').addClass('btn-danger');
+});
+
+
+// parse a date in yyyy-mm-dd format
+function parseDate(input) {
+  var parts = input.split('/');
+  return ""+parts[1]+"/"+parts[0]+"/"+parts[2];
+}
+
+function toTimestamp(strDate){
+ var datum = Date.parse(strDate);
+ return datum/1000;
+}
 
 

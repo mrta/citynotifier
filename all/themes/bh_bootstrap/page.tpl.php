@@ -140,15 +140,17 @@
                                         </button>
                                     </div>
                                     
-                                    <input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')">
-                                    
+                                    <div class="control-group">
+                                    	<input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')">
+                                    </div>
+                                     
 									<div class="input-append date" id="datetimepickerFrom" data-date-format="dd-mm-yyyy">
-										<input type="text" placeholder="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+										<input type="text" id="timeFromText" placeholder="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
 									
 									<div class="input-append date" id="datetimepickerTo" data-date-format="dd-mm-yyyy">
-										<input type="text" placeholder="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+										<input type="text" id="timeToText" placeholder="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
                               
@@ -209,12 +211,12 @@
                         <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>  
                     </li>
                     <li>
-                    	<p id="infoAddress" class="span3 text-center"> Pota pota pota </p>
+                    	<p id="infoAddress" class="span4 offset3 text-center"> Pota pota pota </p>
                     </li>
                 </ul>
                 <ul class="nav pull-right">
                 	<li>
-                		<button id="liveButton" type="button" class="span1 btn btn-danger">Live <i class="icon-eye-open icon-white"></i></button>
+                		<button id="liveButton" type="button" class="span1 btn btn-success loading">Live <i class="icon-eye-open icon-white"></i></button>
                 	</li>
                 </ul>
             </div>
