@@ -1,19 +1,24 @@
 <?php
 
-function citynotifier_notify() {
-  global $user;
-	header('Content-type: application/json; charset=utf-8');
-  $data = drupal_json_decode(file_get_contents("php://input"));
-  
-  if(!$user) {
-    drupal_add_http_header("Status", 401);
-    return drupal_json_output(array("result" => t("Per inviare una notifica bisogna essere loggati")));
-  }
+$ARCHIVED = 0;
+$OPEN = 1;
+$CLOSED = 2;
+$SKEPTICAL = 3;
 
-	$event = db_select("citynotifier_event", 'ce')
+function citynotifier_notify() {
+	global $user;
+	header('Content-type: application/json; charset=utf-8');
+	$data = drupal_json_decode(file_get_contents("php://input"));
+
+	if(!$user) {
+		drupal_add_http_header("Status", 401);
+		return drupal_json_output(array("result" => t("Per inviare una notifica bisogna essere loggati")));
+	}
+
+	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('type','subtype','status'))
-		->execute()
-		->fetchAssoc();
+		->condition('ce.event_id', $data['event_id'], '=');
+	$event = $query->execute()->fetchAssoc();
 
 	$event['status'] = $data['status'];
 
@@ -24,28 +29,28 @@ function citynotifier_notify() {
 }
 
 function citynotifier_report() {
-  global $user;
-  $time_const = 1200;
+	global $user;
+	$time_const = 1200;
 
-  header('Content-type: application/json; charset=utf-8');
-  $data = drupal_json_decode(file_get_contents("php://input"));
-  
-  $validation = _citynotifier_validate($data, "report");
-  
-  if($validation['code'] <> 200) {
-    drupal_add_http_header("Status", $validation['code'], $validation['response']);
-    return;
-  }
+	header('Content-type: application/json; charset=utf-8');
+	$data = drupal_json_decode(file_get_contents("php://input"));
 
-  $event_exist = _citynotifier_check_event($data);
+	$validation = _citynotifier_validate($data, "report");
+
+	if($validation['code'] <> 200) {
+		drupal_add_http_header("Status", $validation['code'], $validation['response']);
+		return;
+	}
+
+	$event_exist = _citynotifier_check_event($data);
   
-	if(!$event_exist || $event_exist['status'] == "archived")
+	if(!$event_exist || $event_exist['status'] == $ARCHIVED)
 		$event_id = _citynotifier_create_event($data);
-	if($event_exist['status'] == "open")
+	if($event_exist['status'] == $OPEN)
 		$event_id = $event_exist['event_id'];
-	if($event_exist['status'] == "closed"){
+	if($event_exist['status'] == $CLOSED){
 		//status scettico cosa fare?
-		$event_id = _citynotifier_update_event();
+		//$event_id = _citynotifier_update_event();
 	}
 
 	/* Casi
@@ -84,7 +89,7 @@ function _citynotifier_create_event($data) {
 	$record = array (
 		"type" => $type,
 		"subtype" => $subtype,
-		"status" => "open",
+		"status" => $OPEN,
 	);
 
 	drupal_write_record("citynotifier_event", $record);
@@ -93,27 +98,23 @@ function _citynotifier_create_event($data) {
 }
 
 function _citynotifier_check_event($data) {
-  $range=10;
-  extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
-  
-  
-  $events = db_select("citynotifier_event", 'ce');
-	
-  $events->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-//l ultimo campo di fields dovrebbe essere sbagliato
-  $events->fields('ce', array('event_id','status','created'));
+	$range=0.005;
+	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
 
-  $events->condition('cn.type', $type, '=')
-	->condition('cn.subtype', $subtype, '=')
-	->condition('cn.lat', $data['lat']-$range,'>')
-	->condition('cn.lat', $data['lat']+$range,'<')
-	->condition('cn.lng', $data['lng']-$range,'>')
-	->condition('cn.lng', $data['lng']+$range,'<')
-	->orderby('cn.created', 'DESC')
-	->execute()
-	->fetchAssoc();
+	$query = db_select("citynotifier_event", 'ce');
+	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+	$query->fields('ce', array('event_id','status'))
+		->fields('cn', array('created'))
+		->condition('cn.type', $type, '=')
+		->condition('cn.subtype', $subtype, '=')
+		->condition('cn.lat', $data['lat']-$range,'>')
+		->condition('cn.lat', $data['lat']+$range,'<')
+		->condition('cn.lng', $data['lng']-$range,'>')
+		->condition('cn.lng', $data['lng']+$range,'<')
+		->orderby('cn.created', 'DESC');
+	$events = $query->execute()->fetchAssoc();
 
-  return $events;
+	return $events;
 }
 
 function _citynotifier_validate($data, $function_type=NULL) {
