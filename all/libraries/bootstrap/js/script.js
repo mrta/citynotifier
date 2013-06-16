@@ -420,7 +420,19 @@ function searchEvent() {
         success: function(datiString, status, richiesta) {
             $('#search').parent().removeClass('open');
             alert("Ricerca Inviata..ecco i risultati!");
-        },
+            for (var i in datiString.events) {
+                      console.log(datiString.events[i]);
+                      searchMarker = new google.maps.Marker({
+		    			position: new google.maps.LatLng(datiString.events[i].locations[0].lat,datiString.events[i].locations[0].lng),
+		    			map: map,
+		    			draggable: false,
+		    			title: datiString.events[i].event_id,
+		    			animation: google.maps.Animation.DROP
+    					});
+    					markersArray.push(searchMarker);
+			}
+
+ 		},
         error: function(err) {
             alert("Ajax Notify error");
         }

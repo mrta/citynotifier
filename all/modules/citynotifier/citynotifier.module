@@ -178,8 +178,8 @@ function citynotifier_request() {
 					      "reliability" => 0.2,
 					      "number_of_notifications" => 2,
 					      "locations" => array(
-					      					array("lat" => 37.42291810, "lng" => -122.08542120),
-								   			array("lat" => 37.42291811, "lng" => -122.08542120)
+					      					array("lat" => 44.501678, "lng" => 11.339865),
+								   			array("lat" => 44.501621, "lng" => 11.339682)
 								  		)
 		           		),
 				   		array(
@@ -192,10 +192,10 @@ function citynotifier_request() {
 					      "reliability" => 0.9,
 					      "number_of_notifications" => 4,
 					      "locations" => array(
-					      					array("lat" => 37.42291815, "lng" => -122.08542120),
-								   			array("lat" => 37.42291814, "lng" => -122.08542121),
-								   			array("lat" => 37.42291812, "lng" => -122.08542122),
-								   			array("lat" => 37.42291813, "lng" => -122.08542123)
+					      					array("lat" => 44.498885, "lng" => 11.345401),
+								   			array("lat" => 44.499253, "lng" => 11.345465),
+								   			array("lat" => 44.498954, "lng" => 11.345165),
+								   			array("lat" => 44.498748, "lng" => 11.345251)
 								  		)
 		           		)
 		           )

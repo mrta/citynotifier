@@ -8,6 +8,15 @@ var radiusWidget;
 var radiusWidgetCheck = false;
 var distanceDefault = 2;
 
+var markersArray = [];
+
+function clearOverlays() {
+  for (var i = 0; i < markersArray.length; i++ ) {
+    markersArray[i].setMap(null);
+  }
+  markersArray = [];
+}
+
 
 function initialize() {
     var mapOptions = {
@@ -81,7 +90,7 @@ $('#refresh').on('click', function() {
     	userMarker.setMap(null);
     	userMarker = null;
     }
-
+	clearOverlays();
     radiusWidgetCheck = false;
 });
 
