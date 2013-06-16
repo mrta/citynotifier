@@ -12,8 +12,14 @@ body .modal{
    margin-left: -450px;
 }
 
+.modal-body{
+	overflow-y: scroll;
+	height: 800px!important;
+}
+
 .modal .dropdown-menu{
 	padding: 10px;
+	
 }
 
 form fieldset {

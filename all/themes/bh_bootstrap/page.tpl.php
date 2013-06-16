@@ -243,7 +243,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <!--<tr>
                     <td>Stradale > Buca</td>
                     <td>23/06/2013 12:03</td>
                     <td>Via Fiesso, 7</td>
@@ -306,13 +306,12 @@
                         </div></td>
                     <td>13 / 0.81</td>
                     <td><button class="btn btn-danger">Closed</td>
-                </tr>
+                </tr>-->
             </tbody>
         </table>
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-        <button class="btn btn-primary">Save changes</button>
     </div>
 </div>
 

@@ -420,16 +420,77 @@ function searchEvent() {
         success: function(datiString, status, richiesta) {
             $('#search').parent().removeClass('open');
             alert("Ricerca Inviata..ecco i risultati!");
+            $('tbody').html('');
             for (var i in datiString.events) {
-                      console.log(datiString.events[i]);
-                      searchMarker = new google.maps.Marker({
-		    			position: new google.maps.LatLng(datiString.events[i].locations[0].lat,datiString.events[i].locations[0].lng),
-		    			map: map,
-		    			draggable: false,
-		    			title: datiString.events[i].event_id,
-		    			animation: google.maps.Animation.DROP
-    					});
-    					markersArray.push(searchMarker);
+				var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
+				var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
+				var description = datiString.events[i].description
+					
+				var date = new Date(datiString.events[i].start_time*1000);
+					var day = date.getDate();
+					var month = date.getMonth();
+					var year = date.getFullYear();
+					var hours = date.getHours();
+					var minutes = date.getMinutes();
+					var seconds = date.getSeconds();
+					var startTime = day+'/'+month+'/'+year+'\t'+ hours + ':' + minutes + ':' + seconds;
+					
+				var freshness = datiString.events[i].freshness;
+				
+				var status = datiString.events[i].status
+				status = status.charAt(0).toUpperCase() + status.slice(1);
+				switch (status) {
+					case "Open":
+						status = '<button class="btn btn-success">'+status;
+						break;
+					case "Closed":
+						status = '<button class="btn btn-danger">'+status;
+						break;
+					case "Skeptical":
+						status = '<button class="btn btn-warning">'+status;
+						break;	
+				}
+				
+				var reliability = datiString.events[i].reliability;
+				var numNot = datiString.events[i].number_of_notifications;
+				var lat = datiString.events[i].locations[0].lat;
+				var lng = datiString.events[i].locations[0].lng;
+			
+				searchMarker = new google.maps.Marker({
+				position: new google.maps.LatLng(datiString.events[i].locations[0].lat,datiString.events[i].locations[0].lng),
+				map: map,
+				draggable: false,
+				title: datiString.events[i].event_id,
+				animation: google.maps.Animation.DROP
+				});
+				markersArray.push(searchMarker);
+			
+				var latHtml = JSON.stringify(lat).replace(/\./g,"");
+				var lngHtml = JSON.stringify(lng).replace(/\./g,"");
+				
+				var descriptionHtml = "";
+				for ( j in description){
+					if(description[j]){
+						description[j] = description[j].charAt(0).toUpperCase() + description[j].slice(1);
+						descriptionHtml = descriptionHtml.concat('<li><p>'+description[j]+'</p></li>');
+						}
+				}
+				
+				
+				$('tbody').append('<tr>\
+									<td>'+type+' > '+subtype+'</td>\
+									<td>'+startTime+'</td>\
+									<td id='+latHtml+''+lngHtml+'></td>\
+									<td><div class="btn-group">\
+										<a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
+										<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
+									</div></td>\
+									<td>'+numNot+' / '+reliability+'</td>\
+									<td>'+status+'</td>\
+									</tr>');
+									
+				geocodePosition(new google.maps.LatLng(lat, lng));
+			
 			}
 
  		},

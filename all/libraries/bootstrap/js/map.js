@@ -9,6 +9,7 @@ var radiusWidgetCheck = false;
 var distanceDefault = 2;
 
 var markersArray = [];
+var addressArray = [];
 
 function clearOverlays() {
   for (var i = 0; i < markersArray.length; i++ ) {
@@ -111,6 +112,8 @@ var geocoder = new google.maps.Geocoder();
 var latitude;
 var longitude;
 
+var pota;
+
 function geocodePosition(position) {
     geocoder.geocode({latLng: position}, function(matchingAddresses, status) {
         if (status == google.maps.GeocoderStatus.OK) {
@@ -123,6 +126,9 @@ function geocodePosition(position) {
                 $('#notifyAddress').parent().removeClass("error");
                 $('#notifyAddress').next().removeClass("btn-danger");
                 $('#addressMarker').removeClass("icon-white");
+                
+                $latlng = ((position.jb)+''+Math.round(position.kb * 1000000) / 1000000).replace(/\./g,"");
+                $('#'+$latlng).html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
             }
             else
                 alert('Cannot determine address at this location.');
