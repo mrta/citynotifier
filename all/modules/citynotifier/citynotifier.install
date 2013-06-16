@@ -10,6 +10,39 @@ function citynotifier_install() {
   
   variable_set('citynotifier_settings_catalogue', '');
   variable_set('citynotifier_settings_servers', array('servers' => array()));
+  
+  /** Add field reputation to user profile **/
+  
+  if(!field_info_field($reputation_field_name)) {
+    $field = array(
+      'field_name'    => "reputation",
+      'type'          => 'number_integer',
+      'locked'        => TRUE,
+      'module'        => 'citynotifier'
+      );
+    field_create_field($field);
+    
+    $field_instance = array(
+      'field_name'    => "reputation",
+      'entity_type'   => 'user', // change this to 'node' to add attach the field to a node
+      'bundle'        => 'user', // if chosen 'node', type here the machine name of the content type. e.g. 'page'
+      'required'      => TRUE,
+      'default_value' => array(0 => array('value' => 0)),
+      'label'         => t('Reputazione'),
+      'description'   => t('Reputazione dell\'utente'),
+      'widget'        => array(
+        'type'      => 'number',
+        'weight'    => 5,
+        ),
+      'formatter'     => array(
+        'label'     => t('field formatter label'),
+        'format'    => 'text_default'
+        ),
+      'settings'      => array(
+        )
+      );
+    field_create_instance($field_instance);
+  }
 }
 
 /**
@@ -21,6 +54,9 @@ function citynotifier_uninstall() {
   
   variable_del('citynotifier_settings_catalogue');
   variable_del('citynotifier_settings_servers');
+  
+  /** Delete field reputation from user profile **/
+  field_delete_field("reputation");
 }
 
 
