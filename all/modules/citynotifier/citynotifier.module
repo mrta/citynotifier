@@ -167,32 +167,38 @@ function citynotifier_request() {
   $fake_resp = array("request_time" => 1368095111,
 		"result" => "Messaggio di servizio",
 		"from_server" => "http://ltw1234.web.cs.unibo.it",
-		"events" => array("event_id" => "902438",
-			          "type" => array("type" => "problemi_stradali", "subtype" => "incidente"),
-			          "description" => array("ommioddio","come na catapulta","","",""),
-			          "start_time" => 1368045665,
-			          "freshness" => 1368085800,
-		                  "status" => "open",
-			          "reliability" => 0.8,
-			          "number_of_notifications" => 2,
-			          "locations" => array(array("lat" => 37.42291810, "lng" => -122.08542120),
-						       array("lat" => 37.42291811, "lng" => -122.08542120)
-						      )
-               			  ),
-			    array("event_id" => "902438",
-			          "type" => array("type" => "problemi_stradali", "subtype" => "incidente"),
-			          "description" => array("mi hanno tamponato","dottore chiami un dottore","che guaio","descr4","descr5"),
-			          "start_time" => 1368105698,
-			          "freshness" => 1368106058,
-		                  "status" => "open",
-			          "reliability" => 0.9,
-			          "number_of_notifications" => 4,
-			          "locations" => array(array("lat" => 37.42291815, "lng" => -122.08542120),
-						       array("lat" => 37.42291814, "lng" => -122.08542121),
-						       array("lat" => 37.42291812, "lng" => -122.08542122),
-						       array("lat" => 37.42291813, "lng" => -122.08542123)
-						      )
-               			  )
+		"events" => array(
+						array(
+						  "event_id" => "902438",
+					      "type" => array("type" => "problemi_stradali", "subtype" => "incidente"),
+					      "description" => array("ommioddio","come na catapulta","","",""),
+					      "start_time" => 1368045665,
+					      "freshness" => 1368085800,
+				          "status" => "open",
+					      "reliability" => 0.2,
+					      "number_of_notifications" => 2,
+					      "locations" => array(
+					      					array("lat" => 37.42291810, "lng" => -122.08542120),
+								   			array("lat" => 37.42291811, "lng" => -122.08542120)
+								  		)
+		           		),
+				   		array(
+					      "event_id" => "902439",
+					      "type" => array("type" => "problemi_stradali", "subtype" => "incidente"),
+					      "description" => array("mi hanno tamponato","dottore chiami un dottore","che guaio","descr4","descr5"),
+					      "start_time" => 1368105698,
+					      "freshness" => 1368106058,
+				          "status" => "open",
+					      "reliability" => 0.9,
+					      "number_of_notifications" => 4,
+					      "locations" => array(
+					      					array("lat" => 37.42291815, "lng" => -122.08542120),
+								   			array("lat" => 37.42291814, "lng" => -122.08542121),
+								   			array("lat" => 37.42291812, "lng" => -122.08542122),
+								   			array("lat" => 37.42291813, "lng" => -122.08542123)
+								  		)
+		           		)
+		           )
                );
   citynotifier_debug($fake_resp);
   drupal_add_http_header("Status", 200);
