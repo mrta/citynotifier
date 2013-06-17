@@ -170,42 +170,13 @@ function citynotifier_request() {
     drupal_add_http_header("Status", $validation['code'], $validation['response']);
     return;
   }
-_citynotifier_create_event_to_resp(); 
+
+  $events = _citynotifier_create_event_to_resp(); 
+
   $fake_resp = array("request_time" => 1368095111,
 		"result" => "Messaggio di servizio",
 		"from_server" => "http://ltw1234.web.cs.unibo.it",
-		"events" => array(
-						array(
-						  "event_id" => "902438",
-					      "type" => array("type" => "problemi_stradali", "subtype" => "incidente"),
-					      "description" => array("ommioddio","come na catapulta","","",""),
-					      "start_time" => 1368045665,
-					      "freshness" => 1368085800,
-				          "status" => "open",
-					      "reliability" => 0.2,
-					      "number_of_notifications" => 2,
-					      "locations" => array(
-					      					array("lat" => 44.501678, "lng" => 11.339865),
-								   			array("lat" => 44.501621, "lng" => 11.339682)
-								  		)
-		           		),
-				   		array(
-					      "event_id" => "902439",
-					      "type" => array("type" => "problemi_stradali", "subtype" => "incidente"),
-					      "description" => array("mi hanno tamponato","dottore chiami un dottore","che guaio","descr4","descr5"),
-					      "start_time" => 1368105698,
-					      "freshness" => 1368106058,
-				          "status" => "open",
-					      "reliability" => 0.9,
-					      "number_of_notifications" => 4,
-					      "locations" => array(
-					      					array("lat" => 44.498885, "lng" => 11.345401),
-								   			array("lat" => 44.499253, "lng" => 11.345465),
-								   			array("lat" => 44.498954, "lng" => 11.345165),
-								   			array("lat" => 44.498748, "lng" => 11.345251)
-								  		)
-		           		)
-		           )
+		"events" => $events
                );
   
   drupal_add_http_header("Status", 200);

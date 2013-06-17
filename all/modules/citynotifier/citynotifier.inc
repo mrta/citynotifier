@@ -186,8 +186,10 @@ function _citynotifier_create_event_to_resp() {
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id','type','subtype','status'));
+$query->fields('cn', array('lat','lng'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
+	$query->addExpression(('3956 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
 	$query->condition('ce.type', $type, '=')
 		->condition('ce.subtype', $subtype, '=')
 		/*->condition('cn.lat', $latmin,'>')
@@ -196,18 +198,33 @@ function _citynotifier_create_event_to_resp() {
 		->condition('cn.lng', $lonmin,'<')
 		->condition('ce.status', $status,'=')*/
 		->havingCondition('freshness', $_GET['timemin'], '>=')
-		->havingCondition('freshness', $_GET['timemax'], '<');
+		->havingCondition('freshness', $_GET['timemax'], '<')
+		->havingCondition('distance', $_GET['radius'], '<');
 	$query->groupBy('ce.event_id');
 
 	$events = $query->execute();//->fetchAll();
 
+$events_result = array();
+
+//citynotifier_debug($events);
 	foreach($events as $event){
+
+$event_result = array();
+$event_result['event_id'] = $event->event_id;
+$event_result['type'] = $event->type;
+$event_result['subtype'] = $event->subtype;
+$event_result['status'] = $event->status;
+$event_result['start_time'] = $event->start;
+$event_result['freshness'] = $event->freshness;
+
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 		$query->addExpression('COUNT(*)', 'number_of_notifications');
 		$query->condition('ce.event_id', $event->event_id, '=');
 		$query->groupBy('ce.event_id');
-		$nOn = $query->execute()->fetchAll();
+		$nOn = $query->execute()->fetchAssoc();
+
+$event_result['number_of_notifications'] = $nOn['number_of_notifications'];
 
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -223,8 +240,10 @@ function _citynotifier_create_event_to_resp() {
 			$sum = $sum + (1 + $rep['value'] * $ass);
 		}
 
-		$reliability = $sum/(2*$nOn->number_of_notification);
-citynotifier_debug($reliability);
+		$reliability = $sum/(2*$nOn->number_of_notifications);
+
+$event_result['reliability'] = $reliability;
+
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 		$query->fields('cn', array('lat','lng','description'));
@@ -240,9 +259,12 @@ citynotifier_debug($reliability);
 			array_push($locations, $location);
 			array_push($descriptions, $pippo->description);
 		}
+$event_result['description'] = $descriptions;
+$event_result['locations'] = $locations;
+array_push($events_result, $event_result);
 	}
-
-	return $events;
+//citynotifier_debug($events_result);
+	return $events_result;
 }
 
 function citynotifier_get_assiduity($uid) {
