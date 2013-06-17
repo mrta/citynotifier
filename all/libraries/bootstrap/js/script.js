@@ -542,7 +542,7 @@ function searchEvent() {
     if(isNaN(timeMax))
     	timeMax = toTimestamp(today);
     parameters["timemax"] = timeMax;
-    
+    console.log(timeMax);
     parameters["status"] = "open";
 	
 	console.log("scope="+parameters["scope"]+"&type="+parameters["type"]+"&subtype="+parameters["subtype"]+"&lat="+parameters["lat"]+"&lng="+parameters["lng"]+"&radius="+parameters["radius"]+"&timemin="+parameters["timemin"]+"&timemax="+parameters["timemax"]+"&status="+parameters["status"]);
