@@ -200,56 +200,6 @@ _citynotifier_create_event_to_resp();
 
 }
 
-function _citynotifier_create_event_to_resp() {
-	$status = _citynotifier_get_index_status($_GET['status']);
-	extract(_citynotifier_get_index_type_subtype($data, 1), EXTR_OVERWRITE);
-
-	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
-	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
-
-	$latmin = $_GET['lat']-($_GET['radius']/69);
-	$latmax = $_GET['lat']+($_GET['radius']/69);
-
-/*	$query = db_query("SELECT event_id, lat, lng, 3956 * 2 * ASIN(SQRT(POWER(SIN((".$_GET['lat']." -lat) * pi()/180 / 2), 2) +COS(".$_GET['lat']." * pi()/180) * COS(lat * pi()/180) *POWER(SIN((".$_GET['lng']." -lon) * pi()/180 / 2), 2) )) as distance 
-		FROM citynotifier_notify
-		WHERE lng between $lonmin and $lonmax and lat between $latmin and $latmax 
-		having distance < ".$_GET['radius']." ORDER BY Distance limit 10;"
-		)->fetchAll;*/
-
-	$query = db_select("citynotifier_event", 'ce');
-	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	$query->fields('ce', array('event_id','type','subtype','status'));
-	$query->addExpression('MAX(cn.created)', 'freshness');
-	$query->addExpression('MIN(cn.created)', 'start');
-	$query->condition('ce.type', $type, '=')
-		->condition('ce.subtype', $subtype, '=')
-		/*->condition('cn.lat', $latmin,'>')
-		->condition('cn.lat', $latmax,'<')
-		->condition('cn.lng', $lonmax,'>')
-		->condition('cn.lng', $lonmin,'<')*/
-		->condition('ce.status', $status,'=')
-		->havingCondition('freshness', $_GET['timemin'], '>')
-		->havingCondition('freshness', $_GET['timemax'], '<');
-	$query->groupBy('ce.event_id');
-
-	$events = $query->execute();//->fetchAll();
-
-	foreach($events as $event){
-		$query = db_select("citynotifier_event", 'ce');
-		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-//		$query->fields('cn', array('uid','lat','lng','description'));
-		$query->addExpression('COUNT(*)', 'number_of_notifications');
-		$query->condition('ce.event_id', $event->event_id, '=');
-		$query->groupBy('ce.event_id');
-		$nOn = $query->execute()->fetchAll();
-//$profile = user_load($uid);
-
-citynotifier_debug($nOn);
-	}
-
-	return $events;
-}
-
 function citynotifier_debug($data) {
   if (is_array($data) || is_object($data))
     $data = print_r($data, TRUE);
