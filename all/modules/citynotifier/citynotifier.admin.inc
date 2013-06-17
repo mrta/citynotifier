@@ -45,6 +45,7 @@ function _citynotifier_admin_form_submit($form_id, &$form_state) {
     };
     
     variable_set('citynotifier_settings_servers', $servers);
+    variable_set('citynotifier_settings_catalogue', $form_state['values']['catalogue']);
     drupal_set_message(t('Aggiornato il catalogo.'));
   }
   else {
