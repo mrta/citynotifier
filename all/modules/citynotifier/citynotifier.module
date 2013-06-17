@@ -117,7 +117,7 @@ function citynotifier_login() {
       
       watchdog('citynotifier', t('Si è loggato l\'utente %name.'), array('%name' => $user->name));
       drupal_add_http_header("Status", 200);
-      return drupal_json_output(array("result" => t("login effettuato con successo"), "session_id" => session_id(), "session_name" => session_name()));
+      return drupal_json_output(array("result" => t("login effettuato con successo"), "username" => $user->name, "session_id" => session_id(), "session_name" => session_name()));
     }
   }
   
