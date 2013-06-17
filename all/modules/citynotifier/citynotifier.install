@@ -9,7 +9,7 @@ function citynotifier_install() {
   drupal_install_schema('citynotifier_event');
   
   variable_set('citynotifier_settings_catalogue', '');
-  variable_set('citynotifier_settings_servers', array('servers' => array()));
+  variable_set('citynotifier_settings_servers', '');
   
   /** Add field reputation to user profile **/
   

@@ -16,7 +16,6 @@ function citynotifier_admin($form, &$form_state) {
     '#value' => t('Aggiorna'),
     );
   
-  
   if(variable_get('citynotifier_settings_servers', "")) {
     $header = array(
       'subscribed' => t('Sottoscrivi'),
@@ -91,8 +90,11 @@ function theme_citynotifier_admin($variables) {
   $rows = array();
 
   $form = $variables['form'];
+  
+  if(!isset($form['servers']))
+    return drupal_render_children($form);
+  
   foreach (element_children($form['servers']) as $server) {
-
     $row = array();
     $row[] = drupal_render($form['servers'][$server]['subscribed']);
     $row[] = drupal_render($form['servers'][$server]['name']);
