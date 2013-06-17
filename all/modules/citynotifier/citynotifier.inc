@@ -1,10 +1,5 @@
 <?php
 
-$ARCHIVED = 0;
-$OPEN = 1;
-$CLOSED = 2;
-$SKEPTICAL = 3;
-
 function citynotifier_notify() {
 	global $user;
 	header('Content-type: application/json; charset=utf-8');
@@ -44,11 +39,11 @@ function citynotifier_report() {
 
 	$event_exist = _citynotifier_check_event($data);
   
-	if(!$event_exist || $event_exist['status'] == $ARCHIVED)
+	if(!$event_exist || $event_exist['status'] == _citynotifier_get_index_status("archived"))
 		$event_id = _citynotifier_create_event($data);
-	if($event_exist['status'] == $OPEN)
+	if($event_exist['status'] == _citynotifier_get_index_status("open"))
 		$event_id = $event_exist['event_id'];
-	if($event_exist['status'] == $CLOSED){
+	if($event_exist['status'] == _citynotifier_get_index_status("closed")){
 		//status scettico cosa fare?
 		//$event_id = _citynotifier_update_event();
 	}
@@ -89,7 +84,7 @@ function _citynotifier_create_event($data) {
 	$record = array (
 		"type" => $type,
 		"subtype" => $subtype,
-		"status" => $OPEN,
+		"status" => _citynotifier_get_index_status("open"),
 	);
 
 	drupal_write_record("citynotifier_event", $record);
@@ -149,7 +144,7 @@ function _citynotifier_validate($data, $function_type=NULL) {
   return array("code" => 200, "response" => '');
 }
 
-function _citynotifier_get_index_type_subtype($data) {
+function _citynotifier_get_index_type_subtype($data, $get = null) {
   $types = array("all" => array("all"),
                  "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
                  "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
@@ -161,6 +156,17 @@ function _citynotifier_get_index_type_subtype($data) {
   $validate_subtype = FALSE;
   $type=array_keys($types);
 
+  if($get)
+	return array("type" => array_search($_GET['type'], $type), "subtype" => array_search($_GET['subtype'], $types[$_GET['type']]));
   return array("type" => array_search($data['type']['type'], $type), "subtype" => array_search($data['type']['subtype'], $types[$data['type']['type']]));
 }
+
+function _citynotifier_get_index_status($status){
+	$array_status = array(0 => "archived", 1 => "open", 2 => "closed", 3 => "skeptical");
+
+	return array_search($status, $array_status);
+}
+
+
+
 
