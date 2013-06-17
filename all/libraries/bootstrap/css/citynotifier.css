@@ -42,6 +42,10 @@ form fieldset {
 	margin-top: 10px;	
 }
 
+#notify {
+	visibility: hidden;
+}
+
 #infoAddress{
     margin-top:10px;
     color: silver;

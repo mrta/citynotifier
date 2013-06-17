@@ -154,20 +154,13 @@
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
                               
-                                    <label class="checkbox inline">
-                                        <input type="checkbox" value="" checked>
-                                        Open
-                                    </label>
-                                    
-                                    <label class="checkbox inline">
-                                        <input type="checkbox" value="">
-                                        Closed
-                                    </label>
-                                    
-                                    <label class="checkbox">
-                                        <input type="checkbox" value="">
-                                        Skeptical
-                                    </label>
+                                    <div class="control-group">
+                                        <select class="span2" id="searchStatus">
+                                            <option selected>Open</option>
+                                            <option>Closed</option>
+                                            <option>Skeptical</option>
+                                        </select>
+                                    </div>
 									
                                     <button id="searchSubmit" type="button" class="btn btn-inverse pull-right">Search</button> 
                                 </fieldset>
