@@ -198,7 +198,13 @@ function RadiusWidget() {
 
 
     // Set the distance property value, default to 50km.
-    this.set('distance', distanceDefault);
+    if(jQuery.cookie('last_radius') && distanceDefault == 2){
+    	var radiusSplitted = jQuery.cookie('last_radius').split(" ");
+    	this.set('distance', radiusSplitted[0].replace(',','.'));
+    	distanceDefault = radiusSplitted[0].replace(',','.');
+    	}
+    else
+    	this.set('distance', distanceDefault);
 
     // Bind the RadiusWidget bounds property to the circle bounds property.
     this.bindTo('bounds', circle);

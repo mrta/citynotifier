@@ -1,3 +1,102 @@
+var firstTime = 0;
+
+$('.brand').on('click', function(){
+	console.log(jQuery.cookie());
+});
+
+$(window).unload(function() {
+	if(jQuery.cookie('session_user')){
+		jQuery.cookie('last_type', $('#searchType').val());
+		jQuery.cookie('last_subtype', $('#searchSubType').val());
+		jQuery.cookie('last_address', $('#searchAddress').val());
+		jQuery.cookie('last_radius', $('#searchRadius').val());
+		jQuery.cookie('last_status', $('#searchStatus').val());
+		jQuery.cookie('last_timeFrom', $('#timeFromText').val());
+		jQuery.cookie('last_timeTo', $('#timeToText').val());
+	
+		jQuery.cookie('last_lat', latitude);
+		jQuery.cookie('last_lng', longitude);
+	}
+});
+
+$(document).ready(function(){
+	if(jQuery.cookie('session_user')){
+		$('#account').fadeOut(1000, function() {
+                    $('#account').html((jQuery.cookie('session_user'))[0].toUpperCase() + (jQuery.cookie('session_user')).slice(1) + ' <i class="icon-user icon-white"></i>');
+                    $('#account').fadeIn(1000);
+                    $('#notify').css('visibility','visible').hide().fadeIn(1000);
+        });
+
+        $('#account').next().empty();
+        $('#account').next().html('<div id="logout-form"><button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
+        $('#account').parent().removeClass('open');          
+        
+        if(jQuery.cookie('last_type') == "All"){
+        	$('#searchType').val(jQuery.cookie('last_type'));
+        }
+        else{
+        	$('#searchType').val(jQuery.cookie('last_type'));
+        	$('#searchSubType').removeAttr("disabled");
+		    $('#searchSubType').html('<option disabled selected>Select subtype</option>');
+		    switch (jQuery.cookie('last_type')) {
+		        case "Problemi stradali":
+		            $('#searchSubType').html('<option disabled>Select subtype</option>\
+		            								<option>All</option>\
+													<option>Incidente</option>\
+													<option>Buca</option>\
+													<option>Coda</option>\
+													<option>Lavori in corso</option>\
+													<option>Strada impraticabile</option>');
+		            break;
+		        case "Emergenze sanitarie":
+		            $('#searchSubType').html('<option disabled >Select subtype</option>\
+		            								<option>All</option>\
+													<option>Incidente</option>\
+													<option>Malore</option>\
+													<option>Ferito</option>');
+		            break;
+		        case "Reati":
+		            $('#searchSubType').html('<option disabled>Select subtype</option>\
+		            								<option>All</option>\
+													<option>Furto</option>\
+													<option>Attentato</option>');
+		            break;
+		        case "Problemi ambientali":
+		            $('#searchSubType').html('<option disabled>Select subtype</option>\
+		            								<option>All</option>\
+													<option>Incendio</option>\
+													<option>Tornado</option>\
+													<option>Neve</option>\
+													<option>Alluvione</option>');
+		            break;
+		        case "Eventi pubblici":
+		            $('#searchSubType').html('<option disabled>Select subtype</option>\
+		            								<option>All</option>\
+													<option>Partita</option>\
+													<option>Manifestazione</option>\
+													<option>Concerto</option>');
+		            break;
+		    }
+		    $("#searchSubType option:contains("+jQuery.cookie('last_subtype')+")").attr("selected","selected");
+		}
+        	
+        
+        $('#searchAddress').val(jQuery.cookie('last_address'));
+        
+        $('#searchRadius').val(jQuery.cookie('last_radius'));
+        
+        $('#searchStatus').val(jQuery.cookie('last_status'));
+        $('#timeFromText').val(jQuery.cookie('last_timeFrom')); 
+        	
+        $('#timeToText').val(jQuery.cookie('last_timeTo')); 
+        if($('#timeToText').val()){
+			$('#liveButton').removeClass('btn-success loading');
+			$('#liveButton').addClass('btn-danger');
+		}
+     }
+});
+
+
 $("#account").next().delegate("#login", "click", function() {
     loginFunction();
 });
@@ -66,15 +165,22 @@ function loginFunction() {
             contentType: "application/json; charset=utf-8",
             success: function(datiString, status, richiesta) {
             	//success code
-       			var sessid = datiString.sessid;
-        		var session_name = datiString.session_name;      
-        		console.log('session_name',session_name);
-        		console.log('sessid',sessid);
-            
+       			var session_id = datiString.session_id;
+        		var session_name = datiString.session_name;   
+        		var session_user = datiString.username;   
+        		console.log("Creo la sessione di nome "+session_name+" con id "+session_id);
+        		
+        		jQuery.cookie('session_name', session_name);
+        		jQuery.cookie('session_id', session_id);
+        		jQuery.cookie('session_user', session_user);
+        		
+        		
+            	 
             
                 $('#account').fadeOut(1000, function() {
                     $('#account').html((loginObj.username)[0].toUpperCase() + (loginObj.username).slice(1) + ' <i class="icon-user icon-white"></i>');
                     $('#account').fadeIn(1000);
+                    $('#notify').css('visibility','visible').hide().fadeIn(1000);
                 });
 
                 $('#account').next().empty();
@@ -109,7 +215,8 @@ function loginFunction() {
 
 $("#account").next().delegate("#logout", "click", function() {
     xmlhttp = new XMLHttpRequest();
-    url = 'http://ltw1306.web.cs.unibo.it/logout';
+    domain = "http://";
+    url = domain.concat(document.location.hostname, "/logout");
 
     $('#account').fadeOut(1000, function() {
         $('#account').html("Account " + '<i class="icon-user icon-white"></i>');
@@ -135,6 +242,22 @@ $("#account").next().delegate("#logout", "click", function() {
         method: 'POST',
         data: null,
         success: function(datiString, status, richiesta) {
+        	jQuery.removeCookie('session_name');
+        	jQuery.removeCookie('session_id');
+        	jQuery.removeCookie('session_user');
+        	
+        	jQuery.removeCookie('last_type');
+			jQuery.removeCookie('last_subtype');
+			jQuery.removeCookie('last_address');
+			jQuery.removeCookie('last_radius');
+			jQuery.removeCookie('last_status');
+			jQuery.removeCookie('last_timeFrom');
+			jQuery.removeCookie('last_timeTo');
+	
+			jQuery.removeCookie('last_lat');
+			jQuery.removeCookie('last_lng');
+        	
+        	$('#notify').fadeOut(1000);
         },
         error: function(err) {
         }
@@ -347,14 +470,25 @@ function errorHandler(err) {
     
     if (err.code == 1 || err.code == 2) {
         alert("Error: Position is not available!");
-        userMarker = new google.maps.Marker({
-		    position: new google.maps.LatLng(44.494860,11.342598),
-		    map: map,
-		    draggable: true,
-		    title: "SONO QUI!",
-		    animation: google.maps.Animation.DROP
-    	});
-    geocodePosition(new google.maps.LatLng(44.494860, 11.342598));  
+    	
+    if(jQuery.cookie('last_lat') && !firstTime){
+    	firstTime = 1;
+    	geocodePosition(new google.maps.LatLng(jQuery.cookie('last_lat'), jQuery.cookie('last_lng')));
+    	var mPosition = new google.maps.LatLng(jQuery.cookie('last_lat'), jQuery.cookie('last_lng'));
+    }
+    else{
+    	geocodePosition(new google.maps.LatLng(44.494860, 11.342598));
+    	var mPosition = new google.maps.LatLng(44.494860,11.342598);
+    }
+    	
+	userMarker = new google.maps.Marker({
+	    position: mPosition,
+	    map: map,
+	    draggable: true,
+	    title: "SONO QUI!",
+	    animation: google.maps.Animation.DROP
+	});
+    	
     google.maps.event.addListener(userMarker, 'dragend', updateMarker);  
    }
     
@@ -421,6 +555,7 @@ function searchEvent() {
             $('#search').parent().removeClass('open');
             alert("Ricerca Inviata..ecco i risultati!");
             $('tbody').html('');
+            clearOverlays();
             for (var i in datiString.events) {
 				var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
 				var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
