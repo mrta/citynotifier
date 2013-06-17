@@ -10,7 +10,7 @@ function citynotifier_menu() {
   $items['admin/citynotifier'] = array(
     'title'=>t('Amministrazione di Citynotifier'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_citynotifier_admin_form'),
+    'page arguments' => array('citynotifier_admin'),
     'access arguments' => array('citynotifier administrator'),
     'file' => 'citynotifier.admin.inc',
     'type' => MENU_CALLBACK
@@ -58,6 +58,19 @@ function citynotifier_menu() {
     );
     
   return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function citynotifier_theme() {
+  $theme = array();
+  $theme['citynotifier_admin'] = array(
+    'render element' => 'form',
+    'file' => 'citynotifier.admin.inc',
+  );
+
+  return $theme;
 }
 
 /**
