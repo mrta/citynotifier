@@ -217,5 +217,14 @@ citynotifier_debug($nOn);
 	return $events;
 }
 
+function citynotifier_get_subscribed_server() {
+  $result = array();
+  $servers = variable_get('citynotifier_settings_servers', '');
+  foreach($servers as $server) {
+    if($server["subscribed"])
+      $result[] = array("name" => $server["name"], "url" => $server["url"]);
+  }
+  return $result;
+}
 
 
