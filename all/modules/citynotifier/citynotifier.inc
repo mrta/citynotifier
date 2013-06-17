@@ -193,9 +193,9 @@ function _citynotifier_create_event_to_resp() {
 		/*->condition('cn.lat', $latmin,'>')
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
-		->condition('cn.lng', $lonmin,'<')*/
-		->condition('ce.status', $status,'=')
-		->havingCondition('freshness', $_GET['timemin'], '>')
+		->condition('cn.lng', $lonmin,'<')
+		->condition('ce.status', $status,'=')*/
+		->havingCondition('freshness', $_GET['timemin'], '>=')
 		->havingCondition('freshness', $_GET['timemax'], '<');
 	$query->groupBy('ce.event_id');
 
@@ -204,17 +204,60 @@ function _citynotifier_create_event_to_resp() {
 	foreach($events as $event){
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-//		$query->fields('cn', array('uid','lat','lng','description'));
 		$query->addExpression('COUNT(*)', 'number_of_notifications');
 		$query->condition('ce.event_id', $event->event_id, '=');
 		$query->groupBy('ce.event_id');
 		$nOn = $query->execute()->fetchAll();
-//$profile = user_load($uid);
 
-citynotifier_debug($nOn);
+		$query = db_select("citynotifier_event", 'ce');
+		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+		$query->fields('cn', array('uid'));
+		$query->condition('ce.event_id', $event->event_id, '=');
+		$uids = $query->execute()->fetchAll();
+
+		foreach($uids as $uid){
+			$profile = user_load($uid->uid);
+
+			$rep = $profile->reputation;
+			$ass = citynotifier_get_assiduity($uid->uid);
+			$sum = $sum + (1 + $rep['value'] * $ass);
+		}
+
+		$reliability = $sum/(2*$nOn->number_of_notification);
+citynotifier_debug($reliability);
+		$query = db_select("citynotifier_event", 'ce');
+		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+		$query->fields('cn', array('lat','lng','description'));
+		$query->condition('ce.event_id', $event->event_id, '=');
+		$posdes = $query->execute()->fetchAll();
+
+		$locations = array();
+		$descriptions = array();
+		foreach($posdes as $pippo){
+			$location = array();
+			$location['lat'] = $pippo->lat;
+			$location['lng'] = $pippo->lng;
+			array_push($locations, $location);
+			array_push($descriptions, $pippo->description);
+		}
 	}
 
 	return $events;
+}
+
+function citynotifier_get_assiduity($uid) {
+	$query = db_select("citynotifier_notify", 'cn');
+	$query->addExpression('COUNT(*)', 'assiduity');
+	$query->condition('cn.uid', $uid, '=');
+
+	$nOn = $query->execute()->fetchAll();
+
+	$assiduity = $non->assiduity * 0.1;
+
+	if($assiduity > 1)
+		$assiduity = 1;
+
+	return $assiduity;
 }
 
 function citynotifier_get_subscribed_server() {
