@@ -307,7 +307,7 @@ $("#notifyType").on('click', function() {
     }
 });
 
-$("#searchType").on('click', function() {
+$("#searchType").on('change', function() {
     var conceptName = $('#searchType').find(":selected").text();
     if (conceptName != "All") {
         $('#searchSubType').removeAttr("disabled");
@@ -557,8 +557,9 @@ function searchEvent() {
             $('tbody').html('');
             clearOverlays();
             for (var i in datiString.events) {
-				var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
-				var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
+            	console.log(i);
+				//var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
+				//var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
 				var description = datiString.events[i].description
 					
 				var date = new Date(datiString.events[i].start_time*1000);

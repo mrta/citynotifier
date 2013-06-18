@@ -204,7 +204,7 @@
                         <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>  
                     </li>
                     <li>
-                    	<p id="infoAddress" class="span4 offset3 text-center"> Pota pota pota </p>
+                    	<p id="infoAddress" class="span4 offset2 text-center"> Pota pota pota </p>
                     </li>
                 </ul>
                 <ul class="nav pull-right">
