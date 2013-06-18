@@ -6,16 +6,16 @@ $('.brand').on('click', function(){
 
 $(window).unload(function() {
 	if(jQuery.cookie('session_user')){
-		jQuery.cookie('last_type', $('#searchType').val());
-		jQuery.cookie('last_subtype', $('#searchSubType').val());
-		jQuery.cookie('last_address', $('#searchAddress').val());
-		jQuery.cookie('last_radius', $('#searchRadius').val());
-		jQuery.cookie('last_status', $('#searchStatus').val());
-		jQuery.cookie('last_timeFrom', $('#timeFromText').val());
-		jQuery.cookie('last_timeTo', $('#timeToText').val());
+		jQuery.cookie('last_type', $('#searchType').val(), { path: '/', expires: 30 });
+		jQuery.cookie('last_subtype', $('#searchSubType').val(), { path: '/', expires: 30 });
+		jQuery.cookie('last_address', $('#searchAddress').val(), { path: '/', expires: 30 });
+		jQuery.cookie('last_radius', $('#searchRadius').val(), { path: '/', expires: 30 });
+		jQuery.cookie('last_status', $('#searchStatus').val(), { path: '/', expires: 30 });
+		jQuery.cookie('last_timeFrom', $('#timeFromText').val(), { path: '/', expires: 30 });
+		jQuery.cookie('last_timeTo', $('#timeToText').val(), { path: '/', expires: 30 });
 	
-		jQuery.cookie('last_lat', userMarker.getPosition().lat());
-		jQuery.cookie('last_lng', userMarker.getPosition().lng());
+		jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
+		jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
 	}
 });
 
@@ -170,9 +170,9 @@ function loginFunction() {
         		var session_user = datiString.username;   
         		console.log("Creo la sessione di nome "+session_name+" con id "+session_id);
         		
-        		jQuery.cookie('session_name', session_name);
-        		jQuery.cookie('session_id', session_id);
-        		jQuery.cookie('session_user', session_user);
+        		jQuery.cookie('session_name', session_name, { path: '/', expires: 30 });
+        		jQuery.cookie('session_id', session_id, { path: '/', expires: 30 });
+        		jQuery.cookie('session_user', session_user, { path: '/', expires: 30 });
         		
         		
             	 
