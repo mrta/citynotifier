@@ -461,7 +461,7 @@ function showLocation(position) {
         animation: google.maps.Animation.DROP
     });
     map.panTo(new google.maps.LatLng(latitude, longitude));
-    geocodePosition(new google.maps.LatLng(latitude, longitude));
+    geocodePosition(new google.maps.LatLng(latitude, longitude), null);
     $('#notify').parent().removeClass('open');
     //$('#search').parent().removeClass('open');
     
@@ -478,11 +478,11 @@ function errorHandler(err) {
     	
     if(jQuery.cookie('last_lat') && !firstTime){
     	firstTime = 1;
-    	geocodePosition(new google.maps.LatLng(jQuery.cookie('last_lat'), jQuery.cookie('last_lng')));
+    	geocodePosition(new google.maps.LatLng(jQuery.cookie('last_lat'), jQuery.cookie('last_lng')), null);
     	var mPosition = new google.maps.LatLng(jQuery.cookie('last_lat'), jQuery.cookie('last_lng'));
     }
     else{
-    	geocodePosition(new google.maps.LatLng(44.494860, 11.342598));
+    	geocodePosition(new google.maps.LatLng(44.494860, 11.342598), null);
     	var mPosition = new google.maps.LatLng(44.494860,11.342598);
     }
     	
@@ -568,8 +568,8 @@ function searchEvent() {
             clearOverlays();
             for (var i in datiString.events) {
             	console.log(i);
-				var type = datiString.events[i].type;//.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
-				var subtype = datiString.events[i].subtype; //type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
+				var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
+				var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
 				var description = datiString.events[i].description
 					
 				var date = new Date(datiString.events[i].start_time*1000);
@@ -584,15 +584,15 @@ function searchEvent() {
 				var freshness = datiString.events[i].freshness;
 				
 				var status = datiString.events[i].status;
-				//status = status.charAt(0).toUpperCase() + status.slice(1);
+				status = status.charAt(0).toUpperCase() + status.slice(1);
 				switch (status) {
-					case 1:
+					case "Open":
 						status = '<button class="btn btn-success">'+status;
 						break;
-					case 2:
+					case "Closed":
 						status = '<button class="btn btn-danger">'+status;
 						break;
-					case 3:
+					case "Skeptical":
 						status = '<button class="btn btn-warning">'+status;
 						break;	
 				}
@@ -601,12 +601,13 @@ function searchEvent() {
 				var numNot = datiString.events[i].number_of_notifications;
 				var lat = datiString.events[i].locations[0].lat;
 				var lng = datiString.events[i].locations[0].lng;
+				var eventID = datiString.events[i].event_id;
 			
 				searchMarker = new google.maps.Marker({
 					position: new google.maps.LatLng(lat, lng),
 					map: map,
 					draggable: false,
-					title: datiString.events[i].event_id,
+					title: eventID,
 					animation: google.maps.Animation.DROP
 				});
 				markersArray.push(searchMarker);
@@ -630,7 +631,7 @@ function searchEvent() {
 				$('#modalBody').append('<tr>\
 									<td>'+type+' > '+subtype+'</td>\
 									<td>'+startTime+'</td>\
-									<td id='+latlngHtml+'></td>\
+									<td id='+eventID+'></td>\
 									<td><div class="btn-group">\
 										<a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
 										<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
@@ -639,7 +640,7 @@ function searchEvent() {
 									<td>'+status+'</td>\
 									</tr>');
 									
-				geocodePosition(new google.maps.LatLng(lat, lng));			
+				geocodePosition(new google.maps.LatLng(lat, lng), eventID);			
 			}
 
  		},

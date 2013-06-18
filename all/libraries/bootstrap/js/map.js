@@ -60,14 +60,14 @@ function initialize() {
         var point = userMarker.getPosition();
         console.log("point giusto: "+point);
 
-        geocodePosition(new google.maps.LatLng(lat, lng));	
+        geocodePosition(new google.maps.LatLng(lat, lng), null);	
     });
 }
 
 function updateMarker(event){
 	var lat = event.latLng.lat();
 	var lng = event.latLng.lng();
-	geocodePosition(new google.maps.LatLng(lat, lng));
+	geocodePosition(new google.maps.LatLng(lat, lng), null);
 	var point = userMarker.getPosition();
 	map.panTo(point);
 }
@@ -120,29 +120,63 @@ var longitude;
 
 var pota;
 
-function geocodePosition(position) {
-    geocoder.geocode({latLng: position}, function(matchingAddresses, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-            if (matchingAddresses && matchingAddresses.length > 0) {
-                latitude = matchingAddresses[0].geometry.location.lat();
-                longitude = matchingAddresses[0].geometry.location.lng();
-                $('#notifyAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
-                $('#searchAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
-                $('#infoAddress').html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
+function geocodePosition(position, eventID){
+	$(this).gmap3({
+		getaddress:{
+			latLng: position,
+			callback:function(results){
+				var map = $(this).gmap3("get"),
+				infowindow = $(this).gmap3({get:"infowindow"}),
+				content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: position;
+				console.log("Ho trovato: "+content);
+				$('#notifyAddress').val(content);
+                $('#searchAddress').val(content);
+                $('#infoAddress').html(content);
                 $('#notifyAddress').parent().removeClass("error");
                 $('#notifyAddress').next().removeClass("btn-danger");
                 $('#addressMarker').removeClass("icon-white");
                 
-                $latlng = ((position.jb)+''+Math.round(position.kb * 1000000) / 1000000).replace(/\./g,"");
-                $('#'+$latlng).html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
-            }
-            else
-                alert('Cannot determine address at this location.');
+                if(eventID)
+                	$('#'+eventID).html(content);
+				/*if (infowindow){
+					infowindow.open(map, marker);
+					infowindow.setContent(content);
+				} else {
+					$(this).gmap3({
+					infowindow:{
+						anchor:marker, 
+						options:{content: content}
+						}
+					});
+				}*/
+			}
+		}
+	});
+}
+
+
+/*geocoder.geocode({latLng: position}, function(matchingAddresses, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+        if (matchingAddresses && matchingAddresses.length > 0) {
+            latitude = matchingAddresses[0].geometry.location.lat();
+            longitude = matchingAddresses[0].geometry.location.lng();
+            $('#notifyAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
+            $('#searchAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
+            $('#infoAddress').html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
+            $('#notifyAddress').parent().removeClass("error");
+            $('#notifyAddress').next().removeClass("btn-danger");
+            $('#addressMarker').removeClass("icon-white");
+            
+            $latlng = ((position.jb)+''+Math.round(position.kb * 1000000) / 1000000).replace(/\./g,"");
+            $('#'+$latlng).html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
         }
         else
-            alert("Geocoder failed due to: " + status);
-    });
-}
+            alert('Cannot determine address at this location.');
+    }
+    else
+        alert("Geocoder failed due to: " + status);
+});*/
+
 
 google.maps.event.addDomListener(window, 'load', initialize);
 

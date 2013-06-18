@@ -578,6 +578,7 @@ function bh_bootstrap_preprocess_page(&$variables, $hook) {
 	drupal_add_js($bootstrap_path . '/js/bootstrap-datetimepicker.js', array('scope' => 'footer'));
 	drupal_add_js($bootstrap_path . '/js/script.js', array('scope' => 'footer'));
 	drupal_add_js($bootstrap_path . '/js/jquery.cookie.js', array('scope' => 'footer'));
+	drupal_add_js($bootstrap_path . '/js/gmap3.js', array('scope' => 'footer'));
 	
 
   // Main menu
