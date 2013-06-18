@@ -92,9 +92,30 @@ function _citynotifier_create_event($data) {
 	return $record['event_id'];
 }
 
+function _citynotifier_check_range($subtype){
+	$s_range=0.001;
+	$m_range=0.003;
+	$l_range=0.005;
+	$xl_range=0.02;
+
+	$a = array("buca", "malore", "ferito");
+	$b = array("incidente", "lavori_in_corso", "strada_impraticabile", "neve", "furto", "attentato");
+	$c = array("coda", "partita","concerto");
+	$d = array("incendio", "tornado", "alluvione", "manifestazione");
+
+	if(in_array($subtype, $a))
+		return $s_range;
+	if(in_array($subtype, $b))
+		return $m_range;
+	if(in_array($subtype, $c))
+		return $l_range;
+	if(in_array($subtype, $d))
+		return $xl_range;
+}
+
 function _citynotifier_check_event($data) {
-	$range=0.005;
 	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
+	$range = _citynotifier_check_range($subtype);
 
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -146,11 +167,11 @@ function _citynotifier_validate($data, $function_type=NULL) {
 
 function _citynotifier_get_index_type_subtype($data, $get = null) {
   $types = array("all" => array("all"),
-                 "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-                 "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
-                 "reati" => array("furto", "attentato"),
-                 "problemi_ambientali" => array("incendio", "tornado", "neve", "alluvione"),
-                 "eventi_pubblici" => array("partita", "manifestazione", "concerto"));
+                 "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
+                 "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
+                 "reati" => array("all", "furto", "attentato"),
+                 "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
+                 "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
   
   $validate_type = FALSE;
   $validate_subtype = FALSE;
@@ -186,32 +207,30 @@ function _citynotifier_create_event_to_resp() {
 	$status = _citynotifier_get_index_or_value_status($_GET['status']);
 	extract(_citynotifier_get_index_type_subtype($_GET, 1), EXTR_OVERWRITE);
 
-	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
+/*	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
 	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
 
 	$latmin = $_GET['lat']-($_GET['radius']/69);
-	$latmax = $_GET['lat']+($_GET['radius']/69);
-
-/*	$query = db_query("SELECT event_id, lat, lng, 3956 * 2 * ASIN(SQRT(POWER(SIN((".$_GET['lat']." -lat) * pi()/180 / 2), 2) +COS(".$_GET['lat']." * pi()/180) * COS(lat * pi()/180) *POWER(SIN((".$_GET['lng']." -lon) * pi()/180 / 2), 2) )) as distance 
-		FROM citynotifier_notify
-		WHERE lng between $lonmin and $lonmax and lat between $latmin and $latmax 
-		having distance < ".$_GET['radius']." ORDER BY Distance limit 10;"
-		)->fetchAll;*/
+	$latmax = $_GET['lat']+($_GET['radius']/69);*/
 
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id','type','subtype','status'));
-$query->fields('cn', array('lat','lng'));
+	$query->fields('cn', array('lat','lng'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
-	$query->condition('ce.type', $type, '=')
-		->condition('ce.subtype', $subtype, '=')
+
+	if($type){
+		$query->condition('ce.type', $type, '=');
+		if($subtype)
+			$query->condition('ce.subtype', $subtype, '=');
+	}
 		/*->condition('cn.lat', $latmin,'>')
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
 		->condition('cn.lng', $lonmin,'<')*/
-		->condition('ce.status', $status,'=')
+	$query->condition('ce.status', $status,'=')
 		->havingCondition('freshness', $_GET['timemin'], '>')
 		->havingCondition('freshness', $_GET['timemax'], '<')
 		->havingCondition('distance', $_GET['radius'], '<');
