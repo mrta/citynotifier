@@ -118,7 +118,6 @@ var geocoder = new google.maps.Geocoder();
 var latitude;
 var longitude;
 
-var pota;
 
 function geocodePosition(position, eventID){
 	$(this).gmap3({
