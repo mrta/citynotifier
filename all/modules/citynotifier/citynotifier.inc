@@ -39,11 +39,11 @@ function citynotifier_report() {
 
 	$event_exist = _citynotifier_check_event($data);
   
-	if(!$event_exist || $event_exist['status'] == _citynotifier_get_index_status("archived"))
+	if(!$event_exist || $event_exist['status'] == _citynotifier_get_index_or_value_status("archived"))
 		$event_id = _citynotifier_create_event($data);
-	if($event_exist['status'] == _citynotifier_get_index_status("open"))
+	if($event_exist['status'] == _citynotifier_get_index_or_value_status("open"))
 		$event_id = $event_exist['event_id'];
-	if($event_exist['status'] == _citynotifier_get_index_status("closed")){
+	if($event_exist['status'] == _citynotifier_get_index_or_value_status("closed")){
 		//status scettico cosa fare?
 		//$event_id = _citynotifier_update_event();
 	}
@@ -84,7 +84,7 @@ function _citynotifier_create_event($data) {
 	$record = array (
 		"type" => $type,
 		"subtype" => $subtype,
-		"status" => _citynotifier_get_index_status("open"),
+		"status" => _citynotifier_get_index_or_value_status("open"),
 	);
 
 	drupal_write_record("citynotifier_event", $record);
@@ -157,19 +157,34 @@ function _citynotifier_get_index_type_subtype($data, $get = null) {
   $type=array_keys($types);
 
   if($get)
-	return array("type" => array_search($_GET['type'], $type), "subtype" => array_search($_GET['subtype'], $types[$_GET['type']]));
+	return array("type" => array_search($data['type'], $type), "subtype" => array_search($data['subtype'], $types[$data['type']]));
   return array("type" => array_search($data['type']['type'], $type), "subtype" => array_search($data['type']['subtype'], $types[$data['type']['type']]));
 }
 
-function _citynotifier_get_index_status($status){
+function _citynotifier_get_index_or_value_status($status, $getvalue = null){
 	$array_status = array(0 => "archived", 1 => "open", 2 => "closed", 3 => "skeptical");
 
+	if($getvalue)
+		return $array_status[$status];
 	return array_search($status, $array_status);
 }
 
+function _citynotifier_get_value_type_subtype($value){
+	$types = array("all" => array("all"),
+                 "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
+                 "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
+                 "reati" => array("furto", "attentato"),
+                 "problemi_ambientali" => array("incendio", "tornado", "neve", "alluvione"),
+                 "eventi_pubblici" => array("partita", "manifestazione", "concerto"));
+
+	$type=array_keys($types);
+
+	return array($type[$value[0]], $types[$type[$value[0]]][$value[1]]);
+}
+
 function _citynotifier_create_event_to_resp() {
-	$status = _citynotifier_get_index_status($_GET['status']);
-	extract(_citynotifier_get_index_type_subtype($data, 1), EXTR_OVERWRITE);
+	$status = _citynotifier_get_index_or_value_status($_GET['status']);
+	extract(_citynotifier_get_index_type_subtype($_GET, 1), EXTR_OVERWRITE);
 
 	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
 	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
@@ -189,33 +204,33 @@ function _citynotifier_create_event_to_resp() {
 $query->fields('cn', array('lat','lng'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
-	$query->addExpression(('3956 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
+	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
 	$query->condition('ce.type', $type, '=')
 		->condition('ce.subtype', $subtype, '=')
 		/*->condition('cn.lat', $latmin,'>')
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
-		->condition('cn.lng', $lonmin,'<')
-		->condition('ce.status', $status,'=')*/
-		->havingCondition('freshness', $_GET['timemin'], '>=')
+		->condition('cn.lng', $lonmin,'<')*/
+		->condition('ce.status', $status,'=')
+		->havingCondition('freshness', $_GET['timemin'], '>')
 		->havingCondition('freshness', $_GET['timemax'], '<')
 		->havingCondition('distance', $_GET['radius'], '<');
 	$query->groupBy('ce.event_id');
 
 	$events = $query->execute();//->fetchAll();
 
-$events_result = array();
+	$events_result = array();
 
 //citynotifier_debug($events);
 	foreach($events as $event){
 
-$event_result = array();
-$event_result['event_id'] = $event->event_id;
-$event_result['type'] = $event->type;
-$event_result['subtype'] = $event->subtype;
-$event_result['status'] = $event->status;
-$event_result['start_time'] = $event->start;
-$event_result['freshness'] = $event->freshness;
+		$event_result = array();
+		$event_result['event_id'] = $event->event_id;
+		$array_type = _citynotifier_get_value_type_subtype(array($event->type, $event->subtype));
+		$event_result['type'] = array('type' => $array_type[0], 'subtype' => $array_type[1]);
+		$event_result['status'] = _citynotifier_get_index_or_value_status($event->status, 1);
+		$event_result['start_time'] = $event->start;
+		$event_result['freshness'] = $event->freshness;
 
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -224,7 +239,7 @@ $event_result['freshness'] = $event->freshness;
 		$query->groupBy('ce.event_id');
 		$nOn = $query->execute()->fetchAssoc();
 
-$event_result['number_of_notifications'] = $nOn['number_of_notifications'];
+		$event_result['number_of_notifications'] = $nOn['number_of_notifications'];
 
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -242,7 +257,7 @@ $event_result['number_of_notifications'] = $nOn['number_of_notifications'];
 
 		$reliability = $sum/(2*$nOn->number_of_notifications);
 
-$event_result['reliability'] = $reliability;
+		$event_result['reliability'] = $reliability;
 
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -259,9 +274,9 @@ $event_result['reliability'] = $reliability;
 			array_push($locations, $location);
 			array_push($descriptions, $pippo->description);
 		}
-$event_result['description'] = $descriptions;
-$event_result['locations'] = $locations;
-array_push($events_result, $event_result);
+		$event_result['description'] = $descriptions;
+		$event_result['locations'] = $locations;
+		array_push($events_result, $event_result);
 	}
 //citynotifier_debug($events_result);
 	return $events_result;
