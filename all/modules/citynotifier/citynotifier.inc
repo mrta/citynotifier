@@ -25,7 +25,6 @@ function citynotifier_notify() {
 
 function citynotifier_report() {
 	global $user;
-	$time_const = 1200;
 
 	header('Content-type: application/json; charset=utf-8');
 	$data = drupal_json_decode(file_get_contents("php://input"));
@@ -38,7 +37,7 @@ function citynotifier_report() {
 	}
 
 	$event_exist = _citynotifier_check_event($data);
-  
+ 
 	if(!$event_exist || $event_exist['status'] == _citynotifier_get_index_or_value_status("archived"))
 		$event_id = _citynotifier_create_event($data);
 	if($event_exist['status'] == _citynotifier_get_index_or_value_status("open"))
@@ -114,8 +113,8 @@ function _citynotifier_check_range($subtype){
 }
 
 function _citynotifier_check_event($data) {
+	$range = _citynotifier_check_range($data['type']['subtype']);
 	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
-	$range = _citynotifier_check_range($subtype);
 
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
