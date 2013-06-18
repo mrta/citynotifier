@@ -33,6 +33,9 @@ function initialize() {
     google.maps.event.addListener(map, 'click', function(event) {
         var lat = event.latLng.lat();
         var lng = event.latLng.lng();
+        
+        console.log(lat+" "+lng);
+        
 
         if (userMarker)
             userMarker.setMap(null);
@@ -53,6 +56,9 @@ function initialize() {
         radiusWidgetCheck = false;
 
         google.maps.event.addListener(userMarker, 'dragend', updateMarker);
+        
+        var point = userMarker.getPosition();
+        console.log("point giusto: "+point);
 
         geocodePosition(new google.maps.LatLng(lat, lng));	
     });

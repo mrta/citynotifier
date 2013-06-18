@@ -204,12 +204,12 @@
                         <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>  
                     </li>
                     <li>
-                    	<p id="infoAddress" class="text-center"> Pota pota pota </p>
+                    	<p id="infoAddress" class="span4 offset3 text-center"> Hodor? </p>
                     </li>
                 </ul>
                 <ul class="nav pull-right">
                 	<li>
-                		<button id="liveButton" type="button" class="span1 btn btn-success loading">Live <i class="icon-eye-open icon-white"></i></button>
+                		<button id="liveButton" type="button" class="btn btn-success loading">Live <i class="icon-eye-open icon-white"></i></button>
                 	</li>
                 </ul>
             </div>
@@ -235,7 +235,7 @@
                     <th>Status</th>  
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="modalBody">
                 <!--<tr>
                     <td>Stradale > Buca</td>
                     <td>23/06/2013 12:03</td>

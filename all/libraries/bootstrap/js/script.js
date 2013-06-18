@@ -14,8 +14,8 @@ $(window).unload(function() {
 		jQuery.cookie('last_timeFrom', $('#timeFromText').val());
 		jQuery.cookie('last_timeTo', $('#timeToText').val());
 	
-		jQuery.cookie('last_lat', latitude);
-		jQuery.cookie('last_lng', longitude);
+		jQuery.cookie('last_lat', userMarker.getPosition().lat());
+		jQuery.cookie('last_lng', userMarker.getPosition().lng());
 	}
 });
 
@@ -265,7 +265,7 @@ $("#account").next().delegate("#logout", "click", function() {
 });
 
 
-$("#notifyType").on('click', function() {
+$("#notifyType").on('change', function() {
     var conceptName = $('#notifyType').find(":selected").text();
     if (conceptName != "Select Type") {
         $('#notifySubType').removeAttr("disabled");
@@ -374,10 +374,12 @@ function sendNotify() {
     notifyType.type = ($('#notifyType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
     notifyType.subtype = ($('#notifySubType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
 
+
+	
     var notifyObj = new Object();
     notifyObj.type = notifyType;
-    notifyObj.lat = latitude;
-    notifyObj.lng = longitude;
+    notifyObj.lat = userMarker.getPosition().lat();
+    notifyObj.lng = userMarker.getPosition().lng();
     notifyObj.description = $('#notifyDescription').val();
 
     /*var typeError = $('<span id="type_span" class="help-inline">Select a type</span>');
@@ -387,6 +389,8 @@ function sendNotify() {
     var notifyJSON = JSON.stringify(notifyObj);
     console.log(notifyType.type);
 
+	console.log("Invio notifica con subtype "+notifyType.subtype+" lat: "+notifyObj.lat+" lng: "+notifyObj.lng);
+	
     if ((notifyType.type != "select_type") && (notifyType.subtype != "select_subtype") && $('#notifyAddress').val()) {
         $.ajax({
             url: url,
@@ -441,6 +445,7 @@ function getLocation() {
     }
 }
 function showLocation(position) {
+	console.log(position);
     var latitude = position.coords.latitude;
     var longitude = position.coords.longitude;
 
@@ -515,11 +520,12 @@ function buildUrl(url, parameters) {
 
 function searchEvent() {
     var d = new Date();
-
+    
     xmlhttp = new XMLHttpRequest();
     domain = "http://";
+    
     var parameters = new Array();
-    parameters["scope"] = "remote";
+    parameters["scope"] = "local";
     parameters["type"] = ($('#searchType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
     
     var subtypeSelected = ($('#searchSubType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
@@ -528,8 +534,8 @@ function searchEvent() {
     else
     	parameters["subtype"] = subtypeSelected;
     	
-    parameters["lat"] = latitude;
-    parameters["lng"] = longitude;
+    parameters["lat"] = userMarker.getPosition().lat();
+    parameters["lng"] = userMarker.getPosition().lng();
     parameters["radius"] = radiusWidget.get('distance');
     
     
@@ -538,14 +544,18 @@ function searchEvent() {
     	timeMin = toTimestamp(dateStart);
     parameters["timemin"] = timeMin;
     
+    
     var timeMax = toTimestamp(parseDate($("#timeToText").val().replace(/\-/g,'/')));
+    console.log("timeMax prima: "+timeMax);
     if(isNaN(timeMax))
-    	timeMax = toTimestamp(today);
+    	timeMax = toTimestamp(new Date());
     parameters["timemax"] = timeMax;
-    console.log(timeMax);
+    console.log("timeMax dopo: "+timeMax);
+    
     parameters["status"] = "open";
 	
 	console.log("scope="+parameters["scope"]+"&type="+parameters["type"]+"&subtype="+parameters["subtype"]+"&lat="+parameters["lat"]+"&lng="+parameters["lng"]+"&radius="+parameters["radius"]+"&timemin="+parameters["timemin"]+"&timemax="+parameters["timemax"]+"&status="+parameters["status"]);
+    
     url = domain.concat(document.location.hostname, buildUrl("/richieste", parameters));
 
     $.ajax({
@@ -554,12 +564,12 @@ function searchEvent() {
         success: function(datiString, status, richiesta) {
             $('#search').parent().removeClass('open');
             alert("Ricerca Inviata..ecco i risultati!");
-            $('tbody').html('');
+            $('#modalBody').html('');
             clearOverlays();
             for (var i in datiString.events) {
             	console.log(i);
-				//var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
-				//var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
+				var type = datiString.events[i].type;//.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
+				var subtype = datiString.events[i].subtype; //type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
 				var description = datiString.events[i].description
 					
 				var date = new Date(datiString.events[i].start_time*1000);
@@ -573,16 +583,16 @@ function searchEvent() {
 					
 				var freshness = datiString.events[i].freshness;
 				
-				var status = datiString.events[i].status
-				status = status.charAt(0).toUpperCase() + status.slice(1);
+				var status = datiString.events[i].status;
+				//status = status.charAt(0).toUpperCase() + status.slice(1);
 				switch (status) {
-					case "Open":
+					case 1:
 						status = '<button class="btn btn-success">'+status;
 						break;
-					case "Closed":
+					case 2:
 						status = '<button class="btn btn-danger">'+status;
 						break;
-					case "Skeptical":
+					case 3:
 						status = '<button class="btn btn-warning">'+status;
 						break;	
 				}
@@ -593,16 +603,20 @@ function searchEvent() {
 				var lng = datiString.events[i].locations[0].lng;
 			
 				searchMarker = new google.maps.Marker({
-					position: new google.maps.LatLng(datiString.events[i].locations[0].lat,datiString.events[i].locations[0].lng),
+					position: new google.maps.LatLng(lat, lng),
 					map: map,
 					draggable: false,
 					title: datiString.events[i].event_id,
 					animation: google.maps.Animation.DROP
 				});
 				markersArray.push(searchMarker);
+				
+				console.log("lat "+lat+" lng: "+lng);
+				
 			
 				var latHtml = JSON.stringify(lat).replace(/\./g,"");
 				var lngHtml = JSON.stringify(lng).replace(/\./g,"");
+				var latlngHtml = (latHtml+lngHtml).replace(/""/g,"");
 				
 				var descriptionHtml = "";
 				for ( j in description){
@@ -611,12 +625,12 @@ function searchEvent() {
 						descriptionHtml = descriptionHtml.concat('<li><p>'+description[j]+'</p></li>');
 						}
 				}
+
 				
-				
-				$('tbody').append('<tr>\
+				$('#modalBody').append('<tr>\
 									<td>'+type+' > '+subtype+'</td>\
 									<td>'+startTime+'</td>\
-									<td id='+latHtml+''+lngHtml+'></td>\
+									<td id='+latlngHtml+'></td>\
 									<td><div class="btn-group">\
 										<a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
 										<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
@@ -625,8 +639,7 @@ function searchEvent() {
 									<td>'+status+'</td>\
 									</tr>');
 									
-				geocodePosition(new google.maps.LatLng(lat, lng));
-			
+				geocodePosition(new google.maps.LatLng(lat, lng));			
 			}
 
  		},
@@ -642,6 +655,7 @@ $('#liveButton').click(function(){
     	$(this).removeClass('btn-danger');
     	$(this).addClass('btn-success');
     	$('#timeToText').val('');
+    	searchEvent();
      }      
      else {
       	$(this).removeClass('btn-success');
@@ -650,8 +664,9 @@ $('#liveButton').click(function(){
 });
 
 var dateStart = new Date();
-var today = new Date();
 dateStart.setMonth(dateStart.getMonth() - 6);
+
+var today = new Date();
 var todayUpdated = new Date(today.getTime() - 5*60000);
 
 $('#datetimepickerFrom').datetimepicker({
@@ -660,7 +675,6 @@ $('#datetimepickerFrom').datetimepicker({
 	startDate: dateStart,
 	endDate: todayUpdated,
 	autoclose: true,
-	todayBtn: true,
 	todayHighlight: true,
 	initialDate: dateStart
 });
@@ -669,7 +683,7 @@ $('#datetimepickerTo').datetimepicker({
 	format: 'dd-mm-yyyy hh:ii',
 	pickerPosition: 'bottom-left',
 	startDate: dateStart,
-	endDate: today,
+	endDate: new Date(),
 	autoclose: true,
 	todayBtn: true,
 	todayHighlight: true,
