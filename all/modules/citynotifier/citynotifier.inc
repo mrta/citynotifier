@@ -192,11 +192,11 @@ function _citynotifier_get_index_or_value_status($status, $getvalue = null){
 
 function _citynotifier_get_value_type_subtype($value){
 	$types = array("all" => array("all"),
-                 "problemi_stradali" => array("incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-                 "emergenze_sanitarie" => array("incidente", "malore", "ferito"),
-                 "reati" => array("furto", "attentato"),
-                 "problemi_ambientali" => array("incendio", "tornado", "neve", "alluvione"),
-                 "eventi_pubblici" => array("partita", "manifestazione", "concerto"));
+                 "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
+                 "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
+                 "reati" => array("all", "furto", "attentato"),
+                 "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
+                 "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
 
 	$type=array_keys($types);
 
