@@ -128,6 +128,9 @@ function geocodePosition(position, eventID){
 				var map = $(this).gmap3("get"),
 				infowindow = $(this).gmap3({get:"infowindow"}),
 				content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: position;
+				if(content == position)
+					geocodePosition(position, eventID); //Riprova
+					
 				console.log("Ho trovato: "+content);
 				$('#notifyAddress').val(content);
                 $('#searchAddress').val(content);
