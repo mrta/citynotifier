@@ -593,11 +593,11 @@ function searchEvent() {
 				var lng = datiString.events[i].locations[0].lng;
 			
 				searchMarker = new google.maps.Marker({
-				position: new google.maps.LatLng(datiString.events[i].locations[0].lat,datiString.events[i].locations[0].lng),
-				map: map,
-				draggable: false,
-				title: datiString.events[i].event_id,
-				animation: google.maps.Animation.DROP
+					position: new google.maps.LatLng(datiString.events[i].locations[0].lat,datiString.events[i].locations[0].lng),
+					map: map,
+					draggable: false,
+					title: datiString.events[i].event_id,
+					animation: google.maps.Animation.DROP
 				});
 				markersArray.push(searchMarker);
 			
