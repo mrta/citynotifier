@@ -107,7 +107,7 @@ function citynotifier_login() {
 
     
   if(!$login['username'] || !$login['password']) {
-    watchdog('citynotifier', t('Errore nello username o nella password'), array(), WATCHDOG_WARNING);
+    watchdog('citynotifier', t('Errore nello username o nella password per %name'), array('%name' => $login['username']), WATCHDOG_WARNING);
     drupal_add_http_header("Status", 406);
     drupal_json_output(array("result" => t("Errore nello username o nella password")));
     return;

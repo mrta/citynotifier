@@ -8,8 +8,16 @@ function citynotifier_install() {
   drupal_install_schema('citynotifier_notify');
   drupal_install_schema('citynotifier_event');
   
+  $types = array("all" => array("all"),
+               "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
+               "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
+               "reati" => array("all", "furto", "attentato"),
+               "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
+               "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
+
   variable_set('citynotifier_settings_catalogue', '');
   variable_set('citynotifier_settings_servers', '');
+  variable_set('citynotifier_settings_types', $types);
   
   /** Add field reputation to user profile **/
   
@@ -54,6 +62,7 @@ function citynotifier_uninstall() {
   
   variable_del('citynotifier_settings_catalogue');
   variable_del('citynotifier_settings_servers');
+  variable_del('citynotifier_settings_types');
   
   /** Delete field reputation from user profile **/
   field_delete_field("reputation");
