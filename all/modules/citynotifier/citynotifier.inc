@@ -165,6 +165,7 @@ function _citynotifier_validate($data, $function_type=NULL) {
 }
 
 function _citynotifier_get_index_type_subtype($data, $get = null) {
+  global $types;
   $types = array("all" => array("all"),
                  "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
                  "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
