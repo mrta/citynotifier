@@ -183,7 +183,7 @@ function _citynotifier_get_index_type_subtype($data, $get = null) {
 }
 
 function _citynotifier_get_index_or_value_status($status, $getvalue = null){
-	$array_status = array(0 => "archived", 1 => "open", 2 => "closed", 3 => "skeptical");
+	$array_status = array(0 => "archived", 1 => "open", 2 => "closed", 3 => "skeptical", 4 => "all");
 
 	if($getvalue)
 		return $array_status[$status];
@@ -230,8 +230,10 @@ function _citynotifier_create_event_to_resp() {
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
 		->condition('cn.lng', $lonmin,'<')*/
-	$query->condition('ce.status', $status,'=')
-		->havingCondition('freshness', $_GET['timemin'], '>')
+	if($status != 4)
+		$query->condition('ce.status', $status,'=');
+
+	$query->havingCondition('freshness', $_GET['timemin'], '>')
 		->havingCondition('freshness', $_GET['timemax'], '<')
 		->havingCondition('distance', $_GET['radius'], '<');
 	$query->groupBy('ce.event_id');
@@ -262,37 +264,32 @@ function _citynotifier_create_event_to_resp() {
 
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-		$query->fields('cn', array('uid'));
+		$query->fields('cn', array('uid', 'lat','lng','description'));
 		$query->condition('ce.event_id', $event->event_id, '=');
-		$uids = $query->execute()->fetchAll();
-
-		foreach($uids as $uid){
-			$profile = user_load($uid->uid);
-
-			$rep = $profile->reputation;
-			$ass = citynotifier_get_assiduity($uid->uid);
-			$sum = $sum + (1 + $rep['value'] * $ass);
-		}
-
-		$reliability = $sum/(2*$nOn->number_of_notifications);
-
-		$event_result['reliability'] = $reliability;
-
-		$query = db_select("citynotifier_event", 'ce');
-		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-		$query->fields('cn', array('lat','lng','description'));
-		$query->condition('ce.event_id', $event->event_id, '=');
-		$posdes = $query->execute()->fetchAll();
+		$fetched_res = $query->execute()->fetchAll();
 
 		$locations = array();
 		$descriptions = array();
-		foreach($posdes as $pippo){
+		$sum = 0;
+
+		foreach($fetched_res as $res){
+			$profile = user_load($res->uid);
+
+			$rep = $profile->reputation;
+
+			$ass = citynotifier_get_assiduity($res->uid);
+			$sum += (1 + $rep['und'][0]['value'] * $ass);
+
 			$location = array();
-			$location['lat'] = $pippo->lat;
-			$location['lng'] = $pippo->lng;
+			$location['lat'] = $res->lat;
+			$location['lng'] = $res->lng;
 			array_push($locations, $location);
-			array_push($descriptions, $pippo->description);
+			array_push($descriptions, $res->description);
 		}
+
+		$reliability = $sum/(2*$nOn['number_of_notifications']);
+
+		$event_result['reliability'] = $reliability;
 		$event_result['description'] = $descriptions;
 		$event_result['locations'] = $locations;
 		array_push($events_result, $event_result);
