@@ -66,7 +66,7 @@ function citynotifier_report() {
     "subtype" => $subtype,
     "lat" => $data['lat'],
     "lng" => $data['lng'],
-    "description" => $data['description'],
+    "description" => truncate_utf8($data['description'], 255),
     );
 
   drupal_write_record("citynotifier_notify", $record);
