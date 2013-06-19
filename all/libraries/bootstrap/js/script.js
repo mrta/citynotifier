@@ -141,6 +141,24 @@ $("#searchRadius").on('click', function(){
 	if($('#searchRadius').parent().hasClass('error'))
 			$('#searchRadius').val('');
 });
+$('#searchAddress').blur(function() {
+
+	//PER LORENZO: INSERIRE Places Autocomplete DI GOOGLE
+	//https://developers.google.com/maps/documentation/javascript/places
+	//AGGIUNGERE UPDATE MARKER ALL'INIVIO?
+	
+	console.log($('#searchAddress').val()+"Bologna");
+	$("#searchAddress").gmap3({
+	  getlatlng:{
+		address: $('#searchAddress').val(),
+		callback: function(results){
+		  if ( !results ) return;
+		  console.log(results[0].geometry.location);
+		  map.panTo( results[0].geometry.location );
+		}
+	  }
+	});
+});
 /*------------------------------*/
 
 
@@ -730,5 +748,4 @@ function checkArray(my_arr){
    }
    return false;
 }
-
 
