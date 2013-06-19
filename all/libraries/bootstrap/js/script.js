@@ -17,10 +17,6 @@ $(window).unload(function() {
 		jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
 		jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
 		
-		jQuery.cookie('session_name', session_name, { path: '/', expires: 30 });
-        jQuery.cookie('session_id', session_id, { path: '/', expires: 30 });
-        jQuery.cookie('session_user', session_user, { path: '/', expires: 30 });
-		
 		
 	}
 });
@@ -530,6 +526,8 @@ function searchEvent() {
     xmlhttp = new XMLHttpRequest();
     domain = "http://";
     
+    $('#infoAddress').append('<p id="spinner"></p>');
+    
     var parameters = new Array();
     parameters["scope"] = "local";
     parameters["type"] = ($('#searchType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
@@ -558,7 +556,7 @@ function searchEvent() {
     parameters["timemax"] = timeMax;
     console.log("timeMax dopo: "+timeMax);
     
-    parameters["status"] = "open";
+    parameters["status"] = $('#searchStatus').val().toLowerCase();
 	
 	console.log("scope="+parameters["scope"]+"&type="+parameters["type"]+"&subtype="+parameters["subtype"]+"&lat="+parameters["lat"]+"&lng="+parameters["lng"]+"&radius="+parameters["radius"]+"&timemin="+parameters["timemin"]+"&timemax="+parameters["timemax"]+"&status="+parameters["status"]);
     
@@ -569,9 +567,9 @@ function searchEvent() {
         type: 'GET',
         success: function(datiString, status, richiesta) {
             $('#search').parent().removeClass('open');
-            alert("Ricerca Inviata..ecco i risultati!");
             $('#modalBody').html('');
             clearOverlays();
+            
             for (var i in datiString.events) {
             	console.log(i);
 				var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
@@ -659,7 +657,7 @@ function searchEvent() {
 				
 				geocodePosition(new google.maps.LatLng(lat, lng), eventID);			
 			}
-
+		$('#spinner').fadeOut(2000, function() { $(this).remove(); });
  		},
         error: function(err) {
             alert("Ajax Notify error");
@@ -727,10 +725,10 @@ function toTimestamp(strDate){
 
 function checkArray(my_arr){
    for(var i=0;i<my_arr.length;i++){
-       if(my_arr[i] === "")   
-          return false;
+       if(my_arr[i] != "")   
+          return true;
    }
-   return true;
+   return false;
 }
 
 
