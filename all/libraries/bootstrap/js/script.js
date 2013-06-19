@@ -16,6 +16,12 @@ $(window).unload(function() {
 	
 		jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
 		jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
+		
+		jQuery.cookie('session_name', session_name, { path: '/', expires: 30 });
+        jQuery.cookie('session_id', session_id, { path: '/', expires: 30 });
+        jQuery.cookie('session_user', session_user, { path: '/', expires: 30 });
+		
+		
 	}
 });
 
@@ -619,12 +625,16 @@ function searchEvent() {
 				var lngHtml = JSON.stringify(lng).replace(/\./g,"");
 				var latlngHtml = (latHtml+lngHtml).replace(/""/g,"");
 				
+				console.log(description);
 				var descriptionHtml = "";
-				for ( j in description){
-					if(description[j]){
-						description[j] = description[j].charAt(0).toUpperCase() + description[j].slice(1);
-						descriptionHtml = descriptionHtml.concat('<li><p>'+description[j]+'</p></li>');
-						}
+				var fullArray = checkArray(description);
+				if(fullArray){
+					for (j in description){
+						if(description[j]){
+							description[j] = description[j].charAt(0).toUpperCase() + description[j].slice(1);
+							descriptionHtml = descriptionHtml.concat('<li><p>'+description[j]+'</p></li>');
+							}
+					}	
 				}
 
 				
@@ -633,13 +643,20 @@ function searchEvent() {
 									<td>'+startTime+'</td>\
 									<td id='+eventID+'></td>\
 									<td><div class="btn-group">\
-										<a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
+										<a href="#" id="'+eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
 										<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
 									</div></td>\
 									<td>'+numNot+' / '+reliability+'</td>\
 									<td>'+status+'</td>\
 									</tr>');
-									
+				
+				console.log(fullArray);
+				var butID = "#"+eventID+"but";			
+				if(!fullArray){
+					console.log(butID+" pota");
+					$(butID).addClass('disabled');
+				}
+				
 				geocodePosition(new google.maps.LatLng(lat, lng), eventID);			
 			}
 
@@ -706,6 +723,14 @@ function parseDate(input) {
 function toTimestamp(strDate){
  var datum = Date.parse(strDate);
  return datum/1000;
+}
+
+function checkArray(my_arr){
+   for(var i=0;i<my_arr.length;i++){
+       if(my_arr[i] === "")   
+          return false;
+   }
+   return true;
 }
 
 

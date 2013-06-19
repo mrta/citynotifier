@@ -129,17 +129,23 @@ function geocodePosition(position, eventID){
 				content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: position;
 				if(content == position)
 					geocodePosition(position, eventID); //Riprova
-					
+				
+				
 				console.log("Ho trovato: "+content);
-				$('#notifyAddress').val(content);
-                $('#searchAddress').val(content);
-                $('#infoAddress').html(content);
-                $('#notifyAddress').parent().removeClass("error");
-                $('#notifyAddress').next().removeClass("btn-danger");
-                $('#addressMarker').removeClass("icon-white");
+				
+				if(eventID)
+					$('#'+eventID).html(content);
+				else{
+					$('#notifyAddress').val(content);
+		            $('#searchAddress').val(content);
+		            $('#infoAddress').html(content);
+		            $('#notifyAddress').parent().removeClass("error");
+		            $('#notifyAddress').next().removeClass("btn-danger");
+		            $('#addressMarker').removeClass("icon-white");
+                }
                 
-                if(eventID)
-                	$('#'+eventID).html(content);
+               
+                	
 				/*if (infowindow){
 					infowindow.open(map, marker);
 					infowindow.setContent(content);
