@@ -3,13 +3,14 @@
 function citynotifier_notify() {
 	global $user;
 	header('Content-type: application/json; charset=utf-8');
-	$data = drupal_json_decode(file_get_contents("php://input"));
 
-	if(!$user) {
+	if(!$user->uid) {
 		drupal_add_http_header("Status", 401);
 		return drupal_json_output(array("result" => t("Per inviare una notifica bisogna essere loggati")));
 	}
 
+	$data = drupal_json_decode(file_get_contents("php://input"));
+		
 	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('type','subtype','status'))
 		->condition('ce.event_id', $data['event_id'], '=');
@@ -25,10 +26,18 @@ function citynotifier_notify() {
 
 function citynotifier_report() {
 	global $user;
-
 	header('Content-type: application/json; charset=utf-8');
-	$data = drupal_json_decode(file_get_contents("php://input"));
-
+	
+	$data = drupal_json_decode(utf8_decode(file_get_contents("php://input")));
+  citynotifier_debug($data);
+	
+  
+	if(!$user->uid) {
+		drupal_add_http_header("Status", 401);
+		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
+		return;
+	}
+	
 	$validation = _citynotifier_validate($data, "report");
 
 	if($validation['code'] <> 200) {
@@ -69,9 +78,14 @@ function citynotifier_report() {
     "description" => truncate_utf8($data['description'], 255),
     );
 
-  drupal_write_record("citynotifier_notify", $record);
+  if(!drupal_write_record("citynotifier_notify", $record)) {
+    watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($record, TRUE) .'</pre>', WATCHDOG_CRITICAL);
+    $result = array("result" => t("Errore nella memorizzazione nel database"));
+    drupal_add_http_header("Status", 500);
+    echo drupal_json_output($result);
+  };
 
-  $result = array("event_id" => $record['event_id'], "result" => "nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo");
+  $result = array("event_id" => $record['event_id'], "result" => t("nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo"));
   
   drupal_add_http_header("Status", 200);
   echo drupal_json_output($result);
