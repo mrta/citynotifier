@@ -1,7 +1,9 @@
 <?php
 
+$skepticals = array();
+
 function citynotifier_notify() {
-	global $user;
+	global $user, $skepticals;
 	header('Content-type: application/json; charset=utf-8');
 
 	if(!$user->uid) {
@@ -10,22 +12,31 @@ function citynotifier_notify() {
 	}
 
 	$data = drupal_json_decode(file_get_contents("php://input"));
-		
-	$query = db_select("citynotifier_event", 'ce')
-		->fields('ce', array('type','subtype','status'))
-		->condition('ce.event_id', $data['event_id'], '=');
-	$event = $query->execute()->fetchAssoc();
+	
+	if(in_array($data['event_id'], $skepticals)){
+		$usr_status = array("uid" => $user->uid, "status" => $data['status']);
+		array_push($skepticals['usrskeprtical'], $usr_status);
+	}
 
-	$event['status'] = $data['status'];
-
-	drupal_write_record("citynotifier_event", $event, $data['event_id']);
+	_citynotifier_update_status_event($data['event_id'], _citynotifier_get_index_or_value_status($data['status']));
 
 	drupal_add_http_header("Status", 200);
 	return drupal_json_output(array("result" => t("notifica inviata con successo")));
 }
 
+function _citynotifier_update_status_event($event_id, $status){
+	$query = db_select("citynotifier_event", 'ce')
+		->fields('ce', array('type','subtype','status'))
+		->condition('ce.event_id', $event_id, '=');
+	$event = $query->execute()->fetchAssoc();
+
+	$event['status'] = $status;
+
+	drupal_write_record("citynotifier_event", $event, $event_id);
+}
+
 function citynotifier_report() {
-	global $user;
+	global $user, $skepticals;
 	header('Content-type: application/json; charset=utf-8');
 	
 	$data = drupal_json_decode(utf8_decode(file_get_contents("php://input")));
@@ -53,7 +64,9 @@ function citynotifier_report() {
 		$event_id = $event_exist['event_id'];
 	if($event_exist['status'] == _citynotifier_get_index_or_value_status("closed")){
 		//status scettico cosa fare?
-		//$event_id = _citynotifier_update_event();
+		_citynotifier_update_status_event($event_exist['event_id'], _citynotifier_get_index_or_value_status("skeptical"));
+		$event_id = $event_exist['event_id'];
+		$skepticals = array("event_id" => $event_exist['event_id'], "start_skeptical" => time(), "usrskeprtical" => array());
 	}
 
 	/* Casi
@@ -244,7 +257,7 @@ function _citynotifier_create_event_to_resp() {
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
 		->condition('cn.lng', $lonmin,'<')*/
-	if($status != 4)
+	if($status != _citynotifier_get_index_or_value_status("all"))
 		$query->condition('ce.status', $status,'=');
 
 	$query->havingCondition('freshness', $_GET['timemin'], '>')
