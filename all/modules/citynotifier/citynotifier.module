@@ -114,7 +114,7 @@ function citynotifier_help($path, $arg) {
 function citynotifier_login() {
   global $user;
   header('Content-type: application/json; charset=utf-8');
-  $login = drupal_json_decode(file_get_contents("php://input"));
+  $login = drupal_json_decode(utf8_decode(file_get_contents("php://input")));
 
     
   if(!$login['username'] || !$login['password']) {
@@ -183,7 +183,7 @@ function citynotifier_logout() {
 
 
 /**
- * Implements logout service.
+ * Implements Request service.
  */
 function citynotifier_request() {
   header('Content-type: application/json; charset=utf-8');
