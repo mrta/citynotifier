@@ -119,29 +119,16 @@ function _citynotifier_create_event($data) {
 	return $record['event_id'];
 }
 
-function _citynotifier_check_range($subtype){
-	$s_range=0.001;
-	$m_range=0.003;
-	$l_range=0.005;
-	$xl_range=0.02;
-
-	$a = array("buca", "malore", "ferito");
-	$b = array("incidente", "lavori_in_corso", "strada_impraticabile", "neve", "furto", "attentato");
-	$c = array("coda", "partita","concerto");
-	$d = array("incendio", "tornado", "alluvione", "manifestazione");
-
-	if(in_array($subtype, $a))
-		return $s_range;
-	if(in_array($subtype, $b))
-		return $m_range;
-	if(in_array($subtype, $c))
-		return $l_range;
-	if(in_array($subtype, $d))
-		return $xl_range;
+function _citynotifier_get_range_subtype($type, $subtype){
+  $types = variable_get('citynotifier_settings_types', "");
+  foreach($types[$type] as $st)
+    if($st['subtype'] == $subtype) return $st['range'];
+  
+  return FALSE;
 }
 
 function _citynotifier_check_event($data) {
-	$range = _citynotifier_check_range($data['type']['subtype']);
+	$range = _citynotifier_get_range_subtype($data['type']['type'], $data['type']['subtype']);
 	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
 
 	$query = db_select("citynotifier_event", 'ce');
@@ -193,22 +180,30 @@ function _citynotifier_validate($data, $function_type=NULL) {
 }
 
 function _citynotifier_get_index_type_subtype($data, $get = null) {
-  global $types;
-  $types = array("all" => array("all"),
-                 "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-                 "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
-                 "reati" => array("all", "furto", "attentato"),
-                 "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
-                 "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
+  $types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
   
-  $validate_type = FALSE;
-  $validate_subtype = FALSE;
-  $type=array_keys($types);
-
   if($get)
-	return array("type" => array_search($data['type'], $type), "subtype" => array_search($data['subtype'], $types[$data['type']]));
-  return array("type" => array_search($data['type']['type'], $type), "subtype" => array_search($data['type']['subtype'], $types[$data['type']['type']]));
+    return array("type" => array_search($data['type'], $type), "subtype" => array_search($data['subtype'], $types[$data['type']]));
+  
+  return array("type" => array_search($data['type']['type'], array_keys($types)),
+               "subtype" => array_search($data['type']['subtype'], $types[$data['type']['type']]));
 }
+
+/**
+ * Function callback for array_map in _citynotifier_get_index_type_subtype
+ *
+ * @param array('type' => type, 'range' => 'range')
+ *  The endpoint name.
+ * @return array(type)
+ */
+function _citynotifier_get_map_subtype($subtypes) {
+  $result = array();
+  foreach($subtypes as $subtype) {
+    $result[] = $subtype['subtype'];
+  };
+  return $result;
+}
+
 
 function _citynotifier_get_index_or_value_status($status, $getvalue = null){
 	$array_status = array(0 => "archived", 1 => "open", 2 => "closed", 3 => "skeptical", 4 => "all");

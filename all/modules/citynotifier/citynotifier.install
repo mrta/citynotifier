@@ -8,13 +8,35 @@ function citynotifier_install() {
   drupal_install_schema('citynotifier_notify');
   drupal_install_schema('citynotifier_event');
   
-  $types = array("all" => array("all"),
-                 "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-                 "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
-                 "reati" => array("all", "furto", "attentato"),
-                 "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
-                 "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
-
+  $s_range=0.001;
+	$m_range=0.003;
+	$l_range=0.005;
+	$xl_range=0.02;
+	
+  $types = array("all" => array(array("type" => "all", "range"=> "")),
+                 "problemi_stradali" => array(array("subtype" => "all","range"=> ""),
+                                              array("subtype" => "incidente", "range"=> $m_range),
+                                              array("subtype" => "buca", "range"=> $s_range),
+                                              array("subtype" => "coda", "range"=> $l_range),
+                                              array("subtype" => "lavori_in_corso", "range"=> $m_range),
+                                              array("subtype" => "strada_impraticabile", "range"=> $m_range)),
+                 "emergenze_sanitarie" => array(array("subtype" => "all", "range"=> ""),
+                                                array("subtype" => "incidente", "range"=> $m_range),
+                                                array("subtype" => "malore", "range"=> $s_range),
+                                                array("subtype" => "ferito", "range"=> $s_range)),
+                 "reati" => array(array("subtype" => "all", "range"=> ""),
+                                  array("subtype" => "furto", "range"=> $m_range),
+                                  array("subtype" => "attentato", "range"=> $m_range)),
+                 "problemi_ambientali" => array(array("subtype" => "all", "range"=> ""),
+                                                array("subtype" => "incendio", "range"=> $xl_range),
+                                                array("subtype" => "tornado", "range"=> $xl_range),
+                                                array("subtype" => "neve", "range"=> $m_range),
+                                                array("subtype" => "alluvione", "range"=> $xl_range)),
+                 "eventi_pubblici" => array(array("subtype" => "all", "range"=> ""),
+                                            array("subtype" => "partita", "range"=> $l_range),
+                                            array("subtype" => "manifestazione", "range"=> $xl_range),
+                                            array("subtype" => "concerto", "range"=> $l_range)));
+  
   variable_set('citynotifier_settings_catalogue', '');
   variable_set('citynotifier_settings_servers', '');
   variable_set('citynotifier_settings_types', $types);
