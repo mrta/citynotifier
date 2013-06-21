@@ -9,15 +9,16 @@ function citynotifier_install() {
   drupal_install_schema('citynotifier_event');
   
   $types = array("all" => array("all"),
-               "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-               "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
-               "reati" => array("all", "furto", "attentato"),
-               "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
-               "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
+                 "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
+                 "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
+                 "reati" => array("all", "furto", "attentato"),
+                 "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
+                 "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
 
   variable_set('citynotifier_settings_catalogue', '');
   variable_set('citynotifier_settings_servers', '');
   variable_set('citynotifier_settings_types', $types);
+  variable_set('citynotifier_settings_status', array("closed", "open", "skeptical", "archived"));
   
   /** Add field reputation to user profile **/
   
@@ -63,6 +64,7 @@ function citynotifier_uninstall() {
   variable_del('citynotifier_settings_catalogue');
   variable_del('citynotifier_settings_servers');
   variable_del('citynotifier_settings_types');
+  variable_del('citynotifier_settings_status');
   
   /** Delete field reputation from user profile **/
   field_delete_field("reputation");
@@ -118,18 +120,25 @@ function citynotifier_schema() {
       'lat' => array(
         'description' => t('The notify\'s latitude.'),
         'type' => 'numeric',
-	'precision' => 10,
-	'scale' => 7,
+        'precision' => 10,
+        'scale' => 7,
         'not null' => TRUE,
         'default' => 0,
       ),
       'lng' => array(
         'description' => t('The notify\'s longitude.'),
         'type' => 'numeric',
-	'precision' => 10,
-	'scale' => 7,
+        'precision' => 10,
+        'scale' => 7,
         'not null' => TRUE,
         'default' => 0,
+      ),
+      'status' => array(
+        'description' => t('The notify\'s status: Open => 1, Closed => 0.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 1,
       ),
       'description' => array(
         'description' => t('The notify\'s description.'),
@@ -149,23 +158,12 @@ function citynotifier_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'type' => array(
-        'description' => t('The event\'s type.'),
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'default' => 0,
-      ),
-      'subtype' => array(
-        'description' => t('The event\'s subtype.'),
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'default' => 0,
-      ),
       'status' => array(
-        'description' => t('The event\'s status.'),
+        'description' => t('The event\'s status: Closed => 0, Open => 1, Skeptical => 2, Archived => 3'),
         'type' => 'int',
+        'not null' => TRUE,
         'unsigned' => TRUE,
-        'default' => 0,
+        'default' => 1,
       ),
     ),
     'primary key' => array('event_id'),
