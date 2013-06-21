@@ -120,7 +120,7 @@ function citynotifier_login() {
   if(!$login['username'] || !$login['password']) {
     watchdog('citynotifier', t('Errore nello username o nella password per %name'), array('%name' => $login['username']), WATCHDOG_WARNING);
     drupal_add_http_header("Status", 406);
-    drupal_json_output(array("result" => t("Errore nello username o nella password")));
+    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Errore nello username o nella password"))));
     return;
   };
   
@@ -128,7 +128,7 @@ function citynotifier_login() {
     citynotifier_debug($user);
     watchdog('citynotifier', t('Esiste un utente già loggato'), array(), WATCHDOG_WARNING);
     drupal_add_http_header("Status", 406);
-    drupal_json_output(array("result" => t("Esiste un utente già loggato")));
+    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Esiste un utente già loggato"))));
     return;
   }
 
@@ -136,18 +136,21 @@ function citynotifier_login() {
   
   if ($uid) {
     $user = user_load($uid);
+    citynotifier_debug($user);
     if ($user->uid) {
       user_login_finalize();
       
       watchdog('citynotifier', t('Si è loggato l\'utente %name.'), array('%name' => $user->name));
       drupal_add_http_header("Status", 200);
-      return drupal_json_output(array("result" => t("login effettuato con successo"), "username" => $user->name, "session_id" => session_id(), "session_name" => session_name()));
+      echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("login effettuato con successo"), "username" => $user->name, "roles" => $user->roles, "session_id" => session_id(), "session_name" => session_name())));
+      return;
     }
   }
   
   watchdog('citynotifier', t("Username o password sbagliati per %username"), array('%username' => $login['username']), WATCHDOG_WARNING);
   drupal_add_http_header("Status", 401);
-  return drupal_json_output(array("result" => t("Username o password sbagliati")));
+  echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Username o password sbagliati"))));
+  return;
 }
 
 
@@ -160,7 +163,8 @@ function citynotifier_logout() {
 
   if (!$user->uid) {
     drupal_add_http_header("Status", 406); 
-    return drupal_json_output(array("result" => t("Non c'è nessun utente per cui fare logout")));
+    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Non c'è nessun utente per cui fare logout"))));
+    return;
   }
 
   watchdog('citynotifier', t('Ha fatto logout l\'utente %name.'), array('%name' => $user->name));
@@ -173,7 +177,8 @@ function citynotifier_logout() {
   $user = drupal_anonymous_user();
 
   drupal_add_http_header("Status", 200);
-  return drupal_json_output(array("result" => t("logout effettuato con successo")));
+  echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("logout effettuato con successo"))));
+  return;
 }
 
 
