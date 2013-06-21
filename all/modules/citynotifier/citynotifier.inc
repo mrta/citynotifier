@@ -88,6 +88,7 @@ function citynotifier_report() {
     "subtype" => $subtype,
     "lat" => $data['lat'],
     "lng" => $data['lng'],
+    "status" => 1,
     "description" => truncate_utf8($data['description'], 255),
     );
 
@@ -340,7 +341,8 @@ function citynotifier_get_assiduity($uid) {
 	return $assiduity;
 }
 
-function citynotifier_get_subscribed_server() {
+
+function citynotifier_get_subscribed_servers() {
   $result = array();
   $servers = variable_get('citynotifier_settings_servers', '');
   foreach($servers as $server) {

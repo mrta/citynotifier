@@ -56,6 +56,14 @@ function citynotifier_menu() {
     'access callback' => true,
     'type' => MENU_CALLBACK,
     );
+  
+  $items['servers'] = array(
+    'title'=>t('Server sottoscritti'),
+    'page callback' => 'citynotifier_subscribed_servers',
+    'access arguments' => array('access content'),
+    'access callback' => true,
+    'type' => MENU_CALLBACK,
+    );
     
   return $items;
 }
@@ -100,6 +108,9 @@ function citynotifier_help($path, $arg) {
 }
 
 
+/**
+ * Implements login service.
+ */
 function citynotifier_login() {
   global $user;
   header('Content-type: application/json; charset=utf-8');
@@ -139,6 +150,10 @@ function citynotifier_login() {
   return drupal_json_output(array("result" => t("Username o password sbagliati")));
 }
 
+
+/**
+ * Implements logout service.
+ */
 function citynotifier_logout() {
   global $user;
   header('Content-type: application/json; charset=utf-8');
@@ -161,6 +176,10 @@ function citynotifier_logout() {
   return drupal_json_output(array("result" => t("logout effettuato con successo")));
 }
 
+
+/**
+ * Implements logout service.
+ */
 function citynotifier_request() {
   header('Content-type: application/json; charset=utf-8');
   
@@ -181,8 +200,20 @@ function citynotifier_request() {
   
   drupal_add_http_header("Status", 200);
   echo drupal_json_output($fake_resp);
-
 }
+
+
+/**
+ * Implements Subscribed servers service.
+ */
+function citynotifier_subscribed_servers() {
+  header('Content-type: application/json; charset=utf-8');
+  
+  drupal_add_http_header("Status", 200);
+  echo drupal_convert_to_utf8(drupal_json_encode(citynotifier_get_subscribed_servers()));
+  return;
+}
+
 
 function citynotifier_debug($data) {
   if (is_array($data) || is_object($data))
