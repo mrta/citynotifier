@@ -13,7 +13,7 @@ function citynotifier_install() {
 	$l_range=0.005;
 	$xl_range=0.02;
 	
-  $types = array("all" => array(array("type" => "all", "range"=> "")),
+  $types = array("all" => array(array("subtype" => "all", "range"=> "")),
                  "problemi_stradali" => array(array("subtype" => "all","range"=> ""),
                                               array("subtype" => "incidente", "range"=> $m_range),
                                               array("subtype" => "buca", "range"=> $s_range),
@@ -40,7 +40,7 @@ function citynotifier_install() {
   variable_set('citynotifier_settings_catalogue', '');
   variable_set('citynotifier_settings_servers', '');
   variable_set('citynotifier_settings_types', $types);
-  variable_set('citynotifier_settings_status', array("closed", "open", "skeptical", "archived"));
+  variable_set('citynotifier_settings_status', array("closed", "open", "skeptical", "archived", "all"));
   
   /** Add field reputation to user profile **/
   

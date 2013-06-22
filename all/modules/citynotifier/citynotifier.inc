@@ -40,20 +40,18 @@ function citynotifier_report() {
 	header('Content-type: application/json; charset=utf-8');
 	
 	$data = drupal_json_decode(utf8_decode(file_get_contents("php://input")));
-  citynotifier_debug($data);
-	
   
 	if(!$user->uid) {
 		drupal_add_http_header("Status", 401);
 		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
 		return;
 	}
-	
 	$validation = _citynotifier_validate($data, "report");
 
 	if($validation['code'] <> 200) {
-		drupal_add_http_header("Status", $validation['code'], $validation['response']);
-		return;
+		drupal_add_http_header("Status", $validation['code'], TRUE); 
+    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
+    return;
 	}
 
 	$event_exist = _citynotifier_check_event($data);
@@ -154,9 +152,12 @@ function _citynotifier_validate($data, $function_type=NULL) {
       return array("code" => 406, "response" => t('Scope non valido'));
     if(!is_float(floatval($data['radius'])))
       return array("code" => 406, "response" => t('Radius non valido'));
-    
-    $data['type'] = array('type' => $data['type'], 'subtype' => $data['subtype']);
-    unset($data['subtype']);
+    if(!in_array($data['status'], variable_get('citynotifier_settings_status', array())))
+      return array("code" => 406, "response" => t('Status non valido'));
+    if(!is_int($data['timemin']))
+      return array("code" => 406, "response" => t('Timemin non valido'));
+    if(!is_int($data['timemax']))
+      return array("code" => 406, "response" => t('Timemax non valido'));
   }
   
   if(!isset($data['type']['type']))
@@ -169,7 +170,7 @@ function _citynotifier_validate($data, $function_type=NULL) {
   
   if($subtype === FALSE)
     return array("code" => 406, "response" => t('Subtype non valido'));
-
+  
   if(!is_float(floatval($data['lat'])))
     return array("code" => 406, "response" => t('Latitudine non valida'));
   
@@ -179,11 +180,26 @@ function _citynotifier_validate($data, $function_type=NULL) {
   return array("code" => 200, "response" => '');
 }
 
-function _citynotifier_get_index_type_subtype($data, $get = null) {
+/**
+ * Get data from request $_GET and return a normalize $data
+ *
+ * @param $data=$_GET
+ * @return array('type' => $data['type'], 'subtype' => $data['subtype'])
+ */
+function _citynotifier_normalize_data($data) {
+  $data['type'] = array('type' => $data['type'], 'subtype' => $data['subtype']);
+  unset($data['subtype']);
+  return $data;
+}
+
+/**
+ * Function get index of type and subtype from $data
+ *
+ * @param $data
+ * @return array("type" => index_of_type_in_types, "subtype" => index_of_subtype_in_relative_type)
+ */
+function _citynotifier_get_index_type_subtype($data) {
   $types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
-  
-  if($get)
-    return array("type" => array_search($data['type'], $type), "subtype" => array_search($data['subtype'], $types[$data['type']]));
   
   return array("type" => array_search($data['type']['type'], array_keys($types)),
                "subtype" => array_search($data['type']['subtype'], $types[$data['type']['type']]));
@@ -193,7 +209,6 @@ function _citynotifier_get_index_type_subtype($data, $get = null) {
  * Function callback for array_map in _citynotifier_get_index_type_subtype
  *
  * @param array('type' => type, 'range' => 'range')
- *  The endpoint name.
  * @return array(type)
  */
 function _citynotifier_get_map_subtype($subtypes) {
@@ -213,21 +228,14 @@ function _citynotifier_get_index_or_value_status($status, $getvalue = null){
 	return array_search($status, $array_status);
 }
 
-function _citynotifier_get_value_type_subtype($value){
-	$types = array("all" => array("all"),
-                 "problemi_stradali" => array("all", "incidente", "buca", "coda", "lavori_in_corso", "strada_impraticabile"),
-                 "emergenze_sanitarie" => array("all", "incidente", "malore", "ferito"),
-                 "reati" => array("all", "furto", "attentato"),
-                 "problemi_ambientali" => array("all", "incendio", "tornado", "neve", "alluvione"),
-                 "eventi_pubblici" => array("all", "partita", "manifestazione", "concerto"));
-
+function _citynotifier_get_value_type_subtype_from_index($index_type, $index_subtype){
+	$types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
 	$type=array_keys($types);
-
-	return array($type[$value[0]], $types[$type[$value[0]]][$value[1]]);
+	return array("type" => $type[$index_type], "subtype" => $types[$type[$index_type]][$index_subtype]);
 }
 
-function _citynotifier_create_event_to_resp() {
-	$status = _citynotifier_get_index_or_value_status($_GET['status']);
+function _citynotifier_get_local_event($data) {
+	$status = _citynotifier_get_index_or_value_status($data['status']);
 	extract(_citynotifier_get_index_type_subtype($_GET, 1), EXTR_OVERWRITE);
 
 /*	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
@@ -238,8 +246,8 @@ function _citynotifier_create_event_to_resp() {
 
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	$query->fields('ce', array('event_id','type','subtype','status'));
-	$query->fields('cn', array('lat','lng'));
+	$query->fields('ce', array('event_id', 'status'));
+	$query->fields('cn', array('type','subtype','lat','lng'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
@@ -270,8 +278,7 @@ function _citynotifier_create_event_to_resp() {
 
 		$event_result = array();
 		$event_result['event_id'] = $event->event_id;
-		$array_type = _citynotifier_get_value_type_subtype(array($event->type, $event->subtype));
-		$event_result['type'] = array('type' => $array_type[0], 'subtype' => $array_type[1]);
+		$event_result['type'] = _citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype);
 		$event_result['status'] = _citynotifier_get_index_or_value_status($event->status, 1);
 		$event_result['start_time'] = $event->start;
 		$event_result['freshness'] = $event->freshness;

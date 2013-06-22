@@ -125,7 +125,6 @@ function citynotifier_login() {
   };
   
   if ($user->uid) {
-    citynotifier_debug($user);
     watchdog('citynotifier', t('Esiste un utente già loggato'), array(), WATCHDOG_WARNING);
     drupal_add_http_header("Status", 406);
     echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Esiste un utente già loggato"))));
@@ -136,7 +135,6 @@ function citynotifier_login() {
   
   if ($uid) {
     $user = user_load($uid);
-    citynotifier_debug($user);
     if ($user->uid) {
       user_login_finalize();
       
@@ -162,7 +160,7 @@ function citynotifier_logout() {
   header('Content-type: application/json; charset=utf-8');
 
   if (!$user->uid) {
-    drupal_add_http_header("Status", 406); 
+    drupal_add_http_header("Status", 406, TRUE); 
     echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Non c'è nessun utente per cui fare logout"))));
     return;
   }
@@ -188,14 +186,17 @@ function citynotifier_logout() {
 function citynotifier_request() {
   header('Content-type: application/json; charset=utf-8');
   
-  $validation =_citynotifier_validate($_GET, 'request');
+  $data = _citynotifier_normalize_data($_GET);
+  
+  $validation =_citynotifier_validate($data, 'request');
   
   if($validation['code'] <> 200) {
-    drupal_add_http_header("Status", $validation['code'], $validation['response']);
+		drupal_add_http_header("Status", $validation['code'], TRUE); 
+    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
     return;
-  }
+	}
 
-  $events = _citynotifier_create_event_to_resp(); 
+  $events = _citynotifier_get_local_event($data); 
 
   $fake_resp = array("request_time" => 1368095111,
 		"result" => "Messaggio di servizio",
