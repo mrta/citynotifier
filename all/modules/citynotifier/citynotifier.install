@@ -44,7 +44,7 @@ function citynotifier_install() {
   
   /** Add field reputation to user profile **/
   
-  if(!field_info_field($reputation_field_name)) {
+  if(!field_info_field("reputation")) {
     $field = array(
       'field_name'    => "reputation",
       'type'          => 'number_integer',
