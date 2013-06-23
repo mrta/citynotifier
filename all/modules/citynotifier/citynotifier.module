@@ -291,10 +291,3 @@ function citynotifier_subscribed_servers() {
   return;
 }
 
-
-function citynotifier_debug($data) {
-  if (is_array($data) || is_object($data))
-    $data = print_r($data, TRUE);
-  $data .= "\n";
-  error_log($data, 3, "/tmp/citynotifier_debug.log");
-}

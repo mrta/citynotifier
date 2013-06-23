@@ -156,23 +156,20 @@ function _citynotifier_get_map_subtype($subtypes) {
 }
 
 
-function _citynotifier_get_index_or_value_status($status, $getvalue = null){
-	$array_status = array(0 => "archived", 1 => "open", 2 => "closed", 3 => "skeptical", 4 => "all");
-
-	if($getvalue)
-		return $array_status[$status];
+function _citynotifier_get_index_status($status){
+	$array_status = variable_get('citynotifier_settings_status', array());
 	return array_search($status, $array_status);
 }
 
 function _citynotifier_get_value_type_subtype_from_index($index_type, $index_subtype){
 	$types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
-	$type=array_keys($types);
+	$type = array_keys($types);
 	return array("type" => $type[$index_type], "subtype" => $types[$type[$index_type]][$index_subtype]);
 }
 
 function _citynotifier_get_local_event($data) {
-	$status = _citynotifier_get_index_or_value_status($data['status']);
-	extract(_citynotifier_get_index_type_subtype($_GET, 1), EXTR_OVERWRITE);
+	$status = variable_get('citynotifier_settings_status', array());
+	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
 
 /*	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
 	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
@@ -189,33 +186,39 @@ function _citynotifier_get_local_event($data) {
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
 
 	if($type){
-		$query->condition('ce.type', $type, '=');
+		$query->condition('cn.type', $type, '=');
 		if($subtype)
-			$query->condition('ce.subtype', $subtype, '=');
+			$query->condition('cn.subtype', $subtype, '=');
 	}
 		/*->condition('cn.lat', $latmin,'>')
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
 		->condition('cn.lng', $lonmin,'<')*/
-	if($status != _citynotifier_get_index_or_value_status("all"))
-		$query->condition('ce.status', $status,'=');
+	if($status != "all"){
+		$query->condition('ce.status', _citynotifier_get_index_status($data['status']),'=');
+	} else {
+	  $or = db_or();
+	  foreach($status as $s)
+	    if($s <> "all")
+	      $or->condition('ce.status', $s,'=');
+	  $query->condition($or);
+	}
 
-	$query->havingCondition('freshness', $_GET['timemin'], '>')
-		->havingCondition('freshness', $_GET['timemax'], '<')
-		->havingCondition('distance', $_GET['radius'], '<');
+	$query->havingCondition('freshness', $data['timemin'], '>')
+		->havingCondition('freshness', $data['timemax'], '<')
+		->havingCondition('distance', $data['radius'], '<');
 	$query->groupBy('ce.event_id');
 
 	$events = $query->execute();//->fetchAll();
 
-	$events_result = array();
+	$result = array();
 
-//citynotifier_debug($events);
 	foreach($events as $event){
 
 		$event_result = array();
 		$event_result['event_id'] = $event->event_id;
 		$event_result['type'] = _citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype);
-		$event_result['status'] = _citynotifier_get_index_or_value_status($event->status, 1);
+		$event_result['status'] = $status[$event->status];
 		$event_result['start_time'] = $event->start;
 		$event_result['freshness'] = $event->freshness;
 
@@ -291,3 +294,9 @@ function citynotifier_get_subscribed_servers() {
 }
 
 
+function citynotifier_debug($data) {
+  if (is_array($data) || is_object($data))
+    $data = print_r($data, TRUE);
+  $data .= "\n";
+  error_log($data, 3, "/tmp/citynotifier_debug.log");
+}
