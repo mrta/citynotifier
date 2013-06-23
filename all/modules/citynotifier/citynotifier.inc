@@ -93,9 +93,6 @@ function _citynotifier_validate($data, $function_type=NULL) {
       return array("code" => 406, "response" => t('Timemax non valido'));
   }
   
-  if(!isset($data['type']['type']))
-    return array("code" => 406, "response" => t('Type non valido'));
-  
   extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
   
   if($type === FALSE)
@@ -141,8 +138,8 @@ function _citynotifier_normalize_data($data) {
 function _citynotifier_get_index_type_subtype($data) {
   $types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
   
-  return array("type" => array_search($data['type']['type'], array_keys($types)),
-               "subtype" => array_search($data['type']['subtype'], $types[$data['type']['type']]));
+  return array("type" => array_search($data['type'], array_keys($types)),
+               "subtype" => array_search($data['subtype'], $types[$data['type']]));
 }
 
 /**
