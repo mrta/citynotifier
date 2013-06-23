@@ -117,7 +117,7 @@ function _citynotifier_validate($data, $function_type=NULL) {
  * @return $data normalize
  */
 function _citynotifier_normalize_data($data) {
-  if(isset($data['type']['type'])) {
+  if(is_array($data['type'])) {
     $data['subtype'] = $data['type']['subtype'];
     $data['type'] = $data['type']['type'];
   }
