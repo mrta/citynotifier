@@ -29,7 +29,6 @@ function citynotifier_menu() {
     'page callback' => 'citynotifier_report',
     'access arguments' => array('access content'),
     'access callback' => true,
-    'file' => 'citynotifier.admin.inc',
     'type' => MENU_CALLBACK,
     );
   
@@ -181,7 +180,7 @@ function citynotifier_logout() {
 
 
 /**
- * Implements Request service.
+ * Request service.
  */
 function citynotifier_request() {
   header('Content-type: application/json; charset=utf-8');
@@ -206,6 +205,77 @@ function citynotifier_request() {
   
   drupal_add_http_header("Status", 200);
   echo drupal_json_output($fake_resp);
+}
+
+/**
+ * Report service.
+ */
+function citynotifier_report() {
+	global $user, $skepticals;
+	header('Content-type: application/json; charset=utf-8');
+	
+	$data = drupal_json_decode(utf8_decode(file_get_contents("php://input")));
+  
+	if(!$user->uid) {
+		drupal_add_http_header("Status", 401);
+		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
+		return;
+	}
+	$validation = _citynotifier_validate($data, "report");
+
+	if($validation['code'] <> 200) {
+		drupal_add_http_header("Status", $validation['code'], TRUE); 
+    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
+    return;
+	}
+
+	$event_exist = _citynotifier_check_event($data);
+ 
+	if(!$event_exist || $event_exist['status'] == _citynotifier_get_index_or_value_status("archived"))
+		$event_id = _citynotifier_create_event($data);
+	if($event_exist['status'] == _citynotifier_get_index_or_value_status("open"))
+		$event_id = $event_exist['event_id'];
+	if($event_exist['status'] == _citynotifier_get_index_or_value_status("closed")){
+		//status scettico cosa fare?
+		_citynotifier_update_status_event($event_exist['event_id'], _citynotifier_get_index_or_value_status("skeptical"));
+		$event_id = $event_exist['event_id'];
+		$skepticals = array("event_id" => $event_exist['event_id'], "start_skeptical" => time(), "usrskeprtical" => array());
+	}
+
+	/* Casi
+	1) Non c'è evento, crealo
+	2) Evento esiste
+	  1) Aperto: collega notifica a questo evento
+	  2) Chiuso:
+	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
+	    2) Freshness > N: aprire un nuovo evento
+	*/
+
+  extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
+   
+  $record = array (
+    "uid" => $user->uid,
+    "event_id" => $event_id,
+    "created" => time(),
+    "type" => $type,
+    "subtype" => $subtype,
+    "lat" => $data['lat'],
+    "lng" => $data['lng'],
+    "status" => 1,
+    "description" => truncate_utf8($data['description'], 255),
+    );
+
+  if(!drupal_write_record("citynotifier_notify", $record)) {
+    watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($record, TRUE) .'</pre>', WATCHDOG_CRITICAL);
+    $result = array("result" => t("Errore nella memorizzazione nel database"));
+    drupal_add_http_header("Status", 500);
+    echo drupal_json_output($result);
+  };
+
+  $result = array("event_id" => $record['event_id'], "result" => t("nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo"));
+  
+  drupal_add_http_header("Status", 200);
+  echo drupal_json_output($result);
 }
 
 

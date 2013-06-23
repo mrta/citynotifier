@@ -35,73 +35,6 @@ function _citynotifier_update_status_event($event_id, $status){
 	drupal_write_record("citynotifier_event", $event, $event_id);
 }
 
-function citynotifier_report() {
-	global $user, $skepticals;
-	header('Content-type: application/json; charset=utf-8');
-	
-	$data = drupal_json_decode(utf8_decode(file_get_contents("php://input")));
-  
-	if(!$user->uid) {
-		drupal_add_http_header("Status", 401);
-		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
-		return;
-	}
-	$validation = _citynotifier_validate($data, "report");
-
-	if($validation['code'] <> 200) {
-		drupal_add_http_header("Status", $validation['code'], TRUE); 
-    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
-    return;
-	}
-
-	$event_exist = _citynotifier_check_event($data);
- 
-	if(!$event_exist || $event_exist['status'] == _citynotifier_get_index_or_value_status("archived"))
-		$event_id = _citynotifier_create_event($data);
-	if($event_exist['status'] == _citynotifier_get_index_or_value_status("open"))
-		$event_id = $event_exist['event_id'];
-	if($event_exist['status'] == _citynotifier_get_index_or_value_status("closed")){
-		//status scettico cosa fare?
-		_citynotifier_update_status_event($event_exist['event_id'], _citynotifier_get_index_or_value_status("skeptical"));
-		$event_id = $event_exist['event_id'];
-		$skepticals = array("event_id" => $event_exist['event_id'], "start_skeptical" => time(), "usrskeprtical" => array());
-	}
-
-	/* Casi
-	1) Non c'è evento, crealo
-	2) Evento esiste
-	  1) Aperto: collega notifica a questo evento
-	  2) Chiuso:
-	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
-	    2) Freshness > N: aprire un nuovo evento
-	*/
-
-  extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
-   
-  $record = array (
-    "uid" => $user->uid,
-    "event_id" => $event_id,
-    "created" => time(),
-    "type" => $type,
-    "subtype" => $subtype,
-    "lat" => $data['lat'],
-    "lng" => $data['lng'],
-    "status" => 1,
-    "description" => truncate_utf8($data['description'], 255),
-    );
-
-  if(!drupal_write_record("citynotifier_notify", $record)) {
-    watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($record, TRUE) .'</pre>', WATCHDOG_CRITICAL);
-    $result = array("result" => t("Errore nella memorizzazione nel database"));
-    drupal_add_http_header("Status", 500);
-    echo drupal_json_output($result);
-  };
-
-  $result = array("event_id" => $record['event_id'], "result" => t("nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo"));
-  
-  drupal_add_http_header("Status", 200);
-  echo drupal_json_output($result);
-}
 
 function _citynotifier_create_event($data) {
 	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
@@ -183,12 +116,19 @@ function _citynotifier_validate($data, $function_type=NULL) {
 /**
  * Get data from request $_GET and return a normalize $data
  *
- * @param $data=$_GET
- * @return array('type' => $data['type'], 'subtype' => $data['subtype'])
+ * @param $data=$_GET from request or report
+ * @return $data normalize
  */
 function _citynotifier_normalize_data($data) {
-  $data['type'] = array('type' => $data['type'], 'subtype' => $data['subtype']);
-  unset($data['subtype']);
+  if(isset($data['type']['type'])) {
+    $data['subtype'] = $data['type']['subtype'];
+    $data['type'] = $data['type']['type'];
+  }
+    
+  $type_cast = array('lat' => 'floatval', 'lng' => 'floatval', 'radius' => 'intval', 'timemax' => 'intval', 'timemin' => 'intval');
+  foreach($type_cast as $type => $cast)
+    if(isset($data[$type]))
+      eval("\$data['" . $type . "']=" . $cast . "(\"" . $data[$type] . "\");");
   return $data;
 }
 
