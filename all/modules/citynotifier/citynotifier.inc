@@ -83,13 +83,13 @@ function _citynotifier_validate($data, $function_type=NULL) {
   case "request":
     if($data['scope'] <> "local" && $data['scope'] <> "remote")
       return array("code" => 406, "response" => t('Scope non valido'));
-    if(!is_float(floatval($data['radius'])))
+    if(!$data['radius'])
       return array("code" => 406, "response" => t('Radius non valido'));
     if(!in_array($data['status'], variable_get('citynotifier_settings_status', array())))
       return array("code" => 406, "response" => t('Status non valido'));
-    if(!is_int($data['timemin']))
+    if(!$data['timemin'])
       return array("code" => 406, "response" => t('Timemin non valido'));
-    if(!is_int($data['timemax']))
+    if(!$data['timemax'])
       return array("code" => 406, "response" => t('Timemax non valido'));
   }
   
@@ -101,10 +101,10 @@ function _citynotifier_validate($data, $function_type=NULL) {
   if($subtype === FALSE)
     return array("code" => 406, "response" => t('Subtype non valido'));
   
-  if(!is_float(floatval($data['lat'])))
+  if(!$data['lat'])
     return array("code" => 406, "response" => t('Latitudine non valida'));
   
-  if(!is_float(floatval($data['lng'])))
+  if(!$data['lng'])
     return array("code" => 406, "response" => t('Longitudine non valida'));
   
   return array("code" => 200, "response" => '');
@@ -137,7 +137,6 @@ function _citynotifier_normalize_data($data) {
  */
 function _citynotifier_get_index_type_subtype($data) {
   $types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
-  
   return array("type" => array_search($data['type'], array_keys($types)),
                "subtype" => array_search($data['subtype'], $types[$data['type']]));
 }

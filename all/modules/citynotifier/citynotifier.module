@@ -186,7 +186,7 @@ function citynotifier_request() {
   header('Content-type: application/json; charset=utf-8');
   
   $data = _citynotifier_normalize_data($_GET);
-  
+
   $validation =_citynotifier_validate($data, 'request');
   
   if($validation['code'] <> 200) {
@@ -221,7 +221,7 @@ function citynotifier_report() {
 		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
 		return;
 	}
-	$validation = _citynotifier_validate($data, "report");
+	$validation = _citynotifier_validate(_citynotifier_normalize_data($data), "report");
 
 	if($validation['code'] <> 200) {
 		drupal_add_http_header("Status", $validation['code'], TRUE); 
@@ -250,7 +250,7 @@ function citynotifier_report() {
 	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
 	    2) Freshness > N: aprire un nuovo evento
 	*/
-
+	citynotifier_debug($data);
   extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
    
   $record = array (
@@ -265,6 +265,7 @@ function citynotifier_report() {
     "description" => truncate_utf8($data['description'], 255),
     );
 
+  citynotifier_debug($record);
   if(!drupal_write_record("citynotifier_notify", $record)) {
     watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($record, TRUE) .'</pre>', WATCHDOG_CRITICAL);
     $result = array("result" => t("Errore nella memorizzazione nel database"));
