@@ -184,6 +184,7 @@ function citynotifier_logout() {
  */
 function citynotifier_request() {
   header('Content-type: application/json; charset=utf-8');
+  $servers = citynotifier_get_subscribed_servers();
   
   $data = _citynotifier_normalize_data($_GET);
 
@@ -195,16 +196,33 @@ function citynotifier_request() {
     return;
 	}
 
-  $events = _citynotifier_get_local_event($data); 
-
-  $fake_resp = array("request_time" => 1368095111,
+	$result = array();
+	switch($data['scope']) {
+	case "local":
+	  $events = _citynotifier_get_local_event($data);
+	  break;
+	case "remote":
+	  if(isset($data['dest']))
+	    $servers = $servers[$data['dest']];
+	  foreach($servers as $server) {
+	    $result[] = citynotifier_http_get_request($server['url'], $data);
+	  }
+	  break;
+	}
+  
+  /*
+  $result = array("request_time" => time(),
 		"result" => "Messaggio di servizio",
 		"from_server" => "http://ltw1234.web.cs.unibo.it",
 		"events" => $events
                );
+  */
+  
+  echo drupal_json_output($fake_resp);
   
   drupal_add_http_header("Status", 200);
-  echo drupal_json_output($fake_resp);
+  echo drupal_convert_to_utf8(drupal_json_encode($result));
+  return;
 }
 
 /**

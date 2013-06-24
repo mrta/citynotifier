@@ -57,8 +57,11 @@ function _citynotifier_get_range_subtype($type, $subtype){
  * @return $event matched or array("event_id"=>FALSE, "status"=>FALSE) if no match
  */
 function _citynotifier_get_matched_event($data) {
-	$range = _citynotifier_get_range_subtype($data['type']['type'], $data['type']['subtype']);
+	$range = _citynotifier_get_range_subtype($data['type'], $data['subtype']);
 	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
+var_dump($range);
+var_dump($type);
+var_dump($subtype);
 
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -72,7 +75,7 @@ function _citynotifier_get_matched_event($data) {
 		->condition('cn.lng', $data['lng']+$range,'<')
 		->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
-
+	
 	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
 
@@ -295,6 +298,18 @@ function citynotifier_get_subscribed_servers() {
       $result[] = array("name" => $server["name"], "url" => $server["url"]);
   }
   return $result;
+}
+
+function citynotifier_http_get_request($url, $query) {
+  $options = array(
+    'headers' => array(
+      'Accept' => 'application/json',
+      ),
+    'method' => 'GET',
+    );
+  
+  $response = drupal_http_request($url . "?" . http_build_query($query), $options);
+  return drupal_json_decode(utf8_decode($response->data));
 }
 
 
