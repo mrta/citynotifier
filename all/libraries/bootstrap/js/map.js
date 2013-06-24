@@ -130,9 +130,6 @@ function geocodePosition(position, eventID){
 				if(content == position)
 					geocodePosition(position, eventID); //Riprova
 				
-				
-				console.log("Ho trovato: "+content);
-				
 				if(eventID)
 					$('#'+eventID).html(content);
 				else{
@@ -141,7 +138,11 @@ function geocodePosition(position, eventID){
 		            $('#infoAddress').html(content);
 		            $('#notifyAddress').parent().removeClass("error");
 		            $('#notifyAddress').next().removeClass("btn-danger");
-		            $('#addressMarker').removeClass("icon-white");
+		            $('#addressMarkerSearch').removeClass("icon-white");
+		            $('#addressButtonSearch').removeClass("btn-danger");
+					$('#addressMarkerSearch').removeClass("icon-white");
+					$('#addressButtonNotify').removeClass("btn-danger");
+					$('#addressMarkerNotify').removeClass("icon-white");
                 }
                 
                

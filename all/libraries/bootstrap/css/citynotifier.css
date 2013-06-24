@@ -83,6 +83,12 @@ div.datetimepicker {
 	}
 }
 
+.typeahead{
+	min-width:130%;
+	width: auto;
+	overflow:hidden;
+}
+
 .btn.loading {
 	
     background-image: -webkit-gradient(linear, 0 0, 100% 100%,

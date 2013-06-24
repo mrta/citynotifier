@@ -97,8 +97,8 @@
                                     </div>
                                     <div class="input-append control-group">
                                         <input type="text" id="notifyAddress" placeholder="Address">
-                                        <button onclick="getLocation()" id="addressButton" class="btn" type="button">
-                                            <i id="addressMarker" class="icon-map-marker"></i>
+                                        <button onclick="getLocation()" id="addressButtonNotify" class="btn" type="button">
+                                            <i id="addressMarkerNotify" class="icon-map-marker"></i>
                                         </button>
                                     </div>
                                     <div class="control-group">
@@ -111,7 +111,7 @@
                     </li>
 
                     <li class="dropdown">
-                        <a href="#" id="search" class="dropdown-toggle" data-toggle="dropdown">Search <i class="icon-search icon-white"></i></a>
+                        <a href="#" id="search" class="dropdown-toggle fulladdressvalidator" data-toggle="dropdown">Search <i class="icon-search icon-white"></i></a>
                         <ul class="dropdown-menu">
                             <form>
                                 <fieldset>
@@ -135,8 +135,8 @@
                                     
                                     <div class="input-append control-group">
                                         <input type="text" id="searchAddress" placeholder="Address">
-                                        <button onclick="getLocation()" id="addressButton" class="btn" type="button">
-                                            <i id="addressMarker" class="icon-map-marker"></i>
+                                        <button onclick="getLocation()" id="addressButtonSearch" class="btn" type="button">
+                                            <i id="addressMarkerSearch" class="icon-map-marker"></i>
                                         </button>
                                     </div>
                                     
@@ -235,73 +235,22 @@
                     <th>Status</th>  
                 </tr>
             </thead>
-            <tbody id="modalBody">
-                <!--<tr>
-                    <td>Stradale > Buca</td>
-                    <td>23/06/2013 12:03</td>
-                    <td>Via Fiesso, 7</td>
-                    <td><div class="btn-group">
-                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                            <ul class="dropdown-menu">
-                                <li><p>Incidente stradale, tamponamento.</p></li>
-                                <li><p>Un ferito lieve.</p></li>
-                                <li><p>Un mare di figa qui.</p></li>
-                                <li><p>A Davide però la figa non piace tanto.</p></li> 
-                            </ul>
-                        </div></td>
-                    <td>13 / 0.81</td>
-                    <td><button class="btn btn-success">Open</td>
-                </tr>
-                <tr>
-                    <td>Stradale > Buca</td>
-                    <td>23/06/2013 12:03</td>
-                    <td>Via Fiesso, 7</td>
-                    <td><div class="btn-group">
-                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                            <ul class="dropdown-menu">
-                                <li><p>Incidente stradale, tamponamento.</p></li>
-                                <li><p>Un ferito lieve.</p></li>
-                                <li><p>Un mare di figa qui.</p></li>
-                                <li><p>A Davide però la figa non piace tanto.</p></li> 
-                            </ul>
-                        </div></td>
-                    <td>13 / 0.81</td>
-                    <td><button class="btn btn-warning">Skeptical</td>
-                </tr>
-                <tr>
-                    <td>Stradale > Buca</td>
-                    <td>23/06/2013 12:03</td>
-                    <td>Via Fiesso, 7</td>
-                    <td><div class="btn-group">
-                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                            <ul class="dropdown-menu">
-                                <li><p>Incidente stradale, tamponamento.</p></li>
-                                <li><p>Un ferito lieve.</p></li>
-                                <li><p>Un mare di figa qui.</p></li>
-                                <li><p>A Davide però la figa non piace tanto.</p></li> 
-                            </ul>
-                        </div></td>
-                    <td>13 / 0.81</td>
-                    <td><button class="btn btn-success">Open</td>
-                </tr>
-                <tr>
-                    <td>Stradale > Buca</td>
-                    <td>23/06/2013 12:03</td>
-                    <td>Via Fiesso, 7</td>
-                    <td><div class="btn-group">
-                            <a href="#" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>
-                            <ul class="dropdown-menu">
-                                <li><p>Incidente stradale, tamponamento.</p></li>
-                                <li><p>Un ferito lieve.</p></li>
-                                <li><p>Un mare di figa qui.</p></li>
-                                <li><p>A Davide però la figa non piace tanto.</p></li> 
-                            </ul>
-                        </div></td>
-                    <td>13 / 0.81</td>
-                    <td><button class="btn btn-danger">Closed</td>
-                </tr>-->
-            </tbody>
+            <tbody id="modalBody"></tbody>
         </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+</div>
+
+<!-- Modal Admin Panel -->
+<div id="adminPanel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Admin Panel</h3>
+    </div>
+    <div class="modal-body">
+    	Prova Hodor?
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -310,4 +259,4 @@
 
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false&libraries=places"></script>
