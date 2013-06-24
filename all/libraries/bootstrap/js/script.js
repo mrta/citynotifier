@@ -944,6 +944,7 @@ $('#serverConnect').on('click', function(){
     else
     	var urlServerHttp = $('#serverInput').val();
 
+
 	 $('#adminAlert').html('<div class="alert alert-info span4">\
 		  		<button type="button" class="close"></button>\
 		  		<span id="alertMsg"><strong>E\' stato modificato il Server destinatario</strong></span></div>');
