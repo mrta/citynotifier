@@ -124,8 +124,10 @@ function _citynotifier_normalize_data($data) {
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
                      'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)');
   foreach($type_cast as $type => $cast)
-    if(isset($data[$type]))
-      eval("\$data['" . $type . "']=" . str_replace("%", "\$data['" . $type . "']", $cast));
+  if(isset($data[$type])) {
+    citynotifier_debug($data);
+      eval("\$data['" . $type . "']=" . str_replace("%", "\$data['" . $type . "']", $cast) . ";");
+  }
   return $data;
 }
 
