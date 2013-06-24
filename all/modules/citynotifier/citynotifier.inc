@@ -44,9 +44,10 @@ function _citynotifier_create_event() {
 
 function _citynotifier_get_range_subtype($type, $subtype){
   $types = variable_get('citynotifier_settings_types', "");
+
   foreach($types[$type] as $st)
     if($st['subtype'] == $subtype) return $st['range'];
-  
+
   return FALSE;
 }
 
@@ -57,25 +58,22 @@ function _citynotifier_get_range_subtype($type, $subtype){
  * @return $event matched or array("event_id"=>FALSE, "status"=>FALSE) if no match
  */
 function _citynotifier_get_matched_event($data) {
-	$range = _citynotifier_get_range_subtype($data['type'], $data['subtype']);
-	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
-var_dump($range);
-var_dump($type);
-var_dump($subtype);
+	$type_subtype = _citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype']); 
+	$range = _citynotifier_get_range_subtype($type_subtype['type'], $type_subtype['subtype']);
 
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id','status'))
 		->fields('cn', array('created'))
-		->condition('cn.type', $type, '=')
-		->condition('cn.subtype', $subtype, '=')
+		->condition('cn.type', $data['type'], '=')
+		->condition('cn.subtype', $data['subtype'], '=')
 		->condition('cn.lat', $data['lat']-$range,'>')
 		->condition('cn.lat', $data['lat']+$range,'<')
 		->condition('cn.lng', $data['lng']-$range,'>')
 		->condition('cn.lng', $data['lng']+$range,'<')
 		->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
-	
+
 	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
 
@@ -171,6 +169,7 @@ function _citynotifier_get_index_status($status){
 function _citynotifier_get_value_type_subtype_from_index($index_type, $index_subtype){
 	$types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
 	$type = array_keys($types);
+
 	return array("type" => $type[$index_type], "subtype" => $types[$type[$index_type]][$index_subtype]);
 }
 

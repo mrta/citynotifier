@@ -244,8 +244,8 @@ function citynotifier_report() {
 
 	if($validation['code'] <> 200) {
 		drupal_add_http_header("Status", $validation['code'], TRUE); 
-    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
-    return;
+		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
+		return;
 	}
 
 	$matched_event = _citynotifier_get_matched_event($data);
