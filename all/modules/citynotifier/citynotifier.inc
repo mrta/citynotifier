@@ -91,12 +91,10 @@ function _citynotifier_validate($data, $function_type=NULL) {
       return array("code" => 406, "response" => t('Timemax non valido'));
   }
   
-  extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
-  
-  if($type === FALSE)
+  if($data['type'] === FALSE)
     return array("code" => 406, "response" => t('Type non valido'));
   
-  if($subtype === FALSE)
+  if($data['subtype'] === FALSE)
     return array("code" => 406, "response" => t('Subtype non valido'));
   
   if(!$data['lat'])
@@ -119,7 +117,11 @@ function _citynotifier_normalize_data($data) {
     $data['subtype'] = $data['type']['subtype'];
     $data['type'] = $data['type']['type'];
   }
-    
+  
+  extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
+  $data['type'] = $type;
+  $data['subtype'] = $subtype;
+  
   $type_cast = array('lat' => 'floatval(%)', 'lng(%)' => 'floatval(%)',
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
                      'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)');

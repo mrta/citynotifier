@@ -267,7 +267,7 @@ function citynotifier_report() {
     "event_id" => $event_id,
     "created" => time(),
     );
-
+  
   if(!drupal_write_record("citynotifier_notify", $data)) {
     watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
     drupal_add_http_header("Status", 500);
