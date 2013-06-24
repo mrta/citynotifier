@@ -613,8 +613,8 @@ function searchEvent() {
 		        
 		        for (var i in datiString.events) {
 		        	console.log(i);
-					var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace("_"," ");
-					var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1);
+					var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace(/_/g," ");
+					var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1).replace(/_/g," ");
 					var description = datiString.events[i].description
 					
 					var date = new Date(datiString.events[i].start_time*1000);
@@ -661,7 +661,7 @@ function searchEvent() {
 						content: "Pota"
 					});
 
-					google.maps.event.addListener(newmarker, 'click', function() {
+					google.maps.event.addListener(searchMarker, 'click', function() {
 						this['infowindow'].open(map, this);
 					});
 				
