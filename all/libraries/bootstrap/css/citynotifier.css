@@ -1,10 +1,12 @@
 html {
 	height: 100%;
+	
 }
 
 body {
     padding: 41px 0 0 0;
 	height: 100%;
+	overflow-y: hidden;
 }
 
 body .modal{
@@ -18,8 +20,7 @@ body .modal{
 }
 
 .modal .dropdown-menu{
-	padding: 10px;
-	
+	padding: 10px;	
 }
 
 form fieldset {
@@ -66,12 +67,27 @@ div.datetimepicker {
 	text-indent: 250px;
 	white-space: nowrap;
 	overflow: hidden;
-	-webkit-mask-image: url(../img/spinner.png);
-	background-color: #000;
+	
+	background-image: url(../img/spinner.png);
+		
+	animation-name: spinnerRotate;
+	animation-duration: 2s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	
 	-webkit-animation-name: spinnerRotate;
 	-webkit-animation-duration: 2s;
 	-webkit-animation-iteration-count: infinite;
 	-webkit-animation-timing-function: linear;
+}
+
+@keyframes spinnerRotate {
+	from {
+		transform:rotate(0deg);
+	}
+	to {
+		transform:rotate(360deg);
+	}
 }
 
 @-webkit-keyframes spinnerRotate {
@@ -87,6 +103,19 @@ div.datetimepicker {
 	min-width:130%;
 	width: auto;
 	overflow:hidden;
+}
+
+#alertBox{
+	position: absolute;
+	left:30%;
+	right:30%;
+	margin-left:auto;
+	margin-right:auto;
+	z-index: 5000;
+	opacity: 0;
+	display: none;
+	
+	
 }
 
 .btn.loading {

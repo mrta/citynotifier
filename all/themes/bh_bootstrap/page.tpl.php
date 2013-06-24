@@ -193,6 +193,7 @@
     </div>
 </nav>
 
+<div id="alertBox"></div>
 <div id="map_canvas"></div>
 
 <nav>

@@ -74,22 +74,42 @@ function updateMarker(event){
 
 
 $('#search').on('click', function() {
+
+	if(!userMarker){
+		$('#map_canvas').gmap3({
+		  getlatlng:{
+			address: $('#searchAddress').val(),
+			location: new google.maps.LatLng(44.494860,11.342598),
+			callback: function(results){
+			  if ( !results ) return;
+			  userMarker = new google.maps.Marker({
+					map: map,
+					position: results[0].geometry.location,
+					title: "SONO IO",
+					animation: google.maps.Animation.DROP
+				});
+				distanceWidget = new DistanceWidget(map);
+       			radiusWidgetCheck = true;
+			}
+		  }
+		});
+	}
     	
     if (!(radiusWidgetCheck) && userMarker){
         distanceWidget = new DistanceWidget(map);
         radiusWidgetCheck = true;
     }
-        
-    google.maps.event.addListener(distanceWidget, 'distance_changed', function() {
-    	if(radiusWidget.get('distance') != 0)
-    		distanceDefault = radiusWidget.get('distance');
-        $('#searchRadius').val(Math.round(distanceDefault * 1000) / 1000 + " km");
-        $('#searchRadius').val(($('#searchRadius').val().replace('.',',')));
-    });
+    
+		google.maps.event.addListener(distanceWidget, 'distance_changed', function() {
+			if(radiusWidget.get('distance') != 0)
+				distanceDefault = radiusWidget.get('distance');
+			$('#searchRadius').val(Math.round(distanceDefault * 1000) / 1000 + " km");
+			$('#searchRadius').val(($('#searchRadius').val().replace('.',',')));
+		});
 
-    google.maps.event.addListener(distanceWidget, 'position_changed', function() {
-        displayInfo(distanceWidget);
-    });
+		google.maps.event.addListener(distanceWidget, 'position_changed', function() {
+			displayInfo(distanceWidget);
+		});
 });
 
 $('#refresh').on('click', function() {
@@ -102,6 +122,25 @@ $('#refresh').on('click', function() {
 });
 
 $('#notify').on('click', function() {
+
+	if(!userMarker){
+		$('#map_canvas').gmap3({
+		  getlatlng:{
+			address: $('#searchAddress').val(),
+			location: new google.maps.LatLng(44.494860,11.342598),
+			callback: function(results){
+			  if ( !results ) return;
+			  userMarker = new google.maps.Marker({
+					map: map,
+					position: results[0].geometry.location,
+					title: "SONO IO",
+					animation: google.maps.Animation.DROP
+				});
+			}
+		  }
+		});
+	}
+	
     if(radiusWidget)
     	radiusWidget.set('distance', 0);
     if(sizer){

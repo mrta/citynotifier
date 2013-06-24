@@ -2,6 +2,7 @@ var firstTime = 0;
 
 $('.brand').on('click', function(){
 	console.log(jQuery.cookie());
+	errorAlert("Pota");
 });
 
 $(window).unload(function() {
@@ -212,7 +213,7 @@ function loginFunction() {
 				$('#account').parent().removeClass('open');
             },
             error: function(err) {
-                alert("Utente non registrato");
+                errorAlert("Utente non registrato");
             }
         });
     }
@@ -423,10 +424,10 @@ function sendNotify() {
             contentType: "application/json; charset=utf-8",
             success: function(datiString, status, richiesta) {
                 $('#notify').parent().removeClass('open');
-                alert("Notifica Inviata!");
+                successAlert("Notifica Inviata!");
             },
             error: function(err) {
-                alert("Ajax Notify error");
+                errorAlert("Ajax Notify error");
             }
         });
     }
@@ -466,7 +467,7 @@ function getLocation() {
         var options = {timeout: 60000};
         navigator.geolocation.getCurrentPosition(showLocation, errorHandler, options);
     } else {
-        alert("Sorry, browser does not support geolocation!");
+        errorAlert("Sorry, browser does not support geolocation!");
     }
 }
 function showLocation(position) {
@@ -499,7 +500,7 @@ function errorHandler(err) {
     radiusWidgetCheck = false;
     
     if (err.code == 1 || err.code == 2) {
-        alert("Error: Position is not available!");
+        errorAlert("Position is not available!");
     	
     if(jQuery.cookie('last_lat') && !firstTime){
     	firstTime = 1;
@@ -596,6 +597,7 @@ function searchEvent() {
 		    url: url,
 		    type: 'GET',
 		    success: function(datiString, status, richiesta) {
+		    	 successAlert("Ricerca in corso...");
 		        $('#search').parent().removeClass('open');
 		        $('#modalBody').html('');
 		        clearOverlays();
@@ -690,7 +692,7 @@ function searchEvent() {
 			$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
-		        alert("Ajax Notify error");
+		        errorAlert("Ajax Notify error");
 		    }
 		});
 	}
@@ -805,7 +807,7 @@ $('#searchAddress').typeahead({
     geocoder.geocode({ address: item }, function(results, status) {
       if (status != google.maps.GeocoderStatus.OK) {
       	$('#searchAddress').parent().addClass("error");
-        alert('Cannot find address');
+        errorAlert('Cannot find address');
         return;
       }
       	$('li.open ul.typeahead').parent().removeClass("error");
@@ -860,7 +862,7 @@ $('#notifyAddress').typeahead({
     geocoder.geocode({ address: item }, function(results, status) {
       if (status != google.maps.GeocoderStatus.OK) {
       	$('#notifyAddress').parent().addClass("error");
-        alert('Cannot find address');
+        errorAlert('Cannot find address');
         return;
       }
       	$('li.open ul.typeahead').parent().removeClass("error");
@@ -883,3 +885,22 @@ $('#notifyAddress').typeahead({
   }
 });
 
+function errorAlert(error){
+	$('#alertBox').html('<div class="alert alert-error ">\
+		  <button type="button" class="close"></button>\
+		  <span id="alertMsg"><strong>Warning!</strong> '+error+'</span></div>');
+	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
+		$('#alertBox').css('display', 'none');
+		});
+	
+}
+
+function successAlert(msg){
+	$('#alertBox').html('<div class="alert alert-success ">\
+		  <button type="button" class="close"></button>\
+		  <span id="alertMsg"><strong>Warning!</strong> '+msg+'</span></div>');
+	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
+		$('#alertBox').css('display', 'none');
+		});
+}
+	
