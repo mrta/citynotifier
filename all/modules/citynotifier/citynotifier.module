@@ -214,14 +214,15 @@ function citynotifier_report() {
 	global $user, $skepticals;
 	header('Content-type: application/json; charset=utf-8');
 	
-	$data = drupal_json_decode(utf8_decode(file_get_contents("php://input")));
+	$data = _citynotifier_normalize_data(drupal_json_decode(utf8_decode(file_get_contents("php://input"))));
   
 	if(!$user->uid) {
 		drupal_add_http_header("Status", 401);
 		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
 		return;
 	}
-	$validation = _citynotifier_validate(_citynotifier_normalize_data($data), "report");
+	
+	$validation = _citynotifier_validate($data, "report");
 
 	if($validation['code'] <> 200) {
 		drupal_add_http_header("Status", $validation['code'], TRUE); 
@@ -229,18 +230,26 @@ function citynotifier_report() {
     return;
 	}
 
-	$event_exist = _citynotifier_check_event($data);
+	$matched_event = _citynotifier_get_matched_event($data);
  
-	if(!$event_exist || $event_exist['status'] == _citynotifier_get_index_or_value_status("archived"))
-		$event_id = _citynotifier_create_event($data);
-	if($event_exist['status'] == _citynotifier_get_index_or_value_status("open"))
-		$event_id = $event_exist['event_id'];
-	if($event_exist['status'] == _citynotifier_get_index_or_value_status("closed")){
-		//status scettico cosa fare?
-		_citynotifier_update_status_event($event_exist['event_id'], _citynotifier_get_index_or_value_status("skeptical"));
-		$event_id = $event_exist['event_id'];
-		$skepticals = array("event_id" => $event_exist['event_id'], "start_skeptical" => time(), "usrskeprtical" => array());
-	}
+	$new_event = FALSE;
+	switch ($matched_event['status']) {
+	case FALSE:
+	case _citynotifier_get_index_status("archived"):
+	  $new_event = TRUE;
+	  $event_id = _citynotifier_create_event();
+	  break;
+	case _citynotifier_get_index_status("open"):
+	  $event_id = $matched_event['event_id'];
+	  break;
+	case _citynotifier_get_index_status("closed"):
+	  _citynotifier_update_status_event($matched_event['event_id'], _citynotifier_get_index_status("skeptical"));
+		$event_id = $matched_event['event_id'];
+		break;
+	case _citynotifier_get_index_status("skeptical"):
+	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
+	  break;
+	};
 
 	/* Casi
 	1) Non c'è evento, crealo
@@ -250,33 +259,26 @@ function citynotifier_report() {
 	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
 	    2) Freshness > N: aprire un nuovo evento
 	*/
-	citynotifier_debug($data);
-  extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
-   
-  $record = array (
+	//citynotifier_debug($data);
+  
+  /** Ad extra $data **/
+  $data += array (
     "uid" => $user->uid,
     "event_id" => $event_id,
     "created" => time(),
-    "type" => $type,
-    "subtype" => $subtype,
-    "lat" => $data['lat'],
-    "lng" => $data['lng'],
-    "status" => 1,
-    "description" => truncate_utf8($data['description'], 255),
     );
 
-  citynotifier_debug($record);
-  if(!drupal_write_record("citynotifier_notify", $record)) {
-    watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($record, TRUE) .'</pre>', WATCHDOG_CRITICAL);
-    $result = array("result" => t("Errore nella memorizzazione nel database"));
+  if(!drupal_write_record("citynotifier_notify", $data)) {
+    watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
     drupal_add_http_header("Status", 500);
-    echo drupal_json_output($result);
+    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Errore nella memorizzazione nel database"))));
+    return;
   };
 
-  $result = array("event_id" => $record['event_id'], "result" => t("nuova segnalazione aperta con successo / segnalazione di un evento già in memoria avvenuta con successo"));
-  
   drupal_add_http_header("Status", 200);
-  echo drupal_json_output($result);
+  echo drupal_convert_to_utf8(drupal_json_encode(array("event_id" => $data['event_id'],
+                                                       "result" => $new_event?t("nuova segnalazione aperta con successo"):t("segnalazione di un evento già in memoria avvenuta con successo"))));
+  return;
 }
 
 

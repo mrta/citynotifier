@@ -18,7 +18,7 @@ function citynotifier_notify() {
 		array_push($skepticals['usrskeprtical'], $usr_status);
 	}
 
-	_citynotifier_update_status_event($data['event_id'], _citynotifier_get_index_or_value_status($data['status']));
+	//_citynotifier_update_status_event($data['event_id'], _citynotifier_get_index_or_value_status($data['status']));
 
 	drupal_add_http_header("Status", 200);
 	return drupal_json_output(array("result" => t("notifica inviata con successo")));
@@ -26,28 +26,20 @@ function citynotifier_notify() {
 
 function _citynotifier_update_status_event($event_id, $status){
 	$query = db_select("citynotifier_event", 'ce')
-		->fields('ce', array('type','subtype','status'))
+		->fields('ce', array('status'))
 		->condition('ce.event_id', $event_id, '=');
 	$event = $query->execute()->fetchAssoc();
 
 	$event['status'] = $status;
 
-	drupal_write_record("citynotifier_event", $event, $event_id);
+	drupal_write_record("citynotifier_event", $event);
 }
 
 
-function _citynotifier_create_event($data) {
-	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
-
-	$record = array (
-		"type" => $type,
-		"subtype" => $subtype,
-		"status" => _citynotifier_get_index_or_value_status("open"),
-	);
-
-	drupal_write_record("citynotifier_event", $record);
-
-	return $record['event_id'];
+function _citynotifier_create_event() {
+  $data = array("status" => _citynotifier_get_index_status('open'));
+	drupal_write_record("citynotifier_event", $data);
+	return $data['event_id'];
 }
 
 function _citynotifier_get_range_subtype($type, $subtype){
@@ -58,7 +50,13 @@ function _citynotifier_get_range_subtype($type, $subtype){
   return FALSE;
 }
 
-function _citynotifier_check_event($data) {
+/**
+ * Get matched event to notify
+ *
+ * @param $data
+ * @return $event matched or array("event_id"=>FALSE, "status"=>FALSE) if no match
+ */
+function _citynotifier_get_matched_event($data) {
 	$range = _citynotifier_get_range_subtype($data['type']['type'], $data['type']['subtype']);
 	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
 
@@ -73,9 +71,9 @@ function _citynotifier_check_event($data) {
 		->condition('cn.lng', $data['lng']-$range,'>')
 		->condition('cn.lng', $data['lng']+$range,'<')
 		->orderby('cn.created', 'DESC');
-	$events = $query->execute()->fetchAssoc();
+	$event = $query->execute()->fetchAssoc();
 
-	return $events;
+	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
 
 function _citynotifier_validate($data, $function_type=NULL) {
@@ -122,10 +120,12 @@ function _citynotifier_normalize_data($data) {
     $data['type'] = $data['type']['type'];
   }
     
-  $type_cast = array('lat' => 'floatval', 'lng' => 'floatval', 'radius' => 'intval', 'timemax' => 'intval', 'timemin' => 'intval');
+  $type_cast = array('lat' => 'floatval(%)', 'lng(%)' => 'floatval(%)',
+                     'radius' => 'intval(%)', 'timemax' => 'intval(%)',
+                     'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)');
   foreach($type_cast as $type => $cast)
     if(isset($data[$type]))
-      eval("\$data['" . $type . "']=" . $cast . "(\"" . $data[$type] . "\");");
+      eval("\$data['" . $type . "']=" . str_replace("%", "\$data['" . $type . "']", $cast));
   return $data;
 }
 
