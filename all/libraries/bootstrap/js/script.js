@@ -1,4 +1,6 @@
 var firstTime = 0;
+var urlServer = "http://d.citynotifier.local"
+var urlCrossDomain = -1;
 
 $('.brand').on('click', function(){
 	console.log(jQuery.cookie());
@@ -33,7 +35,7 @@ $(document).ready(function(){
         $('#account').next().empty();
         if(jQuery.cookie('session_auth' == 3)) //ADMIN
 			$('#account').next().html('<div id="logout-form">\
-				<a href="#adminPanel" role="button" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
+				<a href="#adminPanel" role="button" id="adminPanelButton" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
 				<button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
 		else
         	$('#account').next().html('<div id="logout-form"><button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
@@ -154,8 +156,7 @@ $("#searchRadius").on('click', function(){
 
 function loginFunction() {
     xmlhttp = new XMLHttpRequest();
-    domain = "http://";
-    url = domain.concat(document.location.hostname, "/login");
+    url = urlServer.concat("/login");
 
     var loginObj = new Object();
     loginObj.username = $('#user').val();
@@ -174,6 +175,7 @@ function loginFunction() {
             data: loginJSON,
             contentType: "application/json; charset=utf-8",
             success: function(datiString, status, richiesta) {
+            	successAlert("Login effettuato con successo");
             	//success code
        			var session_id = datiString.session_id;
         		var session_name = datiString.session_name;   
@@ -201,7 +203,8 @@ function loginFunction() {
   							<a href="#adminPanel" role="button" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
   							<button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
   							jQuery.cookie('session_auth', auth_level, { path: '/', expires: 30 });
-  					}
+  							
+					}
   					else{
   						$('#account').next().html('<div id="logout-form"><button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');	
 						jQuery.cookie('session_auth', auth_level, { path: '/', expires: 30 });
@@ -240,8 +243,7 @@ function loginFunction() {
 
 $("#account").next().delegate("#logout", "click", function() {
     xmlhttp = new XMLHttpRequest();
-    domain = "http://";
-    url = domain.concat(document.location.hostname, "/logout");
+    url = urlServer.concat("/logout");
 
     $('#account').fadeOut(1000, function() {
         $('#account').html("Account " + '<i class="icon-user icon-white"></i>');
@@ -281,10 +283,13 @@ $("#account").next().delegate("#logout", "click", function() {
 	
 			jQuery.removeCookie('last_lat');
 			jQuery.removeCookie('last_lng');
+			
+			successAlert("Logout effettuato con successo");
         	
         	$('#notify').fadeOut(1000);
         },
         error: function(err) {
+        	errorAlert("Si è verificato un errore con il logout");
         }
     });
 });
@@ -391,8 +396,7 @@ $("#notify").next().delegate("#notifySubmit", "click", function() {
 
 function sendNotify() {
     xmlhttp = new XMLHttpRequest();
-    domain = "http://";
-    url = domain.concat(document.location.hostname, "/segnalazione");
+    url = urlServer.concat("/segnalazione");
 
 
     var notifyType = new Object();
@@ -547,13 +551,14 @@ function buildUrl(url, parameters) {
 
 function searchEvent() {
 
-    var d = new Date();
-    
+    var d = new Date();   
     xmlhttp = new XMLHttpRequest();
-    domain = "http://";
     
     var parameters = new Array();
-    parameters["scope"] = "local";
+    if(urlCrossDomain != -1)
+    	parameters["scope"] = "remote"
+    else
+    	parameters["scope"] = "local";
     parameters["type"] = ($('#searchType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
     
     var subtypeSelected = ($('#searchSubType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
@@ -581,10 +586,11 @@ function searchEvent() {
     console.log("timeMax dopo: "+timeMax);
     
     parameters["status"] = $('#searchStatus').val().toLowerCase();
-	
-	console.log("scope="+parameters["scope"]+"&type="+parameters["type"]+"&subtype="+parameters["subtype"]+"&lat="+parameters["lat"]+"&lng="+parameters["lng"]+"&radius="+parameters["radius"]+"&timemin="+parameters["timemin"]+"&timemax="+parameters["timemax"]+"&status="+parameters["status"]);
+	if(urlCrossDomain != -1)
+		parameters["dest"] = urlCrossDomain;
+	console.log("scope="+parameters["scope"]+"&type="+parameters["type"]+"&subtype="+parameters["subtype"]+"&lat="+parameters["lat"]+"&lng="+parameters["lng"]+"&radius="+parameters["radius"]+"&timemin="+parameters["timemin"]+"&timemax="+parameters["timemax"]+"&status="+parameters["status"]+"&dest="+parameters["dest"]);
     
-    url = domain.concat(document.location.hostname, buildUrl("/richieste", parameters));
+    url = urlServer.concat(buildUrl("/richieste", parameters));
 
 	if($('#searchAddress').val() != ''){
 		$('#infoAddress').append('<p id="spinner"></p>');
@@ -647,6 +653,14 @@ function searchEvent() {
 						animation: google.maps.Animation.DROP
 					});
 					markersArray.push(searchMarker);
+					
+					searchMarker['infowindow'] = new google.maps.InfoWindow({
+						content: "Pota"
+					});
+
+					google.maps.event.addListener(newmarker, 'click', function() {
+						this['infowindow'].open(map, this);
+					});
 				
 					console.log("lat "+lat+" lng: "+lng);
 				
@@ -888,7 +902,7 @@ $('#notifyAddress').typeahead({
 function errorAlert(error){
 	$('#alertBox').html('<div class="alert alert-error ">\
 		  <button type="button" class="close"></button>\
-		  <span id="alertMsg"><strong>Warning!</strong> '+error+'</span></div>');
+		  <span id="alertMsg"><strong>Warning! '+error+'</strong></span></div>');
 	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
 		$('#alertBox').css('display', 'none');
 		});
@@ -898,9 +912,46 @@ function errorAlert(error){
 function successAlert(msg){
 	$('#alertBox').html('<div class="alert alert-success ">\
 		  <button type="button" class="close"></button>\
-		  <span id="alertMsg"><strong>Warning!</strong> '+msg+'</span></div>');
+		  <span id="alertMsg"><strong>'+msg+'</strong></span></div>');
 	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
 		$('#alertBox').css('display', 'none');
 		});
 }
+
+$("#account").next().delegate("#adminPanelButton", "click", function() {
+	if($('#serverInput > option').length == 1){
+		url = urlServer.concat("/servers"); 							
+		$.ajax({
+			url: url,
+			type: 'GET',
+			success: function(serverString, status){
+				//console.log(serverString);
+				for (var i in serverString)
+				$('#serverInput').append('<option>'+ i + ": "+ serverString[i].name + " "+ serverString[i].url+'</option>');
+			},
+			error: function(err){
+				console.log("Server string error");
+			}
+		});
+	}
+});
+
+  							
+
+$('#serverConnect').on('click', function(){
+	if ($('#serverInput').val().substring(0, 7) != "http://")
+    	var urlServerHttp = "http://" + $('#serverInput').val();
+    else
+    	var urlServerHttp = $('#serverInput').val();
+
+	 $('#adminAlert').html('<div class="alert alert-info span4">\
+		  		<button type="button" class="close"></button>\
+		  		<span id="alertMsg"><strong>E\' stato modificato il Server destinatario</strong></span></div>');
+			$('#adminAlert').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
+				$('#adminAlert').css('display', 'none');
+	});
 	
+	urlCrossDomain = $("#serverInput").prop("selectedIndex")-1;
+	$('#serverInput').attr('onfocus', '');
+
+});

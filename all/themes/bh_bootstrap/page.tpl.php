@@ -251,7 +251,17 @@
         <h3 id="myModalLabel">Admin Panel</h3>
     </div>
     <div class="modal-body">
-    	Prova Hodor?
+    	<p class="text-info">Inserisci il Server a cui collegarsi</p>
+    	<img style="width:30%" class="pull-right" src="sites/all/libraries/bootstrap/img/admin.jpg">
+    	<form class="form-search">
+		  <div class="input-append">
+		  	<select class="span4" id="serverInput">
+                <option selected>Default: Server Locale</option>
+            </select>
+			<button id="serverConnect" type="button" class="btn btn-inverse">Connect</button>
+		  </div>
+		  <div id="adminAlert"></div>
+		  </form>
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
