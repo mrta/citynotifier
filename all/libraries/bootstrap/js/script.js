@@ -1,5 +1,5 @@
 var firstTime = 0;
-var urlServer = "http://d.citynotifier.local"
+var urlServer = "http://"+document.location.hostname;
 var urlCrossDomain = -1;
 
 $('.brand').on('click', function(){
