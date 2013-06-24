@@ -307,7 +307,8 @@ function citynotifier_http_get_request($url, $query) {
       ),
     'method' => 'GET',
     );
-  
+  citynotifier_debug($url . "?" . http_build_query($query));
+	  
   $response = drupal_http_request($url . "?" . http_build_query($query), $options);
   return drupal_json_decode(utf8_decode($response->data));
 }

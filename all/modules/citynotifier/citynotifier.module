@@ -203,9 +203,9 @@ function citynotifier_request() {
 	  break;
 	case "remote":
 	  if(isset($data['dest']))
-	    $servers = $servers[$data['dest']];
+	    $servers = array($servers[$data['dest']]);
 	  foreach($servers as $server) {
-	    $result[] = citynotifier_http_get_request($server['url'], $data);
+	    $result[] = citynotifier_http_get_request($server['url'] . "/richieste", $data);
 	  }
 	  break;
 	}
