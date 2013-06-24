@@ -211,7 +211,7 @@ function _citynotifier_get_local_event($data) {
 
 	$query->havingCondition('freshness', $data['timemin'], '>')
 		->havingCondition('freshness', $data['timemax'], '<')
-		->havingCondition('distance', $data['radius'], '<');
+		->havingCondition('distance', $data['radius']/1000, '<');
 	$query->groupBy('ce.event_id');
 
 	$events = $query->execute();//->fetchAll();
