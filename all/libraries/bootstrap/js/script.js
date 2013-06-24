@@ -200,7 +200,7 @@ function loginFunction() {
                 for (var auth_level in session_auth) {
   					if(auth_level == 3){ //ADMIN
   						$('#account').next().html('<div id="logout-form">\
-  							<a href="#adminPanel" role="button" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
+  							<a href="#adminPanel" role="button" id="adminPanelButton" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
   							<button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
   							jQuery.cookie('session_auth', auth_level, { path: '/', expires: 30 });
   							
@@ -919,7 +919,9 @@ function successAlert(msg){
 }
 
 $("#account").next().delegate("#adminPanelButton", "click", function() {
+	console.log("Aggiungo server");
 	if($('#serverInput > option').length == 1){
+		console.log("Aggiungo server");
 		url = urlServer.concat("/servers"); 							
 		$.ajax({
 			url: url,
@@ -935,9 +937,7 @@ $("#account").next().delegate("#adminPanelButton", "click", function() {
 		});
 	}
 });
-
-  							
-
+					
 $('#serverConnect').on('click', function(){
 	if ($('#serverInput').val().substring(0, 7) != "http://")
     	var urlServerHttp = "http://" + $('#serverInput').val();
