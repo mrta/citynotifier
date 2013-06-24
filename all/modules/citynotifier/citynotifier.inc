@@ -175,7 +175,6 @@ function _citynotifier_get_value_type_subtype_from_index($index_type, $index_sub
 
 function _citynotifier_get_local_event($data) {
 	$status = variable_get('citynotifier_settings_status', array());
-	extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
 
 /*	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
 	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
@@ -200,15 +199,15 @@ function _citynotifier_get_local_event($data) {
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
 		->condition('cn.lng', $lonmin,'<')*/
-	if($status != "all"){
+	if($data['status'] != "all"){
 		$query->condition('ce.status', _citynotifier_get_index_status($data['status']),'=');
-	} else {
+	}/* else {
 	  $or = db_or();
 	  foreach($status as $s)
 	    if($s <> "all")
 	      $or->condition('ce.status', $s,'=');
 	  $query->condition($or);
-	}
+	}*/
 
 	$query->havingCondition('freshness', $data['timemin'], '>')
 		->havingCondition('freshness', $data['timemax'], '<')
@@ -267,10 +266,10 @@ function _citynotifier_get_local_event($data) {
 		$event_result['reliability'] = $reliability;
 		$event_result['description'] = $descriptions;
 		$event_result['locations'] = $locations;
-		array_push($events_result, $event_result);
+		array_push($result, $event_result);
 	}
-//citynotifier_debug($events_result);
-	return $events_result;
+//citynotifier_debug($result);
+	return $result;
 }
 
 function citynotifier_get_assiduity($uid) {
