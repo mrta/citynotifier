@@ -17,8 +17,10 @@ $(window).unload(function() {
 		jQuery.cookie('last_timeFrom', $('#timeFromText').val(), { path: '/', expires: 30 });
 		jQuery.cookie('last_timeTo', $('#timeToText').val(), { path: '/', expires: 30 });
 	
-		jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
-		jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
+		if(userMarker){
+			jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
+			jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
+		}
 		
 		
 	}
@@ -33,7 +35,7 @@ $(document).ready(function(){
         });
 
         $('#account').next().empty();
-        if(jQuery.cookie('session_auth' == 3)) //ADMIN
+        if(jQuery.cookie('session_auth') == 3) //ADMIN
 			$('#account').next().html('<div id="logout-form">\
 				<a href="#adminPanel" role="button" id="adminPanelButton" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
 				<button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
@@ -272,6 +274,7 @@ $("#account").next().delegate("#logout", "click", function() {
         	jQuery.removeCookie('session_name');
         	jQuery.removeCookie('session_id');
         	jQuery.removeCookie('session_user');
+        	jQuery.removeCookie('session_auth');
         	
         	jQuery.removeCookie('last_type');
 			jQuery.removeCookie('last_subtype');

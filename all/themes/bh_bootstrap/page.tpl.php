@@ -156,6 +156,7 @@
                               
                                     <div class="control-group">
                                         <select class="span2" id="searchStatus">
+                                        	<option>All</option>
                                             <option selected>Open</option>
                                             <option>Closed</option>
                                             <option>Skeptical</option>

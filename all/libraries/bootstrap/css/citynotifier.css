@@ -109,13 +109,17 @@ div.datetimepicker {
 	position: absolute;
 	left:30%;
 	right:30%;
+	margin-top: 10px;
 	margin-left:auto;
 	margin-right:auto;
 	z-index: 5000;
 	opacity: 0;
-	display: none;
-	
-	
+	display: none;	
+}
+
+#adminAlert{
+	margin-top: 5px;
+	margin-left: -30px;
 }
 
 .btn.loading {
