@@ -192,10 +192,10 @@ function _citynotifier_get_local_event($data) {
 	$query->addExpression('MIN(cn.created)', 'start');
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
 
-	if($type){
-		$query->condition('cn.type', $type, '=');
-		if($subtype)
-			$query->condition('cn.subtype', $subtype, '=');
+	if($data['type']){
+		$query->condition('cn.type', $data['type'], '=');
+		if($data['subtype'])
+			$query->condition('cn.subtype', $data['subtype'], '=');
 	}
 		/*->condition('cn.lat', $latmin,'>')
 		->condition('cn.lat', $latmax,'<')
