@@ -183,49 +183,10 @@ function geocodePosition(position, eventID){
 					$('#addressButtonNotify').removeClass("btn-danger");
 					$('#addressMarkerNotify').removeClass("icon-white");
                 }
-                
-               
-                	
-				/*if (infowindow){
-					infowindow.open(map, marker);
-					infowindow.setContent(content);
-				} else {
-					$(this).gmap3({
-					infowindow:{
-						anchor:marker, 
-						options:{content: content}
-						}
-					});
-				}*/
 			}
 		}
 	});
 }
-
-
-/*geocoder.geocode({latLng: position}, function(matchingAddresses, status) {
-    if (status == google.maps.GeocoderStatus.OK) {
-        if (matchingAddresses && matchingAddresses.length > 0) {
-            latitude = matchingAddresses[0].geometry.location.lat();
-            longitude = matchingAddresses[0].geometry.location.lng();
-            $('#notifyAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
-            $('#searchAddress').val(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
-            $('#infoAddress').html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
-            $('#notifyAddress').parent().removeClass("error");
-            $('#notifyAddress').next().removeClass("btn-danger");
-            $('#addressMarker').removeClass("icon-white");
-            
-            $latlng = ((position.jb)+''+Math.round(position.kb * 1000000) / 1000000).replace(/\./g,"");
-            $('#'+$latlng).html(matchingAddresses[0].address_components[1].long_name + ", " + matchingAddresses[0].address_components[0].long_name);
-        }
-        else
-            alert('Cannot determine address at this location.');
-    }
-    else
-        alert("Geocoder failed due to: " + status);
-});*/
-
-
 google.maps.event.addDomListener(window, 'load', initialize);
 
 /**
