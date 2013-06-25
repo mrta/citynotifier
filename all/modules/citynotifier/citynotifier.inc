@@ -306,13 +306,34 @@ function citynotifier_http_get_request($url, $query) {
       'Accept' => 'application/json',
       ),
     'method' => 'GET',
+    'timeout' => 5,
+    'max_redirects' => 6,
     );
   citynotifier_debug($url . "?" . http_build_query($query));
-	  
+  
   $response = drupal_http_request($url . "?" . http_build_query($query), $options);
+citynotifier_debug($response);
   return drupal_json_decode(utf8_decode($response->data));
 }
 
+function _citynotifier_formalize_request($data){
+	$st = _citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype']);
+	$data_req['scope'] = "local";
+	$data_req['type'] = $st['type'];
+	$data_req['subtype'] = $st['subtype'];
+	$data_req['lat'] = $data['lat'];
+	$data_req['lng'] = $data['lng'];
+	$data_req['radius'] = $data['radius'];
+	$data_req['timemin'] = $data['timemin'];
+	$data_req['timemax'] = $data['timemax'];
+	$data_req['status'] = $data['status'];
+
+	return $data_req;
+}
+
+function _citynotifier_check_remote_event($events){
+
+}
 
 function citynotifier_debug($data) {
   if (is_array($data) || is_object($data))
