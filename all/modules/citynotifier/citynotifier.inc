@@ -73,6 +73,8 @@ function _citynotifier_get_matched_event($data) {
 		->condition('cn.lng', $data['lng']+$range,'<')
 		->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
+	
+	citynotifier_debug($query);
 
 	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }

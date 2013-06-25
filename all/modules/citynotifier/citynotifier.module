@@ -196,10 +196,13 @@ function citynotifier_request() {
     return;
 	}
 
-	$result = array();
+	$result = array("request_time" => time(),
+		              "result" => "Messaggio di servizio");
+	
 	switch($data['scope']) {
 	case "local":
 	  $events = _citynotifier_get_local_event($data);
+	  $result += array("from_server" => $_SERVER['HTTP_HOST']);
 	  break;
 	case "remote":
 	  if(isset($data['dest']))
@@ -210,13 +213,7 @@ function citynotifier_request() {
 	  break;
 	}
   
-  
-  $result = array("request_time" => time(),
-		"result" => "Messaggio di servizio",
-		"from_server" => "http://ltw1234.web.cs.unibo.it",
-		"events" => $events
-               );
-  
+  $result += array("events" => $events);
   
   //echo drupal_json_output($fake_resp);
   
