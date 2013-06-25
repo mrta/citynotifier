@@ -125,7 +125,7 @@ function _citynotifier_normalize_data($data) {
   $data['type'] = $type;
   $data['subtype'] = $subtype;
   
-  $type_cast = array('lat' => 'floatval(%)', 'lng(%)' => 'floatval(%)',
+  $type_cast = array('lat' => 'floatval(%)', 'lng' => 'floatval(%)',
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
                      'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)');
   foreach($type_cast as $type => $cast) {
@@ -257,7 +257,7 @@ function _citynotifier_get_local_event($data) {
 			$sum += (1 + $rep['und'][0]['value'] * $ass);
 
 			$location = array();
-			$location['lat'] = $res->lat;
+			$location['lat'] = (float)$res->lat;
 			$location['lng'] = $res->lng;
 			array_push($locations, $location);
 			array_push($descriptions, $res->description);

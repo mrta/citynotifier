@@ -198,17 +198,24 @@ function citynotifier_request() {
 
 	$result = array("request_time" => time(),
 		              "result" => "Messaggio di servizio");
-	
+
 	switch($data['scope']) {
 	case "local":
 	  $events = _citynotifier_get_local_event($data);
 	  $result += array("from_server" => "http://" . $_SERVER['HTTP_HOST']);
 	  break;
 	case "remote":
+	  $st = _citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype']);
+	  $data['type'] = $st['type'];
+	  $data['subtype'] = $st['subtype'];
+	  $data['scope'] = "local";
+//citynotifier_debug($data);
 	  if(isset($data['dest']))
 	    $servers = array($servers[$data['dest']]);
 	  foreach($servers as $server) {
-	    $result[] = citynotifier_http_get_request($server['url'] . "/richieste", $data);
+citynotifier_debug(time());
+	    $result = citynotifier_http_get_request($server['url'] . "/richieste", $data);
+citynotifier_debug(time());
 	  }
 	  break;
 	}
