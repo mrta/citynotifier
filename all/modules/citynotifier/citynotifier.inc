@@ -226,8 +226,8 @@ function _citynotifier_get_local_event($data) {
 		$event_result['event_id'] = $event->event_id;
 		$event_result['type'] = _citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype);
 		$event_result['status'] = $status[$event->status];
-		$event_result['start_time'] = $event->start;
-		$event_result['freshness'] = $event->freshness;
+		$event_result['start_time'] = (int)$event->start;
+		$event_result['freshness'] = (int)$event->freshness;
 
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -236,7 +236,7 @@ function _citynotifier_get_local_event($data) {
 		$query->groupBy('ce.event_id');
 		$nOn = $query->execute()->fetchAssoc();
 
-		$event_result['number_of_notifications'] = $nOn['number_of_notifications'];
+		$event_result['number_of_notifications'] = (int)$nOn['number_of_notifications'];
 
 		$query = db_select("citynotifier_event", 'ce');
 		$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
@@ -258,14 +258,14 @@ function _citynotifier_get_local_event($data) {
 
 			$location = array();
 			$location['lat'] = (float)$res->lat;
-			$location['lng'] = $res->lng;
+			$location['lng'] = (float)$res->lng;
 			array_push($locations, $location);
 			array_push($descriptions, $res->description);
 		}
 
 		$reliability = $sum/(2*$nOn['number_of_notifications']);
 
-		$event_result['reliability'] = $reliability;
+		$event_result['reliability'] = (float)$reliability;
 		$event_result['description'] = $descriptions;
 		$event_result['locations'] = $locations;
 		array_push($result, $event_result);
