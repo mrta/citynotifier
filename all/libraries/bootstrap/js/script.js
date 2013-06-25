@@ -612,7 +612,6 @@ function searchEvent() {
 		        clearOverlays();
 		        
 		        for (var i in datiString.events) {
-		        	console.log(i);
 					var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace(/_/g," ");
 					var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1).replace(/_/g," ");
 					var description = datiString.events[i].description
@@ -657,22 +656,27 @@ function searchEvent() {
 					});
 					markersArray.push(searchMarker);
 					
-					searchMarker['infowindow'] = new google.maps.InfoWindow({
-						content: "Pota"
-					});
+					var infoWindow = new google.maps.InfoWindow();
+					
+					var onMarkerClick = function() {
+					  var marker = this;
+					  var latLng = marker.getPosition();
+					  infoWindow.setContent('<h3>Marker position is:</h3>' +
+						  latLng.lat() + ', ' + latLng.lng());
 
-					google.maps.event.addListener(searchMarker, 'click', function() {
-						this['infowindow'].open(map, this);
-					});
-				
-					console.log("lat "+lat+" lng: "+lng);
-				
+					  infoWindow.open(map, marker);
+					};				
+					
+
+					google.maps.event.addListener(searchMarker, 'click', onMarkerClick);
+					google.maps.event.addListener(map, 'click', function() { infoWindow.close(); });
+					google.maps.event.addListener(radiusWidget, 'click', function() { console.log("pota"); });
+					google.maps.event.addListener(distanceWidget, 'click', function() { console.log("pota2"); });
 			
 					var latHtml = JSON.stringify(lat).replace(/\./g,"");
 					var lngHtml = JSON.stringify(lng).replace(/\./g,"");
 					var latlngHtml = (latHtml+lngHtml).replace(/""/g,"");
 				
-					console.log(description);
 					var descriptionHtml = "";
 					var fullArray = checkArray(description);
 					if(fullArray){
@@ -696,13 +700,9 @@ function searchEvent() {
 										<td>'+numNot+' / '+reliability+'</td>\
 										<td>'+status+'</td>\
 										</tr>');
-				
-					console.log(fullArray);
 					var butID = "#"+eventID+"but";			
-					if(!fullArray){
-						console.log(butID+" pota");
+					if(!fullArray)
 						$(butID).addClass('disabled');
-					}
 				
 					geocodePosition(new google.maps.LatLng(lat, lng), eventID);			
 				}
