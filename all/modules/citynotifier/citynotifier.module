@@ -202,7 +202,7 @@ function citynotifier_request() {
 	switch($data['scope']) {
 	case "local":
 	  $events = _citynotifier_get_local_event($data);
-	  $result += array("from_server" => $_SERVER['HTTP_HOST']);
+	  $result += array("from_server" => "http://" . $_SERVER['HTTP_HOST']);
 	  break;
 	case "remote":
 	  if(isset($data['dest']))
