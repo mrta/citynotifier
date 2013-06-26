@@ -81,6 +81,24 @@ div.datetimepicker {
 	-webkit-animation-timing-function: linear;
 }
 
+.hero-unit{
+	background-color: #fff;
+	padding: 15px 15px 55px 15px;
+	overflow: hidden;
+}
+
+.hero-unit .btn-group{
+	line-height: 0;
+} 
+
+#infoWindowStatus{
+	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 14
+	height: 30
+	font-weight: normal
+	display: inline-block;
+}
+
 @keyframes spinnerRotate {
 	from {
 		transform:rotate(0deg);

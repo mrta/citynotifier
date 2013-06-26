@@ -661,12 +661,20 @@ function searchEvent() {
 					var onMarkerClick = function() {
 					  var marker = this;
 					  var latLng = marker.getPosition();
-					  infoWindow.setContent('<h3>Marker position is:</h3>' +
-						  latLng.lat() + ', ' + latLng.lng());
+					  infoWindow.setContent('<div class="hero-unit">\
+  												<h2>Incidente<img style="padding-left: 35px;" class="pull-right" src="sites/all/libraries/bootstrap/img/symbols/48/Strip-Club.png"></h2>\
+  												<h4>Via Poppe, 42</h4>\
+  												<p>Problema Stradale > Incidente</p>\
+  												<div class="btn-group">\
+													<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">Open <span class="caret"></span></a>\
+													<ul class="dropdown-menu">\
+														<li><a>Segnala evento chiuso</a></li>\
+  													</ul>\
+												</div>\
+											</div>');
 
 					  infoWindow.open(map, marker);
-					};				
-					
+					};									
 
 					google.maps.event.addListener(searchMarker, 'click', onMarkerClick);
 					google.maps.event.addListener(map, 'click', function() { infoWindow.close(); });
