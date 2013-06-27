@@ -8,6 +8,12 @@ var radiusWidget;
 var radiusWidgetCheck = false;
 var distanceDefault = 2;
 
+var directionsService;
+var polyline;
+var polyline2;
+var steps = [];
+
+
 var lastLongitude;
 var lastLatitude;
 
@@ -23,6 +29,8 @@ function clearOverlays() {
 
 
 function initialize() {
+
+
     var mapOptions = {
         disableDoubleClickZoom: true,
         zoom: 15,
@@ -31,6 +39,22 @@ function initialize() {
     };
     map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
     getLocation();
+    
+    directionsService = new google.maps.DirectionsService();
+	var rendererOptions = { draggable: true, map: map };
+	directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+    directionsDisplay.setMap(map);
+    polyline = new google.maps.Polyline({
+		path: [],
+		strokeColor: '#FF0000',
+		strokeWeight: 3
+    });
+    polyline2 = new google.maps.Polyline({
+		path: [],
+		strokeColor: '#FF0000',
+		strokeWeight: 3
+    });
+
 
 
     google.maps.event.addListener(map, 'click', function(event) {
@@ -81,8 +105,8 @@ $('#search').on('click', function() {
 			title: "SONO IO",
 			animation: google.maps.Animation.DROP
 		});
-		distanceWidget = new DistanceWidget(map);
-   		radiusWidgetCheck = true;
+	distanceWidget = new DistanceWidget(map);
+	radiusWidgetCheck = true;
 	}
     	
     if (!(radiusWidgetCheck) && userMarker){
@@ -108,26 +132,18 @@ $('#refresh').on('click', function() {
     	userMarker = null;
     }
 	clearOverlays();
+	$('#modalBody').html('');
     radiusWidgetCheck = false;
 });
 
 $('#notify').on('click', function() {
 
 	if(!userMarker){
-		$('#map_canvas').gmap3({
-		  getlatlng:{
-			address: $('#searchAddress').val(),
-			location: new google.maps.LatLng(44.494860,11.342598),
-			callback: function(results){
-			  if ( !results ) return;
-			  userMarker = new google.maps.Marker({
-					map: map,
-					position: results[0].geometry.location,
-					title: "SONO IO",
-					animation: google.maps.Animation.DROP
-				});
-			}
-		  }
+		userMarker = new google.maps.Marker({
+			map: map,
+			position: new google.maps.LatLng(lastLatitude, lastLongitude),
+			title: "SONO IO",
+			animation: google.maps.Animation.DROP
 		});
 	}
 	
@@ -381,3 +397,66 @@ RadiusWidget.prototype.setDistance = function() {
     this.set('distance', distance);
     distanceDefault = distance;
 };
+
+
+
+
+
+/******************/
+
+function animateCircle() {
+    var count = 0;
+    window.setInterval(function() {
+      count = (count + 1) % 200;
+
+      var icons = line.get('icons');
+      icons[0].offset = (count / 2) + '%';
+      line.set('icons', icons);
+  }, 20);
+}
+
+
+var lineSymbol = {
+		path: google.maps.SymbolPath.CIRCLE,
+		scale: 8,
+		strokeColor: '#393'
+};
+
+var line = new google.maps.Polyline({
+		icons: [{
+		  icon: lineSymbol,
+		  offset: '100%'
+		}],
+		map: map
+});
+
+function calcRoute() {
+	var poly = new google.maps.Polyline({
+		path: [],
+		strokeColor: '#0000FF',
+		strokeWeight: 5
+	});
+
+	var bounds = new google.maps.LatLngBounds();
+	var directionsService = new google.maps.DirectionsService(); 
+	var request = {		
+		origin: new google.maps.LatLng(44.504057, 11.348534), 
+		destination: new google.maps.LatLng(44.504822, 11.337719),
+		travelMode: google.maps.DirectionsTravelMode.DRIVING 
+	};
+
+	directionsService.route(request, function(result, status) { 
+		if (status == google.maps.DirectionsStatus.OK) {
+			path = result.routes[0].overview_path;
+		
+			$(path).each(function(index, item) {
+				line.getPath().push(item);
+				bounds.extend(item);
+			})
+
+			line.setMap(map);
+			map.fitBounds(bounds);
+			animateCircle();
+		}
+	});
+}

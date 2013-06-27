@@ -5,6 +5,7 @@ var urlCrossDomain = -1;
 $('.brand').on('click', function(){
 	console.log(jQuery.cookie());
 	errorAlert("Pota");
+	calcRoute();
 });
 
 $(window).unload(function() {
