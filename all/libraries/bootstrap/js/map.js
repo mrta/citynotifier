@@ -8,6 +8,9 @@ var radiusWidget;
 var radiusWidgetCheck = false;
 var distanceDefault = 2;
 
+var lastLongitude;
+var lastLatitude;
+
 var markersArray = [];
 var addressArray = [];
 
@@ -31,11 +34,8 @@ function initialize() {
 
 
     google.maps.event.addListener(map, 'click', function(event) {
-        var lat = event.latLng.lat();
-        var lng = event.latLng.lng();
-        
-        console.log(lat+" "+lng);
-        
+        lastLatitude = event.latLng.lat();
+        lastLongitude = event.latLng.lng();
 
         if (userMarker)
             userMarker.setMap(null);
@@ -46,7 +46,7 @@ function initialize() {
         $('#searchRadius').val(($('#searchRadius').val().replace('.',',')));
 
         userMarker = new google.maps.Marker({
-            position: new google.maps.LatLng(lat, lng),
+            position: new google.maps.LatLng(lastLatitude, lastLongitude),
             map: map,
             draggable: true,
             title: "Appaio se rimango sopra col mouse",
@@ -58,9 +58,8 @@ function initialize() {
         google.maps.event.addListener(userMarker, 'dragend', updateMarker);
         
         var point = userMarker.getPosition();
-        console.log("point giusto: "+point);
 
-        geocodePosition(new google.maps.LatLng(lat, lng), null);	
+        geocodePosition(new google.maps.LatLng(lastLatitude, lastLongitude), null);	
     });
 }
 
@@ -76,23 +75,14 @@ function updateMarker(event){
 $('#search').on('click', function() {
 
 	if(!userMarker){
-		$('#map_canvas').gmap3({
-		  getlatlng:{
-			address: $('#searchAddress').val(),
-			location: new google.maps.LatLng(44.494860,11.342598),
-			callback: function(results){
-			  if ( !results ) return;
-			  userMarker = new google.maps.Marker({
-					map: map,
-					position: results[0].geometry.location,
-					title: "SONO IO",
-					animation: google.maps.Animation.DROP
-				});
-				distanceWidget = new DistanceWidget(map);
-       			radiusWidgetCheck = true;
-			}
-		  }
+		userMarker = new google.maps.Marker({
+			map: map,
+			position: new google.maps.LatLng(lastLatitude, lastLongitude),
+			title: "SONO IO",
+			animation: google.maps.Animation.DROP
 		});
+		distanceWidget = new DistanceWidget(map);
+   		radiusWidgetCheck = true;
 	}
     	
     if (!(radiusWidgetCheck) && userMarker){
@@ -108,7 +98,7 @@ $('#search').on('click', function() {
 		});
 
 		google.maps.event.addListener(distanceWidget, 'position_changed', function() {
-			displayInfo(distanceWidget);
+			//displayInfo(distanceWidget);
 		});
 });
 
@@ -158,7 +148,7 @@ var latitude;
 var longitude;
 
 
-function geocodePosition(position, eventID){
+function geocodePosition(position, eventID, infoWindow){
 	$(this).gmap3({
 		getaddress:{
 			latLng: position,
@@ -168,6 +158,39 @@ function geocodePosition(position, eventID){
 				content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: position;
 				if(content == position)
 					geocodePosition(position, eventID); //Riprova
+					
+				if(infoWindow){
+					var infoID = infoWindow.id;
+					var infoType = infoWindow.type;
+					var infoSubType = infoWindow.subtype;
+					var infoStatus = infoWindow.status;
+					
+					switch (infoStatus) {
+						case "Open":
+							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus;
+							changeStatus = '<a>Segnala evento chiuso</a>'
+							break;
+						case "Closed":
+							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus;
+							changeStatus = '<a>Segnala evento aperto</a>'
+							break;
+						case "Skeptical":
+							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus;
+							changeStatus = '<a>Segnala evento aperto</a><li><a>Segnala evento chiuso</a></li>'
+							break;	
+					}
+					  
+      				infoWindow.setContent('<div class="hero-unit">\
+  												<h2>'+infoSubType+'<img style="padding-left: 35px;" class="pull-right" src='+getIcon(infoType, infoSubType)+'></h2>\
+  												<h4>'+content+'</h4>\
+  												<p>'+infoType+' > '+infoSubType+'</p>\
+  												<div class="btn-group">'+infoStatus+' <span class="caret"></span></a>\
+													<ul class="dropdown-menu">\
+														<li>'+changeStatus+'</li>\
+  													</ul>\
+												</div>\
+											</div>');
+      			}
 				
 				if(eventID)
 					$('#'+eventID).html(content);
@@ -358,8 +381,3 @@ RadiusWidget.prototype.setDistance = function() {
     this.set('distance', distance);
     distanceDefault = distance;
 };
-
-function displayInfo(widget) {
-
-    //$('#infoAddress').text($('#searchAddress').val);
-}

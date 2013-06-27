@@ -582,11 +582,11 @@ function searchEvent() {
     
     
     var timeMax = toTimestamp(parseDate($("#timeToText").val().replace(/\-/g,'/')));
-    console.log("timeMax prima: "+timeMax);
+
     if(isNaN(timeMax))
     	timeMax = toTimestamp(new Date());
     parameters["timemax"] = timeMax;
-    console.log("timeMax dopo: "+timeMax);
+
     
     parameters["status"] = $('#searchStatus').val().toLowerCase();
 	if(urlCrossDomain != -1)
@@ -606,7 +606,7 @@ function searchEvent() {
 		    url: url,
 		    type: 'GET',
 		    success: function(datiString, status, richiesta) {
-		    	 successAlert("Ricerca in corso...");
+		    	successAlert("Ricerca in corso...");
 		        $('#search').parent().removeClass('open');
 		        $('#modalBody').html('');
 		        clearOverlays();
@@ -629,6 +629,7 @@ function searchEvent() {
 				
 					var status = datiString.events[i].status;
 					status = status.charAt(0).toUpperCase() + status.slice(1);
+					var statusFormatted = status;
 					switch (status) {
 						case "Open":
 							status = '<button class="btn btn-success">'+status;
@@ -654,26 +655,25 @@ function searchEvent() {
 						title: eventID,
 						animation: google.maps.Animation.DROP
 					});
+					
+					searchMarker.id = eventID;
+					searchMarker.type = type;	
+					searchMarker.subtype = subtype;	
+					searchMarker.status = statusFormatted;				
 					markersArray.push(searchMarker);
 					
-					var infoWindow = new google.maps.InfoWindow();
+					var infoWindow = new google.maps.InfoWindow();			
 					
 					var onMarkerClick = function() {
-					  var marker = this;
-					  var latLng = marker.getPosition();
-					  infoWindow.setContent('<div class="hero-unit">\
-  												<h2>Incidente<img style="padding-left: 35px;" class="pull-right" src="sites/all/libraries/bootstrap/img/symbols/48/Strip-Club.png"></h2>\
-  												<h4>Via Poppe, 42</h4>\
-  												<p>Problema Stradale > Incidente</p>\
-  												<div class="btn-group">\
-													<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">Open <span class="caret"></span></a>\
-													<ul class="dropdown-menu">\
-														<li><a>Segnala evento chiuso</a></li>\
-  													</ul>\
-												</div>\
-											</div>');
-
-					  infoWindow.open(map, marker);
+						var marker = this;
+						infoWindow.id = this.id;
+						infoWindow.type = this.type;	
+						infoWindow.subtype = this.subtype;	
+						infoWindow.status = this.status;		
+					  
+						var latLng = marker.getPosition();
+						geocodePosition(marker.getPosition(), null, infoWindow);
+						infoWindow.open(map, marker);
 					};									
 
 					google.maps.event.addListener(searchMarker, 'click', onMarkerClick);
@@ -712,7 +712,7 @@ function searchEvent() {
 					if(!fullArray)
 						$(butID).addClass('disabled');
 				
-					geocodePosition(new google.maps.LatLng(lat, lng), eventID);			
+					//geocodePosition(new google.maps.LatLng(lat, lng), eventID);
 				}
 			$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
@@ -965,5 +965,51 @@ $('#serverConnect').on('click', function(){
 	
 	urlCrossDomain = $("#serverInput").prop("selectedIndex")-1;
 	$('#serverInput').attr('onfocus', '');
-
 });
+
+function getIcon(type, subtype){
+	var dir = "sites/all/libraries/bootstrap/img/symbols/48/";
+	switch (type){
+		case"Problemi stradali" :
+			switch(subtype){
+				case "Incidente": return dir+"Strip-Club.png";
+				case "Buca": return dir+"Strip-Club.png";
+				case "Coda": return dir+"Strip-Club.png";
+				case "Lavori in corso": return dir+"Strip-Club.png";
+				case "Strada impraticabile": return dir+"Strip-Club.png";
+			}
+			break;
+		
+		case "Emergenze sanitarie" :
+			switch(subtype){
+				case "Incidente": return dir+"Strip-Club.png";
+				case "Malore": return dir+"Strip-Club.png";
+				case "Ferito": return dir+"Strip-Club.png";
+				}
+			break;
+		
+		case "Reati" :
+			switch(subtype){
+				case "Furto": return dir+"Strip-Club.png";
+				case "Attentato": return dir+"Strip-Club.png";
+			}
+			break;
+			
+		case "Problemi ambientali" :
+			switch(subtype){
+				case "Incendio" : return dir+"Strip-Club.png";
+				case "Tornado" : return dir+"Tornado.png";
+				case "Neve" : return dir+"Snow.png";
+				case "Alluvione" : return dir+"Rainy.png";
+			}
+			break;
+		case "Eventi pubblici" :
+			switch(subtype){
+				case "Partita" : return dir+"Football.png";
+				case "Manifestazione" : return dir+"Strip-Club.png";
+				case "Concerto" : return dir+"Live-Music.png";
+				}
+			break;
+		break;
+		}
+}			
