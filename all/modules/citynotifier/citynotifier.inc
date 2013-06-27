@@ -64,7 +64,6 @@ function _citynotifier_get_matched_event($data) {
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id','status'))
-		->fields('cn', array('created'))
 		->condition('cn.type', $data['type'], '=')
 		->condition('cn.subtype', $data['subtype'], '=')
 		->condition('cn.lat', $data['lat']-$range,'>')
@@ -74,8 +73,6 @@ function _citynotifier_get_matched_event($data) {
 		->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
 	
-	citynotifier_debug($query);
-
 	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
 
@@ -312,7 +309,7 @@ function citynotifier_http_get_request($url, $query) {
   citynotifier_debug($url . "?" . http_build_query($query));
   
   $response = drupal_http_request($url . "?" . http_build_query($query), $options);
-citynotifier_debug($response);
+//citynotifier_debug($response);
   return drupal_json_decode(utf8_decode($response->data));
 }
 
@@ -331,8 +328,36 @@ function _citynotifier_formalize_request($data){
 	return $data_req;
 }
 
-function _citynotifier_check_remote_event($events){
+function _citynotifier_check_remote_events($events){
+	foreach($events as $i => $event){
+		$id = _citynotifier_check_existing_event($event);
+		if($id['event_id'])
+			$events[$i]['event_id'] = $id['event_id'];
+		else
+			$events[$i]['event_id'] = _citynotifier_create_event();
+	}
 
+	return $events;
+}
+
+function _citynotifier_check_existing_event($event){
+	$range = _citynotifier_get_range_subtype($event['type']['type'], $event['type']['subtype']);
+	extract(_citynotifier_get_index_type_subtype($event['type']), EXTR_OVERWRITE);
+
+	$query = db_select("citynotifier_event", 'ce');
+	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+	$query->fields('ce', array('event_id'))
+		->condition('cn.type', $type, '=')
+		->condition('cn.subtype', $subtype, '=')
+		->condition('ce.status', $event['status'], '=')
+		->condition('cn.lat', $event['locations']['lat']-$range,'>')
+		->condition('cn.lat', $event['locations']['lat']+$range,'<')
+		->condition('cn.lng', $event['locations']['lng']-$range,'>')
+		->condition('cn.lng', $event['locations']['lng']+$range,'<')
+		->orderby('cn.created', 'DESC');
+	$result = $query->execute()->fetchAssoc();
+
+	return $result?$result:array("event_id"=>FALSE);
 }
 
 function citynotifier_debug($data) {
