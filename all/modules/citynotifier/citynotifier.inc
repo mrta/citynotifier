@@ -1,9 +1,7 @@
 <?php
 
-$skepticals = array();
-
 function citynotifier_notify() {
-	global $user, $skepticals;
+	global $user;
 	header('Content-type: application/json; charset=utf-8');
 
 	if(!$user->uid) {
@@ -13,15 +11,27 @@ function citynotifier_notify() {
 
 	$data = drupal_json_decode(file_get_contents("php://input"));
 	
-	if(in_array($data['event_id'], $skepticals)){
-		$usr_status = array("uid" => $user->uid, "status" => $data['status']);
-		array_push($skepticals['usrskeprtical'], $usr_status);
+	if(!_citynotifier_check_skeptical($event_id)){
+		_citynotifier_update_status_event($data['event_id'], _citynotifier_get_index_status($data['status']));
 	}
-
-	//_citynotifier_update_status_event($data['event_id'], _citynotifier_get_index_or_value_status($data['status']));
+	else{
+	//caso scettico cosa fare?
+	}
 
 	drupal_add_http_header("Status", 200);
 	return drupal_json_output(array("result" => t("notifica inviata con successo")));
+}
+
+function _citynotifier_check_skeptical($event_id){
+	$query = db_select("citynotifier_event", 'ce')
+		->fields('ce', array('status'))
+		->condition('ce.event_id', $event_id, '=');
+	$event = $query->execute()->fetchAssoc();
+
+	if($event['status'] == _citynotifier_get_index_status("skeptical"))
+		return 	TRUE;
+	else
+		return FALSE;
 }
 
 function _citynotifier_update_status_event($event_id, $status){
@@ -32,7 +42,12 @@ function _citynotifier_update_status_event($event_id, $status){
 
 	$event['status'] = $status;
 
-	drupal_write_record("citynotifier_event", $event);
+	if(!drupal_write_record("citynotifier_event", $event, $event_id)) {
+		watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
+		drupal_add_http_header("Status", 500);
+		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Errore nella memorizzazione nel database"))));
+		return;
+	};
 }
 
 
@@ -334,6 +349,7 @@ function _citynotifier_check_remote_events($events){
 		if($id['event_id'])
 			$events[$i]['event_id'] = $id['event_id'];
 		else
+		//da vedere bene cosa fare in questo caso
 			$events[$i]['event_id'] = _citynotifier_create_event();
 	}
 
