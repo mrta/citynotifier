@@ -18,13 +18,16 @@ var lastLongitude;
 var lastLatitude;
 
 var markersArray = [];
+var polylineArray = [];
 var addressArray = [];
 
 function clearOverlays() {
   for (var i = 0; i < markersArray.length; i++ ) {
     markersArray[i].setMap(null);
+    polylineArray[i].setMap(null);
   }
   markersArray = [];
+  polylineArray = [];
 }
 
 
@@ -404,59 +407,75 @@ RadiusWidget.prototype.setDistance = function() {
 
 /******************/
 
-function animateCircle() {
-    var count = 0;
-    window.setInterval(function() {
-      count = (count + 1) % 200;
 
-      var icons = line.get('icons');
-      icons[0].offset = (count / 2) + '%';
-      line.set('icons', icons);
-  }, 20);
-}
 
+
+function calcRoute(start, end, waypointsArray) {
 
 var lineSymbol = {
 		path: google.maps.SymbolPath.CIRCLE,
 		scale: 8,
-		strokeColor: '#393'
+		strokeColor: '#000',
 };
-
-var line = new google.maps.Polyline({
-		icons: [{
-		  icon: lineSymbol,
-		  offset: '100%'
-		}],
-		map: map
-});
-
-function calcRoute() {
-	var poly = new google.maps.Polyline({
-		path: [],
-		strokeColor: '#0000FF',
-		strokeWeight: 5
-	});
 
 	var bounds = new google.maps.LatLngBounds();
 	var directionsService = new google.maps.DirectionsService(); 
 	var request = {		
-		origin: new google.maps.LatLng(44.504057, 11.348534), 
-		destination: new google.maps.LatLng(44.504822, 11.337719),
-		travelMode: google.maps.DirectionsTravelMode.DRIVING 
+		origin: end, 
+		destination: start,
+		travelMode: google.maps.DirectionsTravelMode.DRIVING,
+		waypoints: waypointsArray
 	};
 
 	directionsService.route(request, function(result, status) { 
 		if (status == google.maps.DirectionsStatus.OK) {
 			path = result.routes[0].overview_path;
-		
+			
+			var line = new google.maps.Polyline({
+				icons: [{
+					icon: lineSymbol,
+					offset: '100%',	
+				}],
+				strokeColor: 'red',
+				map: map
+			});
+			
+			polylineArray.push(line);
+				
 			$(path).each(function(index, item) {
 				line.getPath().push(item);
 				bounds.extend(item);
 			})
 
 			line.setMap(map);
-			map.fitBounds(bounds);
-			animateCircle();
+			//map.fitBounds(bounds);
+		
+			var count = 0;
+			window.setInterval(function() {
+			  count = (count + 1) % 200;
+
+			  var icons = line.get('icons');
+			  icons[0].offset = (count / 2) + '%';
+			  line.set('icons', icons);
+		  }, 50);
 		}
 	});
 }
+
+function calcDistance(p1, p2){ return google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000; }
+function maxDistance(start, arrayCoords){
+		var max = 0;
+		var point_max;
+		
+		for (var i = 0; i < arrayCoords.length; i++){
+			var arrayCoord = new google.maps.LatLng(arrayCoords[i].lat, arrayCoords[i].lng);
+
+			var max_tmp = calcDistance(start, arrayCoord);
+			
+			if(max_tmp > max){
+				max = max_tmp
+				point_max = arrayCoord;
+			}
+		}
+		return point_max;
+	}
