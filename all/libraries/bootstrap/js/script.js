@@ -397,18 +397,15 @@ $("#notify").next().delegate("#notifySubmit", "click", function() {
     sendNotify();
 });
 
-$('#pota').on('click', '#queueCheck', function(){
-	console.log("pota2");
+function queueOk(){
 	queueCheck = false;
 	sendNotify();
 	$(".alert").alert('close');
-});
+};
 
-$('#pota').on('click', '#queueCancel', function(){
-	console.log("Pota");
+function alertClose(){
 	$(".alert").alert('close');
-});
-
+};
 
 var queueCheck = true;
 function sendNotify() {
@@ -967,7 +964,7 @@ function warningAlert(){
 		  <span id="alertMsg"><strong>Attenzione!</strong> Il sistema di monitoraggio traffico è delicato!<br>\
 							Assicurati che nessuno abbia già fatto una segnalazione di Coda dove sei tu!<br>\
 							Controlla inoltre di NON segnalare una coda se l\'hai già superata!!"</span>\
-		  <p id="pota" style="padding-top: 20px"><button id="queueCheck" class="btn btn-warning">Notify</button> <button id="queueCancel" class="btn">Close</button></p>\
+		  <p id="pota" style="padding-top: 20px"><button id="queueCheck" class="btn btn-warning" onclick="queueOk()">Notify</button> <button id="queueCancel" onclick="alertClose()" class="btn">Close</button></p>\
 		  </div>');
 		  $('#alertBox').fadeTo(500, 1);
 }
