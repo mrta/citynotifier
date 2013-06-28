@@ -338,11 +338,33 @@ function citynotifier_http_get_request($url, $query) {
     'timeout' => 5,
     'max_redirects' => 6,
     );
-  citynotifier_debug($url . "?" . http_build_query($query));
   
   $response = drupal_http_request($url . "?" . http_build_query($query), $options);
-//citynotifier_debug($response);
   return drupal_json_decode(utf8_decode($response->data));
+}
+
+function citynotifier_http_get_request_asynchronous($url, $query) {
+  foreach ($query as $key => &$val) {
+    if (is_array($val)) $val = implode(',', $val);
+    $get_params[] = $key.'='.urlencode($val);
+  }
+  $get_string = implode('&', $get_params);
+  
+  $parts=parse_url($url);
+  
+  $fp = fsockopen($parts['host'],
+    isset($parts['port'])?$parts['port']:80,
+    $errno, $errstr, 5);
+  
+  $out = "GET ".$parts['path'].'?'.$get_string." HTTP/1.1\r\n";
+  $out.= "Host: ".$parts['host']."\r\n";
+  $out.= "Content-Type: application/json; charset=utf-8\r\n";
+  $out.= "Content-Length: ".strlen($post_string)."\r\n";
+  $out.= "Connection: Close\r\n\r\n";
+  
+  fwrite($fp, $out);
+  
+  return $fp;
 }
 
 
