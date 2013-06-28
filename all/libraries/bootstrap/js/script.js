@@ -4,8 +4,9 @@ var urlCrossDomain = -1;
 
 $('.brand').on('click', function(){
 	console.log(jQuery.cookie());
-	errorAlert("Pota");
+	errorAlert("Pota");	
 	calcRoute();
+	maxDistance(p1, points);
 });
 
 $(window).unload(function() {
@@ -648,6 +649,36 @@ function searchEvent() {
 					var lat = datiString.events[i].locations[0].lat;
 					var lng = datiString.events[i].locations[0].lng;
 					var eventID = datiString.events[i].event_id;
+					
+					
+					if(subtype == "Coda"){
+						var endUnformatted = datiString.events[i].locations.shift();
+						var end = new google.maps.LatLng(endUnformatted.lat,endUnformatted.lng);
+						//console.log(end);
+						var start = maxDistance(end, datiString.events[i].locations);
+						//console.log(start);
+						
+						console.log(distStartEnd = calcDistance(start,end));
+						
+						var dist = 0;
+						
+						var waypointsArray = [];
+						$.each(datiString.events[i].locations, function(j){
+							var point = new google.maps.LatLng(datiString.events[i].locations[j].lat, datiString.events[i].locations[j].lng);
+							if(point.lat() != start.lat() && point.lng() != start.lng()){
+								var wayPoint = { location : point };
+								var distPointEnd = calcDistance(point,end)
+								if(distPointEnd > dist){
+									dist = distPointEnd;
+    								waypointsArray.push(wayPoint);
+    							}
+    						}
+						});
+						
+						console.log(waypointsArray);
+						
+						calcRoute(end, start, waypointsArray.reverse());
+					}
 			
 					searchMarker = new google.maps.Marker({
 						position: new google.maps.LatLng(lat, lng),
