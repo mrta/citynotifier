@@ -58,9 +58,9 @@ function _citynotifier_create_event() {
 }
 
 function _citynotifier_get_range_subtype($type, $subtype){
-  $types = variable_get('citynotifier_settings_types', "");
+  $types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
 
-  foreach($types[$type] as $st)
+  foreach($types_subtypes[$type] as $st)
     if($st['subtype'] == $subtype) return $st['range'];
 
   return FALSE;
@@ -98,7 +98,7 @@ function _citynotifier_validate($data, $function_type=NULL) {
       return array("code" => 406, "response" => t('Scope non valido'));
     if(!$data['radius'])
       return array("code" => 406, "response" => t('Radius non valido'));
-    if(!in_array($data['status'], variable_get('citynotifier_settings_status', array())))
+    if(!in_array($data['status'], variable_get('citynotifier_settings_statuses', array())))
       return array("code" => 406, "response" => t('Status non valido'));
     if(!$data['timemin'])
       return array("code" => 406, "response" => t('Timemin non valido'));
@@ -122,12 +122,12 @@ function _citynotifier_validate($data, $function_type=NULL) {
 }
 
 /**
- * Get data from request $_GET and return a normalize $data
+ * Get data from request $_GET and return a $data array
  *
  * @param $data=$_GET from request or report
- * @return $data normalize
+ * @return $data
  */
-function _citynotifier_normalize_data($data) {
+function _citynotifier_citynotifier2data($data) {
   if(is_array($data['type'])) {
     $data['subtype'] = $data['type']['subtype'];
     $data['type'] = $data['type']['type'];
@@ -149,15 +149,33 @@ function _citynotifier_normalize_data($data) {
 }
 
 /**
+ * Transform $data to an alike citynotifier's protocol array
+ *
+ * @param $data
+ * @return result
+ */
+function _citynotifier_data2citynotifier($data) {
+  $statuses = variable_get('citynotifier_settings_statuses', array());
+  $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
+  $types = array_keys($types_subtypes);
+  
+  $data['type'] = array('type' => $types[$data['type']], 'subtype' => $types_subtypes[$types[$data['type']]][$data['subtype']]);
+  unset($data['subtype']);
+  $data['status'] = $statuses[$data['status']];
+  return $data;
+}
+
+
+/**
  * Function get index of type and subtype from $data
  *
  * @param $data
  * @return array("type" => index_of_type_in_types, "subtype" => index_of_subtype_in_relative_type)
  */
 function _citynotifier_get_index_type_subtype($data) {
-  $types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
+  $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
   return array("type" => array_search($data['type'], array_keys($types)),
-               "subtype" => array_search($data['subtype'], $types[$data['type']]));
+               "subtype" => array_search($data['subtype'], $types_subtypes[$data['type']]));
 }
 
 /**
@@ -176,19 +194,18 @@ function _citynotifier_get_map_subtype($subtypes) {
 
 
 function _citynotifier_get_index_status($status){
-	$array_status = variable_get('citynotifier_settings_status', array());
-	return array_search($status, $array_status);
+	return array_search($status, variable_get('citynotifier_settings_statuses', array()));
 }
 
 function _citynotifier_get_value_type_subtype_from_index($index_type, $index_subtype){
-	$types = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types', array()));
+	$types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
 	$type = array_keys($types);
 
-	return array("type" => $type[$index_type], "subtype" => $types[$type[$index_type]][$index_subtype]);
+	return array("type" => $type[$index_type], "subtype" => $types_subtypes[$type[$index_type]][$index_subtype]);
 }
 
 function _citynotifier_get_local_event($data) {
-	$status = variable_get('citynotifier_settings_status', array());
+	$status = variable_get('citynotifier_settings_statuses', array());
 
 /*	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
 	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
@@ -328,20 +345,6 @@ function citynotifier_http_get_request($url, $query) {
   return drupal_json_decode(utf8_decode($response->data));
 }
 
-function _citynotifier_formalize_request($data){
-	$st = _citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype']);
-	$data_req['scope'] = "local";
-	$data_req['type'] = $st['type'];
-	$data_req['subtype'] = $st['subtype'];
-	$data_req['lat'] = $data['lat'];
-	$data_req['lng'] = $data['lng'];
-	$data_req['radius'] = $data['radius'];
-	$data_req['timemin'] = $data['timemin'];
-	$data_req['timemax'] = $data['timemax'];
-	$data_req['status'] = $data['status'];
-
-	return $data_req;
-}
 
 function _citynotifier_check_remote_events($events){
 	foreach($events as $i => $event){

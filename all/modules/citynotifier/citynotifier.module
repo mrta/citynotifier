@@ -186,7 +186,7 @@ function citynotifier_request() {
   header('Content-type: application/json; charset=utf-8');
   $servers = citynotifier_get_subscribed_servers();
   
-  $data = _citynotifier_normalize_data($_GET);
+  $data = _citynotifier_citynotifier2data($_GET);
 
   $validation =_citynotifier_validate($data, 'request');
   
@@ -207,10 +207,12 @@ function citynotifier_request() {
 //	  $result += array("from_server" => "http://" . $_SERVER['HTTP_HOST']);
 	  break;
 	case "remote":
-	  if(isset($data['dest']))
+	  $data = _citynotifier_data2citynotifier($data);
+	  if(isset($data['dest'])) {
 	    $servers = array($servers[$data['dest']]);
+	    unset($data['dest']);
+	  }
 	  foreach($servers as $server) {
-	    $data = _citynotifier_formalize_request($data);
 	    if($check_res = citynotifier_http_get_request($server['url'] . "/richieste", $data)){
 	      $serv_events = _citynotifier_check_remote_events($check_res['events']);
 	      $events = array_merge($events, $serv_events);
@@ -235,7 +237,7 @@ function citynotifier_report() {
 	global $user, $skepticals;
 	header('Content-type: application/json; charset=utf-8');
 	
-	$data = _citynotifier_normalize_data(drupal_json_decode(utf8_decode(file_get_contents("php://input"))));
+	$data = _citynotifier_citynotifier2data(drupal_json_decode(utf8_decode(file_get_contents("php://input"))));
   
 	if(!$user->uid) {
 		drupal_add_http_header("Status", 401);
