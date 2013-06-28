@@ -212,8 +212,8 @@ function citynotifier_request() {
 	  foreach($servers as $server) {
 	    $data = _citynotifier_formalize_request($data);
 	    if($check_res = citynotifier_http_get_request($server['url'] . "/richieste", $data)){
-		$serv_events = _citynotifier_check_remote_events($check_res['events']);
-		$events = array_merge($events, $serv_events);
+	      $serv_events = _citynotifier_check_remote_events($check_res['events']);
+	      $events = array_merge($events, $serv_events);
 	    }
 	  }
 	  break;
