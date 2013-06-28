@@ -397,8 +397,20 @@ $("#notify").next().delegate("#notifySubmit", "click", function() {
     sendNotify();
 });
 
+$('#pota').on('click', '#queueCheck', function(){
+	console.log("pota2");
+	queueCheck = false;
+	sendNotify();
+	$(".alert").alert('close');
+});
+
+$('#pota').on('click', '#queueCancel', function(){
+	console.log("Pota");
+	$(".alert").alert('close');
+});
 
 
+var queueCheck = true;
 function sendNotify() {
     xmlhttp = new XMLHttpRequest();
     url = urlServer.concat("/segnalazione");
@@ -408,8 +420,6 @@ function sendNotify() {
     notifyType.type = ($('#notifyType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
     notifyType.subtype = ($('#notifySubType').find(":selected").text()).toLowerCase().replace(/ /g, "_");
 
-
-	
     var notifyObj = new Object();
     notifyObj.type = notifyType;
     notifyObj.lat = userMarker.getPosition().lat();
@@ -426,19 +436,27 @@ function sendNotify() {
 	console.log("Invio notifica con subtype "+notifyType.subtype+" lat: "+notifyObj.lat+" lng: "+notifyObj.lng);
 	
     if ((notifyType.type != "select_type") && (notifyType.subtype != "select_subtype") && $('#notifyAddress').val()) {
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: notifyJSON,
-            contentType: "application/json; charset=utf-8",
-            success: function(datiString, status, richiesta) {
-                $('#notify').parent().removeClass('open');
-                successAlert("Notifica Inviata!");
-            },
-            error: function(err) {
-                errorAlert("Ajax Notify error");
-            }
-        });
+    	console.log(notifyType.subtype);
+    	if(notifyType.subtype == "coda" && queueCheck){
+			warningAlert();
+		}
+		else{
+		    $.ajax({
+		        url: url,
+		        type: 'POST',
+		        data: notifyJSON,
+		        contentType: "application/json; charset=utf-8",
+		        success: function(datiString, status, richiesta) {
+		            $('#notify').parent().removeClass('open');
+		            successAlert("Notifica Inviata!");
+		            queueCheck = true;
+		        },
+		        error: function(err) {
+		            errorAlert("Ajax Notify error");
+		            queueCheck = true;
+		        }
+		    });
+        }
     }
     if ((notifyType.type == "select_type")) {
         $('#notifyType').parent().addClass("error");
@@ -480,7 +498,6 @@ function getLocation() {
     }
 }
 function showLocation(position) {
-	console.log(position);
     var latitude = position.coords.latitude;
     var longitude = position.coords.longitude;
 
@@ -495,6 +512,10 @@ function showLocation(position) {
         title: "SONO QUI!",
         animation: google.maps.Animation.DROP
     });
+    
+    lastLatitude = latitude;
+    lastLongitude = longitude;
+    
     map.panTo(new google.maps.LatLng(latitude, longitude));
     geocodePosition(new google.maps.LatLng(latitude, longitude), null);
     $('#notify').parent().removeClass('open');
@@ -706,12 +727,10 @@ function searchEvent() {
 						var latLng = marker.getPosition();
 						geocodePosition(marker.getPosition(), null, infoWindow);
 						infoWindow.open(map, marker);
-					};									
+					};					
 
 					google.maps.event.addListener(searchMarker, 'click', onMarkerClick);
 					google.maps.event.addListener(map, 'click', function() { infoWindow.close(); });
-					google.maps.event.addListener(radiusWidget, 'click', function() { console.log("pota"); });
-					google.maps.event.addListener(distanceWidget, 'click', function() { console.log("pota2"); });
 			
 					var latHtml = JSON.stringify(lat).replace(/\./g,"");
 					var lngHtml = JSON.stringify(lng).replace(/\./g,"");
@@ -744,7 +763,7 @@ function searchEvent() {
 					if(!fullArray)
 						$(butID).addClass('disabled');
 				
-					//geocodePosition(new google.maps.LatLng(lat, lng), eventID);
+					geocodePosition(new google.maps.LatLng(lat, lng), eventID);
 				}
 			$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
@@ -942,6 +961,17 @@ $('#notifyAddress').typeahead({
   }
 });
 
+function warningAlert(){
+	$('#alertBox').html('<div class="alert fade in">\
+		  <button type="button" class="close" data-dismiss="alert">&times;</button>\
+		  <span id="alertMsg"><strong>Attenzione!</strong> Il sistema di monitoraggio traffico è delicato!<br>\
+							Assicurati che nessuno abbia già fatto una segnalazione di Coda dove sei tu!<br>\
+							Controlla inoltre di NON segnalare una coda se l\'hai già superata!!"</span>\
+		  <p id="pota" style="padding-top: 20px"><button id="queueCheck" class="btn btn-warning">Notify</button> <button id="queueCancel" class="btn">Close</button></p>\
+		  </div>');
+		  $('#alertBox').fadeTo(500, 1);
+}
+
 function errorAlert(error){
 	$('#alertBox').html('<div class="alert alert-error ">\
 		  <button type="button" class="close"></button>\
@@ -1044,4 +1074,35 @@ function getIcon(type, subtype){
 			break;
 		break;
 		}
-}			
+}		
+
+function change(){
+	var changeObj = new Object();
+	changeObj.event_id = $('#eventIDModal').html();
+	changeObj.lat = $('#coordModal').html().split(" , ")[0];
+	changeObj.lng = $('#coordModal').html().split(" , ")[1];
+	changeObj.description = $('#descModal').html();
+	
+	if($('input[name=optionsRadios]:checked').val())
+		changeObj.status = $('input[name=optionsRadios]:checked').val();
+	else
+		changeObj.status = $('#statusModalValue').html();
+	
+	xmlhttp = new XMLHttpRequest();
+    url = urlServer.concat("/notifica");	
+	
+	$.ajax({
+            url: url,
+            type: 'POST',
+            data: changeObj,
+            contentType: "application/json; charset=utf-8",
+            success: function(datiString, status, richiesta) {
+            	successAlert("Modifica segnalata con successo"); 
+            	$('#notifyPanel').modal('toggle');
+            },
+            error: function(err) {
+                errorAlert("Errore nella modifica dell'evento");
+                $('#notifyPanel').modal('toggle');
+            }  	
+       });
+}

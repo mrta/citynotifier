@@ -24,7 +24,8 @@ var addressArray = [];
 function clearOverlays() {
   for (var i = 0; i < markersArray.length; i++ ) {
     markersArray[i].setMap(null);
-    polylineArray[i].setMap(null);
+    if(polylineArray[i])
+    	polylineArray[i].setMap(null);
   }
   markersArray = [];
   polylineArray = [];
@@ -32,8 +33,6 @@ function clearOverlays() {
 
 
 function initialize() {
-
-
     var mapOptions = {
         disableDoubleClickZoom: true,
         zoom: 15,
@@ -106,6 +105,7 @@ $('#search').on('click', function() {
 			map: map,
 			position: new google.maps.LatLng(lastLatitude, lastLongitude),
 			title: "SONO IO",
+			draggable: true,
 			animation: google.maps.Animation.DROP
 		});
 	distanceWidget = new DistanceWidget(map);
@@ -184,18 +184,30 @@ function geocodePosition(position, eventID, infoWindow){
 					var infoSubType = infoWindow.subtype;
 					var infoStatus = infoWindow.status;
 					
+					$('#eventIDModal').html(infoID);
+					$('#coordModal').html(position.lat() + " , " + position.lng());
+										
 					switch (infoStatus) {
 						case "Open":
 							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus;
-							changeStatus = '<a>Segnala evento chiuso</a>'
+							changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
+							if(!$("#statusModal").next().is("li"))
+								$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
 							break;
 						case "Closed":
 							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus;
-							changeStatus = '<a>Segnala evento aperto</a>'
+							changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
+							if(!$("#statusModal").next().is("li"))
+								$('#statusModal').after('<li><span id="statusModalValue" class="label label-success">Open</span>');
 							break;
 						case "Skeptical":
 							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus;
-							changeStatus = '<a>Segnala evento aperto</a><li><a>Segnala evento chiuso</a></li>'
+							changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
+							if(!$("#statusModal").next().is("li"))
+								$('#statusModal').after('<li><label class="radio">\
+															<input type="radio" name="optionsRadios" id="optionsRadios1" value="open" checked style="vertical-align: middle"><span class="label label-success">Open</span></label></li>\
+															<li><label class="radio">\
+															<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
 							break;	
 					}
 					  
@@ -406,9 +418,6 @@ RadiusWidget.prototype.setDistance = function() {
 
 
 /******************/
-
-
-
 
 function calcRoute(start, end, waypointsArray) {
 

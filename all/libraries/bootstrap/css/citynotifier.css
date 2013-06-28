@@ -9,17 +9,17 @@ body {
 	overflow-y: hidden;
 }
 
-body .modal{
+body .modal.bigModal {
    width: 900px;
    margin-left: -450px;
 }
 
-.modal-body{
+.bigModal .modal-body{
 	overflow-y: scroll;
 	height: 800px!important;
 }
 
-.modal .dropdown-menu{
+.modal.bigModal .dropdown-menu {
 	padding: 10px;	
 }
 
@@ -99,6 +99,17 @@ div.datetimepicker {
 	display: inline-block;
 }
 
+#notifyPanel{
+	overflow: hidden;
+	width: 40%;
+	height: 300px!important;
+}
+
+#notifyPanel .modal-body{
+	overflow-x: hidden;
+	height: 160px!important;
+}
+
 @keyframes spinnerRotate {
 	from {
 		transform:rotate(0deg);
@@ -139,6 +150,7 @@ div.datetimepicker {
 	margin-top: 5px;
 	margin-left: -30px;
 }
+
 
 .btn.loading {
 	

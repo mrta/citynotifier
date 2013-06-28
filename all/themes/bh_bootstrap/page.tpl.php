@@ -220,7 +220,7 @@
 </nav>
 
 <!-- Modal -->
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="myModal" class="modal hide fade bigModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="myModalLabel">Search matches</h3>
@@ -246,7 +246,7 @@
 </div>
 
 <!-- Modal Admin Panel -->
-<div id="adminPanel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="adminPanel" class="modal hide fade bigModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="myModalLabel">Admin Panel</h3>
@@ -267,6 +267,27 @@
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
     </div>
+</div>
+
+<!-- Modal modifica Evento -->
+<div id="notifyPanel" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Modifica la situazione dell'evento</h3>
+  </div>
+  <div class="modal-body">
+  	<p><strong><span class="text-info">Evento: </span></strong><span id="eventIDModal"></span></p>
+  	<p><strong><span class="text-info">Coordinate: </span></strong><span id="coordModal"></span></p>
+  	<p><ul class="inline">
+  		<li id="statusModal" class="text-info" style="font-weight: bold; padding-left: 0;">Nuovo Status: </li>
+	</ul></p>
+  		
+    <input id="descModal" type="text" placeholder="Perchè vuoi modificare questo evento?" class="span5">
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button id="changeButton" class="btn btn-primary" onclick="change()">Invia notifica</button>
+  </div>
 </div>
 
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
