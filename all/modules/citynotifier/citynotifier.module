@@ -188,7 +188,7 @@ function citynotifier_request() {
 
 	$data = _citynotifier_citynotifier2data($_GET);
 
-	$validation =_citynotifier_validate($data, 'request');
+	$validation = _citynotifier_validate($data, 'request');
 
 	if($validation['code'] <> 200) {
 		drupal_add_http_header("Status", $validation['code'], TRUE); 
@@ -203,34 +203,33 @@ function citynotifier_request() {
 	$events = array();
 	switch($data['scope']) {
 	case "local":
-	  $events = _citynotifier_get_local_event($data);
-//	  $result += array("from_server" => "http://" . $_SERVER['HTTP_HOST']);
-	  break;
+		$events = _citynotifier_get_local_event($data);
+		break;
 	case "remote":
-	  $data = _citynotifier_data2citynotifier($data);
-	  if(isset($data['dest'])) {
-	    $servers = array($servers[$data['dest']]);
-	    unset($data['dest']);
-	  }
+		$data = _citynotifier_data2citynotifier($data);
+		if(isset($data['dest'])) {
+			$servers = array($servers[$data['dest']]);
+			unset($data['dest']);
+		}
 
-	  $remote_event = _citynotifier_get_remote_event($data);
+		$remote_events = _citynotifier_get_remote_event($data);
 
-	 /* foreach($servers as $server) {
-	    if($check_res = citynotifier_http_get_request($server['url'] . "/richieste", $data)){
-	      $serv_events = _citynotifier_check_remote_events($check_res['events']);
-	      $events = array_merge($events, $serv_events);
-	    }
-	  }*/
-	  break;
+		break;
 	}
   
-  $result += array("events" => $events);
+	$result += array("events" => $events);
 //citynotifier_debug($events);  
-  //echo drupal_json_output($fake_resp);
-  
-  drupal_add_http_header("Status", 200);
-  echo drupal_convert_to_utf8(drupal_json_encode($result));
-  return;
+//citynotifier_debug($remote_events);	
+	drupal_add_http_header("Status", 200);
+
+	foreach($remote_events as $remote_event){
+//da discutere come inviare la risp al client
+		echo drupal_convert_to_utf8(drupal_json_encode($remote_event));
+		return;
+	}
+
+	echo drupal_convert_to_utf8(drupal_json_encode($result));
+	return;
 }
 
 /**

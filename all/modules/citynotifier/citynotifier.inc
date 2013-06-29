@@ -137,6 +137,8 @@ function _citynotifier_citynotifier2data($data) {
   $data['type'] = $type;
   $data['subtype'] = $subtype;
 
+//  $data['status'] = _citynotifier_get_index_status($data['status']);
+
   $type_cast = array('lat' => 'floatval(%)', 'lng' => 'floatval(%)',
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
                      'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)');
@@ -155,13 +157,16 @@ function _citynotifier_citynotifier2data($data) {
  * @return result
  */
 function _citynotifier_data2citynotifier($data) {
+  $data['scope'] = 'local';
   $statuses = variable_get('citynotifier_settings_statuses', array());
   $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
   $types = array_keys($types_subtypes);
-  
-  $data['type'] = array('type' => $types[$data['type']], 'subtype' => $types_subtypes[$types[$data['type']]][$data['subtype']]);
-  unset($data['subtype']);
-  $data['status'] = $statuses[$data['status']];
+
+  $data['subtype'] = $types_subtypes[$types[$data['type']]][$data['subtype']];
+  $data['type'] = $types[$data['type']];
+  unset($data['q']);
+//  unset($data['subtype']);
+//  $data['status'] = $statuses[$data['status']];
   return $data;
 }
 
@@ -393,7 +398,7 @@ function _citynotifier_get_remote_event($data){
 		$out = explode("\r\n\r\n", $result[$index]);
 		$result[$index] = drupal_json_decode($out[1]);
 	}
-
+//citynotifier_debug($result);
 	return $result;
 }
 
