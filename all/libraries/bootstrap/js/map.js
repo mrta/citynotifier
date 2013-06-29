@@ -450,6 +450,7 @@ var lineSymbol = {
 			});
 			
 			polylineArray.push(line);
+			
 				
 			$(path).each(function(index, item) {
 				line.getPath().push(item);
@@ -458,6 +459,8 @@ var lineSymbol = {
 
 			line.setMap(map);
 			//map.fitBounds(bounds);
+			
+			console.log(line.getPath().getArray());
 		
 			var count = 0;
 			window.setInterval(function() {

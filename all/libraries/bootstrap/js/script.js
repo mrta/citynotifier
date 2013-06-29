@@ -2,11 +2,11 @@ var firstTime = 0;
 var urlServer = "http://"+document.location.hostname;
 var urlCrossDomain = -1;
 
+var eventsMap = [];
+
 $('.brand').on('click', function(){
 	console.log(jQuery.cookie());
 	errorAlert("Pota");	
-	calcRoute();
-	maxDistance(p1, points);
 });
 
 $(window).unload(function() {
@@ -626,143 +626,56 @@ function searchEvent() {
 		    url: url,
 		    type: 'GET',
 		    success: function(datiString, status, richiesta) {
+	    		eventsMap.length = 0;
+		    	clearOverlays();
+		    	$('#modalBody').html('');
+		    	
 		    	successAlert("Ricerca in corso...");
 		        $('#search').parent().removeClass('open');
-		        $('#modalBody').html('');
-		        clearOverlays();
-		        
+		          
 		        for (var i in datiString.events) {
-					var type = datiString.events[i].type.type.charAt(0).toUpperCase() + datiString.events[i].type.type.slice(1).replace(/_/g," ");
-					var subtype = datiString.events[i].type.subtype.charAt(0).toUpperCase() + datiString.events[i].type.subtype.slice(1).replace(/_/g," ");
-					var description = datiString.events[i].description
-					
-					var date = new Date(datiString.events[i].start_time*1000);
-						var day = date.getDate();
-						var month = date.getMonth();
-						var year = date.getFullYear();
-						var hours = date.getHours();
-						var minutes = date.getMinutes();
-						var seconds = date.getSeconds();
-						var startTime = day+'/'+month+'/'+year+'\t'+ hours + ':' + minutes + ':' + seconds;
-					
-					var freshness = datiString.events[i].freshness;
-				
-					var status = datiString.events[i].status;
-					status = status.charAt(0).toUpperCase() + status.slice(1);
-					var statusFormatted = status;
-					switch (status) {
-						case "Open":
-							status = '<button class="btn btn-success">'+status;
-							break;
-						case "Closed":
-							status = '<button class="btn btn-danger">'+status;
-							break;
-						case "Skeptical":
-							status = '<button class="btn btn-warning">'+status;
-							break;	
-					}
-				
-					var reliability = datiString.events[i].reliability;
-					var numNot = datiString.events[i].number_of_notifications;
-					var lat = datiString.events[i].locations[0].lat;
-					var lng = datiString.events[i].locations[0].lng;
-					var eventID = datiString.events[i].event_id;
-					
-					
-					if(subtype == "Coda"){
-						var endUnformatted = datiString.events[i].locations.shift();
-						var end = new google.maps.LatLng(endUnformatted.lat,endUnformatted.lng);
-						//console.log(end);
-						var start = maxDistance(end, datiString.events[i].locations);
-						//console.log(start);
-						
-						console.log(distStartEnd = calcDistance(start,end));
-						
-						var dist = 0;
-						
-						var waypointsArray = [];
-						$.each(datiString.events[i].locations, function(j){
-							var point = new google.maps.LatLng(datiString.events[i].locations[j].lat, datiString.events[i].locations[j].lng);
-							if(point.lat() != start.lat() && point.lng() != start.lng()){
-								var wayPoint = { location : point };
-								var distPointEnd = calcDistance(point,end)
-								if(distPointEnd > dist){
-									dist = distPointEnd;
-    								waypointsArray.push(wayPoint);
-    							}
-    						}
-						});
-						
-						console.log(waypointsArray);
-						
-						calcRoute(end, start, waypointsArray.reverse());
-					}
-			
-					searchMarker = new google.maps.Marker({
-						position: new google.maps.LatLng(lat, lng),
-						map: map,
-						draggable: false,
-						title: eventID,
-						animation: google.maps.Animation.DROP
-					});
-					
-					searchMarker.id = eventID;
-					searchMarker.type = type;	
-					searchMarker.subtype = subtype;	
-					searchMarker.status = statusFormatted;				
-					markersArray.push(searchMarker);
-					
-					var infoWindow = new google.maps.InfoWindow();			
-					
-					var onMarkerClick = function() {
-						var marker = this;
-						infoWindow.id = this.id;
-						infoWindow.type = this.type;	
-						infoWindow.subtype = this.subtype;	
-						infoWindow.status = this.status;		
-					  
-						var latLng = marker.getPosition();
-						geocodePosition(marker.getPosition(), null, infoWindow);
-						infoWindow.open(map, marker);
-					};					
-
-					google.maps.event.addListener(searchMarker, 'click', onMarkerClick);
-					google.maps.event.addListener(map, 'click', function() { infoWindow.close(); });
-			
-					var latHtml = JSON.stringify(lat).replace(/\./g,"");
-					var lngHtml = JSON.stringify(lng).replace(/\./g,"");
-					var latlngHtml = (latHtml+lngHtml).replace(/""/g,"");
-				
-					var descriptionHtml = "";
-					var fullArray = checkArray(description);
-					if(fullArray){
-						for (j in description){
-							if(description[j]){
-								description[j] = description[j].charAt(0).toUpperCase() + description[j].slice(1);
-								descriptionHtml = descriptionHtml.concat('<li><p>'+description[j]+'</p></li>');
-								}
-						}	
-					}
-
-				
-					$('#modalBody').append('<tr>\
-										<td>'+type+' > '+subtype+'</td>\
-										<td>'+startTime+'</td>\
-										<td id='+eventID+'></td>\
-										<td><div class="btn-group">\
-											<a href="#" id="'+eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
-											<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
-										</div></td>\
-										<td>'+numNot+' / '+reliability+'</td>\
-										<td>'+status+'</td>\
-										</tr>');
-					var butID = "#"+eventID+"but";			
-					if(!fullArray)
-						$(butID).addClass('disabled');
-				
-					geocodePosition(new google.maps.LatLng(lat, lng), eventID);
+					createEvent(i, datiString.events);
 				}
-			$('#spinner').fadeOut(2000, function() { $(this).remove(); });
+				//Seconda chiamata remote
+				parameters["scope"] = "remote"
+				url = urlServer.concat(buildUrl("/richieste", parameters));
+
+				$.ajax({
+					url: url,
+					type: 'GET',
+					success: function(datiStringRemote, status, richiesta) {
+						successAlert("Aggiornamento in corso...");
+						$('#search').parent().removeClass('open');
+				
+						for (var i in datiStringRemote.events) {
+							var eventIDRemote = datiStringRemote.events[i].event_id;
+							
+							var result = $.grep(eventsMap, function(e){ return e.id == eventIDRemote; });
+							
+							if (result.length == 0) {
+							
+							  console.log("Nuovo evento");
+							  createEvent(i, datiStringRemote.events);
+							  
+							} else if (result.length == 1) {
+							
+								console.log("Evento esiste già");
+							  	// access the foo property using result[0].foo
+							  	updateEvent(result[0], datiStringRemote.events[i]);
+							  
+							} else {
+							
+								console.log("ERROR! Più eventi fanno match!!!!");
+							  // multiple items found
+							  
+							}
+						}
+				 	},
+					error: function(err) {
+						errorAlert("Ajax Remote Notify error");
+					}
+				});
+				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
 		        errorAlert("Ajax Notify error");
@@ -776,6 +689,163 @@ function searchEvent() {
 		    $('#addressMarkerSearch').addClass("icon-white");
     	}
 	}
+}
+
+function updateEvent(eventLocal, eventRemote){
+
+	eventLocal.description = eventRemote.description;
+	eventLocal.freshness = eventRemote.freshness;	
+	eventLocal.status = eventRemote.status.charAt(0).toUpperCase() + eventRemote.status.slice(1);
+	var statusFormatted = eventLocal.status;
+	
+	switch (eventLocal.status) {
+		case "Open":
+			eventLocal.status = '<button class="btn btn-success">'+eventLocal.status;
+			break;
+		case "Closed":
+			eventLocal.status = '<button class="btn btn-danger">'+eventLocal.status;
+			break;
+		case "Skeptical":
+			eventLocal.status = '<button class="btn btn-warning">'+eventLocal.status;
+			break;	
+	}
+	
+	eventLocal.reliability = eventRemote.reliability;
+	eventLocal.numNot = eventRemote.number_of_notifications;
+}
+
+function createEvent(i, events){		        
+	var eventObject = new Object();
+	eventObject.type = events[i].type.type.charAt(0).toUpperCase() + events[i].type.type.slice(1).replace(/_/g," ");
+	eventObject.subtype = events[i].type.subtype.charAt(0).toUpperCase() + events[i].type.subtype.slice(1).replace(/_/g," ");
+	eventObject.description = events[i].description;
+	
+	var date = new Date(events[i].start_time*1000);
+		var day = date.getDate();
+		var month = date.getMonth();
+		var year = date.getFullYear();
+		var hours = date.getHours();
+		var minutes = date.getMinutes();
+		var seconds = date.getSeconds();
+	eventObject.startTime = day+'/'+month+'/'+year+'\t'+ hours + ':' + minutes + ':' + seconds;
+	
+	eventObject.freshness = events[i].freshness;
+
+	var status = events[i].status;
+	eventObject.status = status.charAt(0).toUpperCase() + status.slice(1);
+	var statusFormatted = eventObject.status;
+	switch (eventObject.status) {
+		case "Open":
+			eventObject.status = '<button class="btn btn-success">'+eventObject.status;
+			break;
+		case "Closed":
+			eventObject.status = '<button class="btn btn-danger">'+eventObject.status;
+			break;
+		case "Skeptical":
+			eventObject.status = '<button class="btn btn-warning">'+eventObject.status;
+			break;	
+	}
+
+	eventObject.reliability = events[i].reliability;
+	eventObject.numNot = events[i].number_of_notifications;
+	eventObject.lat = events[i].locations[0].lat;
+	eventObject.lng = events[i].locations[0].lng;
+	eventObject.eventID = events[i].event_id;
+	
+	eventsMap.push(eventObject);
+	
+	
+	if(eventObject.subtype == "Coda"){
+		if(events[i].locations.length != 1){
+			var endUnformatted = events[i].locations.shift();
+			var end = new google.maps.LatLng(endUnformatted.lat,endUnformatted.lng);
+			//console.log(end);
+			var start = maxDistance(end, events[i].locations);
+			//console.log(start);
+		
+			var dist = 0;
+		
+			var waypointsArray = [];
+			$.each(events[i].locations, function(j){
+				var point = new google.maps.LatLng(events[i].locations[j].lat, events[i].locations[j].lng);
+				if(point.lat() != start.lat() && point.lng() != start.lng()){
+					var wayPoint = { location : point };
+					var distPointEnd = calcDistance(point,end)
+					if(distPointEnd > dist){
+						dist = distPointEnd;
+						waypointsArray.push(wayPoint);
+					}
+				}
+			});
+		
+			console.log(waypointsArray);
+		
+			calcRoute(end, start, waypointsArray.reverse());
+		}
+	}
+
+	searchMarker = new google.maps.Marker({
+		position: new google.maps.LatLng(eventObject.lat, eventObject.lng),
+		map: map,
+		draggable: false,
+		title: eventObject.eventID,
+		animation: google.maps.Animation.DROP
+	});
+	
+	searchMarker.id = eventObject.eventID;
+	searchMarker.type = eventObject.type;	
+	searchMarker.subtype = eventObject.subtype;	
+	searchMarker.status = statusFormatted;				
+	markersArray.push(searchMarker);
+	
+	var infoWindow = new google.maps.InfoWindow();			
+	
+	var onMarkerClick = function() {
+		var marker = this;
+		infoWindow.id = this.id;
+		infoWindow.type = this.type;	
+		infoWindow.subtype = this.subtype;	
+		infoWindow.status = this.status;		
+	  
+		var latLng = marker.getPosition();
+		geocodePosition(marker.getPosition(), null, infoWindow);
+		infoWindow.open(map, marker);
+	};					
+
+	google.maps.event.addListener(searchMarker, 'click', onMarkerClick);
+	google.maps.event.addListener(map, 'click', function() { infoWindow.close(); });
+
+	var latHtml = JSON.stringify(eventObject.lat).replace(/\./g,"");
+	var lngHtml = JSON.stringify(eventObject.lng).replace(/\./g,"");
+	var latlngHtml = (latHtml+lngHtml).replace(/""/g,"");
+
+	var descriptionHtml = "";
+	var fullArray = checkArray(eventObject.description);
+	if(fullArray){
+		for (j in eventObject.description){
+			if(eventObject.description[j]){
+				eventObject.description[j] = eventObject.description[j].charAt(0).toUpperCase() + eventObject.description[j].slice(1);
+				descriptionHtml = descriptionHtml.concat('<li><p>'+eventObject.description[j]+'</p></li>');
+				}
+		}	
+	}
+					
+	$('#modalBody').append('<tr>\
+						<td>'+eventObject.type+' > '+eventObject.subtype+'</td>\
+						<td>'+eventObject.startTime+'</td>\
+						<td id='+eventObject.eventID+'></td>\
+						<td><div class="btn-group">\
+							<a href="#" id="'+eventObject.eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
+							<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
+						</div></td>\
+						<td>'+eventObject.numNot+' / '+eventObject.reliability+'</td>\
+						<td>'+eventObject.status+'</td>\
+						</tr>');
+	var butID = "#"+eventObject.eventID+"but";			
+	if(!fullArray)
+		$(butID).addClass('disabled');
+
+	geocodePosition(new google.maps.LatLng(eventObject.lat, eventObject.lng), eventObject.eventID);
 }
 
 $('#liveButton').click(function(){
