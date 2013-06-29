@@ -216,18 +216,18 @@ function citynotifier_request() {
 
 		break;
 	}
-  
-	$result += array("events" => $events);
-//citynotifier_debug($events);  
-//citynotifier_debug($remote_events);	
-	drupal_add_http_header("Status", 200);
-
-	foreach($remote_events as $remote_event){
 //da discutere come inviare la risp al client
-		echo drupal_convert_to_utf8(drupal_json_encode($remote_event));
-		return;
+	foreach($remote_events as $i => $remote_event){
+		foreach($remote_event['events'] as $j => $event){
+			$remote_event['events'][$j]['event_id'] = $i . $event['event_id'];
+		}
+		$events = array_merge($events, $remote_event['events']);
 	}
 
+	$result += array("events" => $events);
+//citynotifier_debug($events);  
+
+	drupal_add_http_header("Status", 200);
 	echo drupal_convert_to_utf8(drupal_json_encode($result));
 	return;
 }
