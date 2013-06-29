@@ -309,9 +309,13 @@ function _citynotifier_get_local_event($data) {
 }
 
 function citynotifier_get_assiduity($uid) {
+	$a = 1728000;
+	$time = time() - $a;
+
 	$query = db_select("citynotifier_notify", 'cn');
 	$query->addExpression('COUNT(*)', 'assiduity');
-	$query->condition('cn.uid', $uid, '=');
+	$query->condition('cn.uid', $uid, '=')
+		->condition('cn.created', $time, '>');
 
 	$nOn = $query->execute()->fetchAll();
 
