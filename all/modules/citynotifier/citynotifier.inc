@@ -132,11 +132,11 @@ function _citynotifier_citynotifier2data($data) {
     $data['subtype'] = $data['type']['subtype'];
     $data['type'] = $data['type']['type'];
   }
-  
+
   extract(_citynotifier_get_index_type_subtype($data), EXTR_OVERWRITE);
   $data['type'] = $type;
   $data['subtype'] = $subtype;
-  
+
   $type_cast = array('lat' => 'floatval(%)', 'lng' => 'floatval(%)',
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
                      'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)');
@@ -144,7 +144,7 @@ function _citynotifier_citynotifier2data($data) {
     if(isset($data[$type]))
       eval("\$data['" . $type . "']=" . str_replace("%", "\$data['" . $type . "']", $cast) . ";");
   }
-  
+
   return $data;
 }
 
@@ -174,7 +174,7 @@ function _citynotifier_data2citynotifier($data) {
  */
 function _citynotifier_get_index_type_subtype($data) {
   $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
-  return array("type" => array_search($data['type'], array_keys($types)),
+  return array("type" => array_search($data['type'], array_keys($types_subtypes)),
                "subtype" => array_search($data['subtype'], $types_subtypes[$data['type']]));
 }
 
@@ -199,7 +199,7 @@ function _citynotifier_get_index_status($status){
 
 function _citynotifier_get_value_type_subtype_from_index($index_type, $index_subtype){
 	$types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
-	$type = array_keys($types);
+	$type = array_keys($types_subtypes);
 
 	return array("type" => $type[$index_type], "subtype" => $types_subtypes[$type[$index_type]][$index_subtype]);
 }
@@ -367,6 +367,35 @@ function citynotifier_http_get_request_asynchronous($url, $query) {
   return $fp;
 }
 
+function _citynotifier_get_remote_event($data){
+	$servers = citynotifier_get_subscribed_servers();
+	$fp = array();
+	$result = array();
+
+	foreach($servers as $server) {
+		$pointer = citynotifier_http_get_request_asynchronous($server['url'] . "/richieste", $data);
+		$fp[] = array("pointer" => $pointer, "server" => $server['name']);
+		$result[$server['name']] = '';
+	}
+
+	while(!empty($fp)) {
+		foreach($fp as $index => $f) {
+			$out = fgets($f['pointer']);
+			if (!$out) {
+				fclose($f['pointer']);
+				unset($fp[$index]);
+			}
+			$result[$f['server']] = $result[$f['server']] . $out;
+		}
+	}
+
+	foreach($result as $index => $data) {
+		$out = explode("\r\n\r\n", $result[$index]);
+		$result[$index] = drupal_json_decode($out[1]);
+	}
+
+	return $result;
+}
 
 function _citynotifier_check_remote_events($events){
 	foreach($events as $i => $event){

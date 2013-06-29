@@ -183,17 +183,17 @@ function citynotifier_logout() {
  * Request service.
  */
 function citynotifier_request() {
-  header('Content-type: application/json; charset=utf-8');
-  $servers = citynotifier_get_subscribed_servers();
-  
-  $data = _citynotifier_citynotifier2data($_GET);
+	header('Content-type: application/json; charset=utf-8');
+	$servers = citynotifier_get_subscribed_servers();
 
-  $validation =_citynotifier_validate($data, 'request');
-  
-  if($validation['code'] <> 200) {
+	$data = _citynotifier_citynotifier2data($_GET);
+
+	$validation =_citynotifier_validate($data, 'request');
+
+	if($validation['code'] <> 200) {
 		drupal_add_http_header("Status", $validation['code'], TRUE); 
-    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
-    return;
+		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
+		return;
 	}
 
 	$result = array("request_time" => time(),
@@ -212,12 +212,15 @@ function citynotifier_request() {
 	    $servers = array($servers[$data['dest']]);
 	    unset($data['dest']);
 	  }
-	  foreach($servers as $server) {
+
+	  $remote_event = _citynotifier_get_remote_event($data);
+
+	 /* foreach($servers as $server) {
 	    if($check_res = citynotifier_http_get_request($server['url'] . "/richieste", $data)){
 	      $serv_events = _citynotifier_check_remote_events($check_res['events']);
 	      $events = array_merge($events, $serv_events);
 	    }
-	  }
+	  }*/
 	  break;
 	}
   
