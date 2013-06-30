@@ -216,7 +216,7 @@ function citynotifier_request() {
      
      $fps = array();
      $data_remote = array();
-     
+
      foreach($servers as $index => $server) {
        $fp = citynotifier_get_fp_for_asynchronous_http_get_request($server['url'] . "/richieste", $data);
        if(!$fp['errno']) {
@@ -243,7 +243,7 @@ function citynotifier_request() {
            $data_remote[$i_fp] = drupal_json_decode($data_remote[$i_fp][1]);
 
            foreach($data_remote[$i_fp]["events"] as $i_event => $event) {
-             $data_local = _citynotifier_get_matched_remote_event($event);
+             $data_local = _citynotifier_get_matched_remote_event(_citynotifier_citynotifier2data($event));
              if($data_local["event_id"]) {
                $data_remote[$i_fp]["events"][$i_event]["event_id"] = $data_local["event_id"];
                if(_citynotifier_get_event_freshness($data_local["event_id"]) >  $data_remote[$i_fp]["events"][$i_event]["freshness"] && $data_remote[$i_fp]["events"][$i_event]["status"] <> $statuses[$data_local["status"]]) {
@@ -254,7 +254,7 @@ function citynotifier_request() {
              };
            };
            drupal_add_http_header("Status", 200);
-           echo drupal_convert_to_utf8(drupal_json_encode($data_remote[$i_fp]));           
+           echo drupal_convert_to_utf8(drupal_json_encode($data_remote[$i_fp]));    
          } else {
            $data_remote[$i_fp] = $data_remote[$i_fp] . $fgets;
          };

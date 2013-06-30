@@ -183,7 +183,6 @@ function _citynotifier_citynotifier2data($data) {
  * @return result
  */
 function _citynotifier_data2citynotifier($data) {
-  $data['scope'] = 'local';
   $statuses = variable_get('citynotifier_settings_statuses', array());
   $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
   $types = array_keys($types_subtypes);
@@ -191,8 +190,7 @@ function _citynotifier_data2citynotifier($data) {
   $data['subtype'] = $types_subtypes[$types[$data['type']]][$data['subtype']];
   $data['type'] = $types[$data['type']];
   unset($data['q']);
-//  unset($data['subtype']);
-//  $data['status'] = $statuses[$data['status']];
+  $data['status'] = $statuses[$data['status']];
   return $data;
 }
 
