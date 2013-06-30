@@ -91,6 +91,31 @@ function _citynotifier_get_matched_event($data) {
 	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
 
+/**
+ * Get matched remote event
+ *
+ * @param $data_remote 
+ * @return $event matched or array("event_id"=>FALSE, "status"=>FALSE) if no match
+ */
+function _citynotifier_get_matched_remote_event($data_remote_event) {
+   $same_event = TRUE;
+   $event['event_id'] = TRUE;
+   $i = 0;
+   
+   while($same_event && $event['event_id']) {
+     $event = _citynotifier_get_matched_event(array('lat' => $data_remote_event['locations'][$i]['lat'],
+                                                    'lng' => $data_remote_event['locations'][$i]['lng'],
+                                                    'type' => $data_remote_event['type'],
+                                                    'subtype' => $data_remote_event['subtype']));
+     if($i <> 0 && $event <> $prev_event)
+       $same_event = FALSE;
+     
+     $prev_event = $event;
+     $i++;
+   };
+   return $same_event?$event:array("event_id"=>FALSE, "status"=>FALSE);
+}
+
 function _citynotifier_validate($data, $function_type=NULL) {
   switch($function_type) {
   case "request":
@@ -137,7 +162,8 @@ function _citynotifier_citynotifier2data($data) {
   $data['type'] = $type;
   $data['subtype'] = $subtype;
 
-//  $data['status'] = _citynotifier_get_index_status($data['status']);
+  if($data['status'])
+    $data['status'] = _citynotifier_get_index_status($data['status']);
 
   $type_cast = array('lat' => 'floatval(%)', 'lng' => 'floatval(%)',
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
@@ -210,7 +236,7 @@ function _citynotifier_get_value_type_subtype_from_index($index_type, $index_sub
 }
 
 function _citynotifier_get_local_event($data) {
-	$status = variable_get('citynotifier_settings_statuses', array());
+	$statuses = variable_get('citynotifier_settings_statuses', array());
 
 /*	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
 	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
@@ -224,7 +250,7 @@ function _citynotifier_get_local_event($data) {
 	$query->fields('cn', array('type','subtype','lat','lng'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
-	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$_GET['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$_GET['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$_GET['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
+	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$data['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
 
 	if($data['type']){
 		$query->condition('cn.type', $data['type'], '=');
@@ -259,7 +285,7 @@ function _citynotifier_get_local_event($data) {
 		$event_result = array();
 		$event_result['event_id'] = $event->event_id;
 		$event_result['type'] = _citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype);
-		$event_result['status'] = $status[$event->status];
+		$event_result['status'] = $statuses[$event->status];
 		$event_result['start_time'] = (int)$event->start;
 		$event_result['freshness'] = (int)$event->freshness;
 
@@ -352,7 +378,15 @@ function citynotifier_http_get_request($url, $query) {
   return drupal_json_decode(utf8_decode($response->data));
 }
 
-function citynotifier_http_get_request_asynchronous($url, $query) {
+
+/**
+ * Asynchronous http request
+ *
+ * @param $url and $query
+ * @return array("fp" => $fp, "errno" => $errno, "errstr" => $errstr)
+ */
+ 
+function citynotifier_get_fp_for_asynchronous_http_get_request($url, $query) {
   foreach ($query as $key => &$val) {
     if (is_array($val)) $val = implode(',', $val);
     $get_params[] = $key.'='.urlencode($val);
@@ -373,7 +407,7 @@ function citynotifier_http_get_request_asynchronous($url, $query) {
   
   fwrite($fp, $out);
   
-  return $fp;
+  return array("fp" => $fp, "errno" => $errno, "errstr" => $errstr);
 }
 
 function _citynotifier_get_remote_event($data){
@@ -402,7 +436,6 @@ function _citynotifier_get_remote_event($data){
 		$out = explode("\r\n\r\n", $result[$index]);
 		$result[$index] = drupal_json_decode($out[1]);
 	}
-//citynotifier_debug($result);
 	return $result;
 }
 
