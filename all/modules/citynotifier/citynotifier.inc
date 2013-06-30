@@ -123,7 +123,7 @@ function _citynotifier_validate($data, $function_type=NULL) {
       return array("code" => 406, "response" => t('Scope non valido'));
     if(!$data['radius'])
       return array("code" => 406, "response" => t('Radius non valido'));
-    if(!in_array($data['status'], variable_get('citynotifier_settings_statuses', array())))
+    if(!$data['status'])
       return array("code" => 406, "response" => t('Status non valido'));
     if(!$data['timemin'])
       return array("code" => 406, "response" => t('Timemin non valido'));
