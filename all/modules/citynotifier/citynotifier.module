@@ -231,17 +231,17 @@ function citynotifier_request() {
            "events" => array())));
        }
      }
-     
+
      while(!empty($fps)) {
        foreach($fps as $i_fp => $fp) {
          $fgets = fgets($fp['fp']);
-         
+
          if (!$fgets) {
            fclose($fp['fp']);
            unset($fps[$i_fp]);
            $data_remote[$i_fp] = explode("\r\n\r\n", $data_remote[$i_fp]);
            $data_remote[$i_fp] = drupal_json_decode($data_remote[$i_fp][1]);
-           
+
            foreach($data_remote[$i_fp]["events"] as $i_event => $event) {
              $data_local = _citynotifier_get_matched_remote_event($event);
              if($data_local["event_id"]) {
@@ -256,11 +256,11 @@ function citynotifier_request() {
            drupal_add_http_header("Status", 200);
            echo drupal_convert_to_utf8(drupal_json_encode($data_remote[$i_fp]));           
          } else {
-           $data_remote[$index] = $data_remote[$index] . $fgets;
+           $data_remote[$i_fp] = $data_remote[$i_fp] . $fgets;
          };
        };
-       return;
      };
+     return;
    };
 };
 
