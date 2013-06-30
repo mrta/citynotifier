@@ -259,7 +259,7 @@ function _citynotifier_get_local_event($data) {
 		->condition('cn.lat', $latmax,'<')
 		->condition('cn.lng', $lonmax,'>')
 		->condition('cn.lng', $lonmin,'<')*/
-	if($data['status'] != "all"){
+	if($data['status'] != _citynotifier_get_index_status("all")){
 		$query->condition('ce.status', _citynotifier_get_index_status($data['status']),'=');
 	}/* else {
 	  $or = db_or();
@@ -328,7 +328,7 @@ function _citynotifier_get_local_event($data) {
 		$event_result['locations'] = $locations;
 		array_push($result, $event_result);
 	}
-//citynotifier_debug($result);
+citynotifier_debug($result);
 	return $result;
 }
 
