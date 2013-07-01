@@ -198,21 +198,20 @@ function citynotifier_request() {
    if ($data['scope'] == "local" ) {
      drupal_add_http_header("Status", 200);
      echo drupal_convert_to_utf8(drupal_json_encode(array("request_time" => time(),
-       "result" => "Messaggio di servizio",
-       "from_server" => "http://" . $_SERVER['HTTP_HOST'],
-       "events" => _citynotifier_get_local_event($data))));
+                                                          "result" => "Messaggio di servizio",
+                                                          "from_server" => "http://" . $_SERVER['HTTP_HOST'],
+                                                          "events" => _citynotifier_get_local_event($data))));
      return;
    };
    
    if ($data['scope'] == "remote") {
      $data = _citynotifier_data2citynotifier($data);
+     $servers = citynotifier_get_subscribed_servers();
      
      if(isset($data['dest'])) {
        $servers = array($servers[$data['dest']]);
        unset($data['dest']);
-     } else {
-       $servers = citynotifier_get_subscribed_servers();
-     }
+     } 
      
      $fps = array();
      $data_remote = array();

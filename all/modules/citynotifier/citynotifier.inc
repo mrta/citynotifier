@@ -76,6 +76,11 @@ function _citynotifier_get_matched_event($data) {
 	$type_subtype = _citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype']); 
 	$range = _citynotifier_get_range_subtype($type_subtype['type'], $type_subtype['subtype']);
 
+	/* 3 casi: 2 notifiche 
+	   1) vicine ma su vie diverse => 2 eventi diversi
+	   2) 2 notifiche vicine sulla stessa via => stesso evento
+	   3) 2 notifiche lontane sulla stessa via o meno ma fuori dal range => 2 eventi diversi
+	*/
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id','status'))
@@ -88,6 +93,8 @@ function _citynotifier_get_matched_event($data) {
 		->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
 	
+	if($type_subtype['type'] == "problemi_stradali" && $type_subtype['subtype'] == "coda")
+	  
 	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
 
