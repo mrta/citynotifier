@@ -633,10 +633,11 @@ function searchEvent() {
 		    	successAlert("Ricerca in corso...");
 		        $('#search').parent().removeClass('open');
 		          
-		        for (var i in datiString.events) {
-					createEvent(i, datiString.events);
-				}
-				//Seconda chiamata remote
+		        $.each(datiString.events, function(index, event){
+					createEvent(event);
+				});
+				
+				/*//Seconda chiamata remote
 				parameters["scope"] = "remote"
 				url = urlServer.concat(buildUrl("/richieste", parameters));
 
@@ -647,21 +648,24 @@ function searchEvent() {
 						successAlert("Aggiornamento in corso...");
 						$('#search').parent().removeClass('open');
 				
-						for (var i in datiStringRemote.events) {
-							var eventIDRemote = datiStringRemote.events[i].event_id;
+						$.each(datiStringRemote.events, function(index, event){
+							console.log(index);
+							console.log(event);
+							var eventIDRemote = event.event_id;
 							
 							var result = $.grep(eventsMap, function(e){ return e.id == eventIDRemote; });
 							
 							if (result.length == 0) {
 							
-							  console.log("Nuovo evento");
-							  createEvent(i, datiStringRemote.events);
+							  //console.log("Nuovo evento");
+								if(event.locations[0]) //Fix temporaneo perchè QuellidiLettere non tornano un array
+							  		createEvent(event);
 							  
 							} else if (result.length == 1) {
 							
-								console.log("Evento esiste già");
+								//console.log("Evento esiste già");
 							  	// access the foo property using result[0].foo
-							  	updateEvent(result[0], datiStringRemote.events[i]);
+							  	updateEvent(result[0], event);
 							  
 							} else {
 							
@@ -669,12 +673,12 @@ function searchEvent() {
 							  // multiple items found
 							  
 							}
-						}
+						});
 				 	},
 					error: function(err) {
 						errorAlert("Ajax Remote Notify error");
 					}
-				});
+				});*/
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
@@ -714,13 +718,13 @@ function updateEvent(eventLocal, eventRemote){
 	eventLocal.numNot = eventRemote.number_of_notifications;
 }
 
-function createEvent(i, events){		        
+function createEvent(event){		        
 	var eventObject = new Object();
-	eventObject.type = events[i].type.type.charAt(0).toUpperCase() + events[i].type.type.slice(1).replace(/_/g," ");
-	eventObject.subtype = events[i].type.subtype.charAt(0).toUpperCase() + events[i].type.subtype.slice(1).replace(/_/g," ");
-	eventObject.description = events[i].description;
+	eventObject.type = event.type.type.charAt(0).toUpperCase() + event.type.type.slice(1).replace(/_/g," ");
+	eventObject.subtype = event.type.subtype.charAt(0).toUpperCase() + event.type.subtype.slice(1).replace(/_/g," ");
+	eventObject.description = event.description;
 	
-	var date = new Date(events[i].start_time*1000);
+	var date = new Date(event.start_time*1000);
 		var day = date.getDate();
 		var month = date.getMonth();
 		var year = date.getFullYear();
@@ -729,9 +733,9 @@ function createEvent(i, events){
 		var seconds = date.getSeconds();
 	eventObject.startTime = day+'/'+month+'/'+year+'\t'+ hours + ':' + minutes + ':' + seconds;
 	
-	eventObject.freshness = events[i].freshness;
+	eventObject.freshness = event.freshness;
 
-	var status = events[i].status;
+	var status = event.status;
 	eventObject.status = status.charAt(0).toUpperCase() + status.slice(1);
 	var statusFormatted = eventObject.status;
 	switch (eventObject.status) {
@@ -746,41 +750,45 @@ function createEvent(i, events){
 			break;	
 	}
 
-	eventObject.reliability = events[i].reliability;
-	eventObject.numNot = events[i].number_of_notifications;
-	eventObject.lat = events[i].locations[0].lat;
-	eventObject.lng = events[i].locations[0].lng;
-	eventObject.eventID = events[i].event_id;
+	eventObject.reliability = event.reliability;
+	eventObject.numNot = event.number_of_notifications;
+	eventObject.lat = event.locations[0].lat;
+	eventObject.lng = event.locations[0].lng;
+	eventObject.eventID = event.event_id;
 	
 	eventsMap.push(eventObject);
 	
 	
 	if(eventObject.subtype == "Coda"){
-		if(events[i].locations.length != 1){
-			var endUnformatted = events[i].locations.shift();
+		if(event.locations.length != 1){
+			var endUnformatted = event.locations.pop();
 			var end = new google.maps.LatLng(endUnformatted.lat,endUnformatted.lng);
-			//console.log(end);
-			var start = maxDistance(end, events[i].locations);
-			//console.log(start);
-		
-			var dist = 0;
-		
+			var startUnformatted = event.locations.shift();
+			var start = new google.maps.LatLng(startUnformatted.lat,startUnformatted.lng);
+			
+			var distanceSE = calcDistance(start, end);
+			
 			var waypointsArray = [];
-			$.each(events[i].locations, function(j){
-				var point = new google.maps.LatLng(events[i].locations[j].lat, events[i].locations[j].lng);
-				if(point.lat() != start.lat() && point.lng() != start.lng()){
-					var wayPoint = { location : point };
-					var distPointEnd = calcDistance(point,end)
-					if(distPointEnd > dist){
-						dist = distPointEnd;
-						waypointsArray.push(wayPoint);
+			
+			$.each(event.locations, function(j){
+				var point = new google.maps.LatLng(event.locations[j].lat, event.locations[j].lng);
+				var distancePS = calcDistance(point, start);
+				var distancePE = calcDistance(point, end);
+				
+				if( (distancePS + distancePE) > distanceSE ){
+					//Punto fuori candidato a diventare nuovo start o end
+					if ( distancePS < distancePE ){
+						var wayPoint = { location : start };
+						start = point;
+					}
+					else{
+						var wayPoint = { location : end };
+						end = point;
 					}
 				}
 			});
-		
-			console.log(waypointsArray);
-		
-			calcRoute(end, start, waypointsArray.reverse());
+			distRoute(start, end, null);
+			
 		}
 	}
 

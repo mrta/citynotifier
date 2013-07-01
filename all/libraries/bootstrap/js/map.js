@@ -27,6 +27,7 @@ function clearOverlays() {
     if(polylineArray[i])
     	polylineArray[i].setMap(null);
   }
+  heatMapArray = [];
   markersArray = [];
   polylineArray = [];
 }
@@ -419,75 +420,67 @@ RadiusWidget.prototype.setDistance = function() {
 
 /******************/
 
-function calcRoute(start, end, waypointsArray) {
-
-var lineSymbol = {
-		path: google.maps.SymbolPath.CIRCLE,
-		scale: 8,
-		strokeColor: '#000',
-};
-
-	var bounds = new google.maps.LatLngBounds();
+function distRoute(start, end, waypointsArray) {
 	var directionsService = new google.maps.DirectionsService(); 
 	var request = {		
-		origin: end, 
-		destination: start,
+		origin: start, 
+		destination: end,
 		travelMode: google.maps.DirectionsTravelMode.DRIVING,
-		waypoints: waypointsArray
+		waypoints: waypointsArray,
+		optimizeWaypoints: true
 	};
 
 	directionsService.route(request, function(result, status) { 
 		if (status == google.maps.DirectionsStatus.OK) {
 			path = result.routes[0].overview_path;
+			var pathLenSE = new Object();
+			pathLenSE.path = path;
+			pathLenSE.len = google.maps.geometry.spherical.computeLength(path);
 			
-			var line = new google.maps.Polyline({
-				icons: [{
-					icon: lineSymbol,
-					offset: '100%',	
-				}],
-				strokeColor: 'red',
-				map: map
-			});
+			var request = {		
+				origin: end, 
+				destination: start,
+				travelMode: google.maps.DirectionsTravelMode.DRIVING,
+				waypoints: waypointsArray,
+				optimizeWaypoints: true
+			};
 			
-			polylineArray.push(line);
-			
+			directionsService.route(request, function(result, status) { 
+			if (status == google.maps.DirectionsStatus.OK) {
+				path = result.routes[0].overview_path;
+				var pathLenES = new Object();
+				pathLenES.path = path;
+				pathLenES.len = google.maps.geometry.spherical.computeLength(path);
 				
-			$(path).each(function(index, item) {
-				line.getPath().push(item);
-				bounds.extend(item);
-			})
-
-			line.setMap(map);
-			//map.fitBounds(bounds);
-			
-			console.log(line.getPath().getArray());
-		
-			var count = 0;
-			window.setInterval(function() {
-			  count = (count + 1) % 200;
-
-			  var icons = line.get('icons');
-			  icons[0].offset = (count / 2) + '%';
-			  line.set('icons', icons);
-		  }, 50);
+				if(pathLenSE.len <= pathLenES.len)
+					calcRoute(start, end, waypointsArray, pathLenSE.path);
+				else
+					calcRoute(end, start, waypointsArray, pathLenES.path);
+				}
+			});
 		}
 	});
 }
 
-function calcDistance(p1, p2){ return google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000; }
-function maxDistance(start, arrayCoords){
-		var max = 0;
-		var point_max;
-		
-		for (var i = 0; i < arrayCoords.length; i++){
-			var arrayCoord = new google.maps.LatLng(arrayCoords[i].lat, arrayCoords[i].lng);
-
-			var max_tmp = calcDistance(start, arrayCoord);
+var heatmap;
+var heatMapArray = [];
+function calcRoute(start, end, waypointsArray, AllPath) {
+			path = AllPath;			
 			
-			if(max_tmp > max){
-				max = max_tmp
-				point_max = arrayCoord;
+			
+			if(heatmap)
+				heatmap.setMap(heatmap.getMap() ? null : map);
+				
+			for(var j=0; j<path.length-1; j++){
+				for(var i=0.1; i<1; i+=0.05){
+				var heatpoint = google.maps.geometry.spherical.interpolate(path[j], path[j+1], i);
+				heatMapArray.push(heatpoint);
+				}
 			}
-		}
-		return point_max;
-	}
+			var pointArray = new google.maps.MVCArray(heatMapArray);				
+			heatmap = new google.maps.visualization.HeatmapLayer({
+    			data: pointArray
+  			});
+  			heatmap.setMap(map);
+}
+function calcDistance(p1, p2){ return google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000; }
