@@ -236,12 +236,6 @@ function _citynotifier_get_value_type_subtype_from_index($index_type, $index_sub
 function _citynotifier_get_local_event($data) {
 	$statuses = variable_get('citynotifier_settings_statuses', array());
 
-/*	$lonmin = $_GET['lng']-$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
-	$lonmax = $_GET['lng']+$_GET['radius']/abs(cos(deg2rad($_GET['lat']))*69);
-
-	$latmin = $_GET['lat']-($_GET['radius']/69);
-	$latmax = $_GET['lat']+($_GET['radius']/69);*/
-
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id', 'status'));
@@ -250,24 +244,28 @@ function _citynotifier_get_local_event($data) {
 	$query->addExpression('MIN(cn.created)', 'start');
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$data['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
 
-	if($data['type']){
-		$query->condition('cn.type', $data['type'], '=');
-		if($data['subtype'])
-			$query->condition('cn.subtype', $data['subtype'], '=');
+	switch($data['subtype']) {
+	case 0:
+	  $db_or = db_or();
+	  $db_and = db_and();
+	  $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
+    $types = array_keys($types_subtypes);
+	  foreach($types_subtypes[$types[$data['type']][$data['subtype']]] as $index_subtype => $subtype) {
+	    $db_and->condition('cn.type', $data['type'], '=');
+	    $db_and->condition('cn.subtype', $index_subtype, '=');
+	    $db_or->condition($db_and);
+	    $query->condition($db_or); 
+	  }
+	  break;
+	default:
+	  $query->condition('cn.type', $data['type'], '=');
+	  $query->condition('cn.subtype', $data['subtype'], '=');
+	  break;
 	}
-		/*->condition('cn.lat', $latmin,'>')
-		->condition('cn.lat', $latmax,'<')
-		->condition('cn.lng', $lonmax,'>')
-		->condition('cn.lng', $lonmin,'<')*/
-	if($data['status'] != _citynotifier_get_index_status("all")){
-		$query->condition('ce.status', _citynotifier_get_index_status($data['status']),'=');
-	}/* else {
-	  $or = db_or();
-	  foreach($status as $s)
-	    if($s <> "all")
-	      $or->condition('ce.status', $s,'=');
-	  $query->condition($or);
-	}*/
+	  
+	if($data['status'])
+		$query->condition('ce.status', $data['status'],'=');
+
 
 	$query->havingCondition('freshness', $data['timemin'], '>')
 		->havingCondition('freshness', $data['timemax'], '<')
@@ -328,7 +326,7 @@ function _citynotifier_get_local_event($data) {
 		$event_result['locations'] = $locations;
 		array_push($result, $event_result);
 	}
-citynotifier_debug($result);
+
 	return $result;
 }
 
