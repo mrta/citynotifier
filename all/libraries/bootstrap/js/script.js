@@ -637,48 +637,52 @@ function searchEvent() {
 					createEvent(event);
 				});
 				
-				/*//Seconda chiamata remote
+				//Seconda chiamata remote
 				parameters["scope"] = "remote"
 				url = urlServer.concat(buildUrl("/richieste", parameters));
 
 				$.ajax({
 					url: url,
 					type: 'GET',
-					success: function(datiStringRemote, status, richiesta) {
+					success: function(responseRemote, status, richiesta) {
 						successAlert("Aggiornamento in corso...");
 						$('#search').parent().removeClass('open');
-				
-						$.each(datiStringRemote.events, function(index, event){
-							console.log(index);
-							console.log(event);
-							var eventIDRemote = event.event_id;
+						
+						
+						$.each(responseRemote, function(index, response){
+							console.log(responseRemote);
+							$.each(response.events, function(index, event){
+								console.log(index);
+								console.log(event);
+								var eventIDRemote = event.event_id;
 							
-							var result = $.grep(eventsMap, function(e){ return e.id == eventIDRemote; });
+								var result = $.grep(eventsMap, function(e){ return e.id == eventIDRemote; });
 							
-							if (result.length == 0) {
+								if (result.length == 0) {
 							
-							  //console.log("Nuovo evento");
-								if(event.locations[0]) //Fix temporaneo perchè QuellidiLettere non tornano un array
-							  		createEvent(event);
-							  
-							} else if (result.length == 1) {
+								  //console.log("Nuovo evento");
+									if(event.locations[0]) //Fix temporaneo perchè QuellidiLettere non tornano un array
+								  		createEvent(event);
+								  
+								} else if (result.length == 1) {
 							
-								//console.log("Evento esiste già");
-							  	// access the foo property using result[0].foo
-							  	updateEvent(result[0], event);
-							  
-							} else {
+									//console.log("Evento esiste già");
+								  	// access the foo property using result[0].foo
+								  	updateEvent(result[0], event);
+								  
+								} else {
 							
-								console.log("ERROR! Più eventi fanno match!!!!");
-							  // multiple items found
-							  
-							}
-						});
+									console.log("ERROR! Più eventi fanno match!!!!");
+								  // multiple items found
+								  
+								}
+							});
+					 	});
 				 	},
 					error: function(err) {
 						errorAlert("Ajax Remote Notify error");
 					}
-				});*/
+				});
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
