@@ -216,6 +216,7 @@ function citynotifier_request() {
      
      $fps = array();
      $data_remote = array();
+     $data['scope'] == "local";
 
      foreach($servers as $index => $server) {
        $fp = citynotifier_get_fp_for_asynchronous_http_get_request($server['url'] . "/richieste", $data);
@@ -253,13 +254,13 @@ function citynotifier_request() {
                };
              };
            };
-           drupal_add_http_header("Status", 200);
-           echo drupal_convert_to_utf8(drupal_json_encode($data_remote[$i_fp]));    
          } else {
            $data_remote[$i_fp] = $data_remote[$i_fp] . $fgets;
          };
        };
      };
+     drupal_add_http_header("Status", 200);
+     echo drupal_convert_to_utf8(drupal_json_encode($data_remote));    
      return;
    };
 };

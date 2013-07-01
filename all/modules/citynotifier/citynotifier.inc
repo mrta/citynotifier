@@ -123,7 +123,7 @@ function _citynotifier_validate($data, $function_type=NULL) {
       return array("code" => 406, "response" => t('Scope non valido'));
     if(!$data['radius'])
       return array("code" => 406, "response" => t('Radius non valido'));
-    if($data['status'] <> FALSE)
+    if($data['status'] === FALSE)
       return array("code" => 406, "response" => t('Status non valido'));
     if(!$data['timemin'])
       return array("code" => 406, "response" => t('Timemin non valido'));
@@ -246,15 +246,15 @@ function _citynotifier_get_local_event($data) {
 
 	switch($data['subtype']) {
 	case 0:
-	  $db_or = db_or();
-	  $db_and = db_and();
 	  $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
     $types = array_keys($types_subtypes);
-	  foreach($types_subtypes[$types[$data['type']][$data['subtype']]] as $index_subtype => $subtype) {
-	    $db_and->condition('cn.type', $data['type'], '=');
-	    $db_and->condition('cn.subtype', $index_subtype, '=');
-	    $db_or->condition($db_and);
-	    $query->condition($db_or); 
+    $subtypes = $types_subtypes[$types[$data['type']]];
+    unset($subtypes[0]); /* delete 'all' item */
+    $db_or = db_or();
+	  foreach($subtypes as $index_subtype => $subtype) {
+	    $db_and = db_and()->condition('cn.type', $data['type'], '=')
+	                      ->condition('cn.subtype', $index_subtype, '=');
+	    $query->condition($db_or->condition($db_and)); 
 	  }
 	  break;
 	default:
@@ -277,7 +277,6 @@ function _citynotifier_get_local_event($data) {
 	$result = array();
 
 	foreach($events as $event){
-
 		$event_result = array();
 		$event_result['event_id'] = $event->event_id;
 		$event_result['type'] = _citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype);
