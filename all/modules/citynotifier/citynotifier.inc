@@ -382,12 +382,7 @@ function citynotifier_http_get_request($url, $query) {
  */
  
 function citynotifier_get_fp_for_asynchronous_http_get_request($url, $query) {
-  foreach ($query as $key => &$val) {
-    if (is_array($val)) $val = implode(',', $val);
-    $get_params[] = $key.'='.urlencode($val);
-  }
-  $get_string = implode('&', $get_params);
-  
+  $get_string = drupal_http_build_query($query);
   $parts=parse_url($url);
   
   $fp = fsockopen($parts['host'],
@@ -397,9 +392,7 @@ function citynotifier_get_fp_for_asynchronous_http_get_request($url, $query) {
   $out = "GET ".$parts['path'].'?'.$get_string." HTTP/1.1\r\n";
   $out.= "Host: ".$parts['host']."\r\n";
   $out.= "Content-Type: application/json; charset=utf-8\r\n";
-  $out.= "Content-Length: ".strlen($post_string)."\r\n";
   $out.= "Connection: Close\r\n\r\n";
-  
   fwrite($fp, $out);
   
   return array("fp" => $fp, "errno" => $errno, "errstr" => $errstr);

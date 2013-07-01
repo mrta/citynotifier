@@ -216,7 +216,7 @@ function citynotifier_request() {
      
      $fps = array();
      $data_remote = array();
-     $data['scope'] == "local";
+     $data['scope'] = "local"; /* from server to server are local requests */
 
      foreach($servers as $index => $server) {
        $fp = citynotifier_get_fp_for_asynchronous_http_get_request($server['url'] . "/richieste", $data);
