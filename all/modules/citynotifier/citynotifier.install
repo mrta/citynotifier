@@ -8,9 +8,9 @@ function citynotifier_install() {
   drupal_install_schema('citynotifier_notify');
   drupal_install_schema('citynotifier_event');
   
-  $s_range=0.001;
-	$m_range=0.003;
-	$l_range=0.005;
+  $s_range=0.0003;
+	$m_range=0.001;
+	$l_range=0.004;
 	$xl_range=0.02;
 	
   $types_subtypes = array("all" => array(array("subtype" => "all", "range"=> "")),
@@ -34,7 +34,7 @@ function citynotifier_install() {
                                                           array("subtype" => "alluvione", "range"=> $xl_range)),
                            "eventi_pubblici" => array(array("subtype" => "all", "range"=> ""),
                                                       array("subtype" => "partita", "range"=> $l_range),
-                                                      array("subtype" => "manifestazione", "range"=> $xl_range),
+                                                      array("subtype" => "manifestazione", "range"=> $l_range),
                                                       array("subtype" => "concerto", "range"=> $l_range)));
   
   variable_set('citynotifier_settings_catalogue', '');
