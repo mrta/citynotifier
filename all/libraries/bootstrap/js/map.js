@@ -176,6 +176,7 @@ function geocodePosition(position, eventID, infoWindow){
 				var map = $(this).gmap3("get"),
 				infowindow = $(this).gmap3({get:"infowindow"}),
 				content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: position;
+				lastGeo = results[0].address_components;
 				if(content == position)
 					geocodePosition(position, eventID); //Riprova
 					
@@ -226,7 +227,7 @@ function geocodePosition(position, eventID, infoWindow){
 				
 				if(eventID)
 					$('#'+eventID).html(content);
-				else{
+				else if(!infoWindow){
 					$('#notifyAddress').val(content);
 		            $('#searchAddress').val(content);
 		            $('#infoAddress').html(content);
@@ -472,7 +473,7 @@ function calcRoute(start, end, waypointsArray, AllPath) {
 				heatmap.setMap(heatmap.getMap() ? null : map);
 				
 			for(var j=0; j<path.length-1; j++){
-				for(var i=0.1; i<1; i+=0.05){
+				for(var i=0.01; i<1; i+=0.01){
 				var heatpoint = google.maps.geometry.spherical.interpolate(path[j], path[j+1], i);
 				heatMapArray.push(heatpoint);
 				}
@@ -484,3 +485,79 @@ function calcRoute(start, end, waypointsArray, AllPath) {
   			heatmap.setMap(map);
 }
 function calcDistance(p1, p2){ return google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000; }
+
+function middlePoint(pointArray){
+	var count = pointArray.length;
+	var sumLen = 0;
+	var sumLng = 0;
+	$.each(pointArray, function(index, value){
+		sumLen += value.lat;
+		sumLng += value.lng;
+	});
+	
+	return new google.maps.LatLng(sumLen/count,sumLng/count);
+}
+
+function geocodePositionAjax(latlng, infoWindow){
+ 	geocoder.geocode({'latLng': latlng}, function(results, status) {
+	/*$.ajax({		
+		url: "http://maps.googleapis.com/maps/api/geocode/json?latlng="+latlng.lat()+","+latlng.lng()+"&sensor=true",
+		dataType: "json",
+		type: 'GET',*/
+		if (status == google.maps.GeocoderStatus.OK) {
+					console.log(results);
+					content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: "poppe";
+					console.log(content);
+					var infoID = infoWindow.id;
+					var infoType = infoWindow.type;
+					var infoSubType = infoWindow.subtype;
+					var infoStatus = infoWindow.status;
+					
+					/*$('#eventIDModal').html(infoID);
+					$('#coordModal').html(latlng.lat() + " , " + latlng.lng());*/
+										
+					switch (infoStatus) {
+						case "Open":
+							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus;
+							changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
+							if(!$("#statusModal").next().is("li"))
+								$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
+							break;
+						case "Closed":
+							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus;
+							changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
+							if(!$("#statusModal").next().is("li"))
+								$('#statusModal').after('<li><span id="statusModalValue" class="label label-success">Open</span>');
+							break;
+						case "Skeptical":
+							infoStatus = '<a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus;
+							changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
+							if(!$("#statusModal").next().is("li"))
+								$('#statusModal').after('<li><label class="radio">\
+															<input type="radio" name="optionsRadios" id="optionsRadios1" value="open" checked style="vertical-align: middle"><span class="label label-success">Open</span></label></li>\
+															<li><label class="radio">\
+															<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
+							break;	
+					}
+					  
+      				infoWindow.setContent('<div class="hero-unit">\
+  												<h2>'+infoSubType+'<img style="padding-left: 35px;" class="pull-right" src='+getIcon(infoType, infoSubType)+'></h2>\
+  												<h4>'+content+'</h4>\
+  												<p>'+infoType+' > '+infoSubType+'</p>\
+  												<div class="btn-group">'+infoStatus+' <span class="caret"></span></a>\
+													<ul class="dropdown-menu">\
+														<li>'+changeStatus+'</li>\
+  													</ul>\
+												</div>\
+											</div>');
+		}
+		else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {    
+            setTimeout(function() {
+                geocodePositionAjax(latlng, infoWindow);
+            }, 100);
+        }
+		else {
+		  alert('Geocoder failed due to: ' + status);
+		}
+    });
+}

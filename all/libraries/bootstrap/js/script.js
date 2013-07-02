@@ -2,6 +2,8 @@ var firstTime = 0;
 var urlServer = "http://"+document.location.hostname;
 var urlCrossDomain = -1;
 
+var lastGeo;
+
 var eventsMap = [];
 
 $('.brand').on('click', function(){
@@ -422,15 +424,16 @@ function sendNotify() {
     notifyObj.lat = userMarker.getPosition().lat();
     notifyObj.lng = userMarker.getPosition().lng();
     notifyObj.description = $('#notifyDescription').val();
+    notifyObj.address_components = lastGeo; //Asincrono. Pericoloso Pericoloso!!
 
     /*var typeError = $('<span id="type_span" class="help-inline">Select a type</span>');
      var subTypeError = $('<span id="sybtype_span" class="help-inline">Select a subtype</span>');*/
     var addressError = $('<span id="address_span">Select an address on map</span>');
 
     var notifyJSON = JSON.stringify(notifyObj);
-    console.log(notifyType.type);
+    //console.log(notifyType.type);
 
-	console.log("Invio notifica con subtype "+notifyType.subtype+" lat: "+notifyObj.lat+" lng: "+notifyObj.lng);
+	//console.log("Invio notifica con subtype "+notifyType.subtype+" lat: "+notifyObj.lat+" lng: "+notifyObj.lng);
 	
     if ((notifyType.type != "select_type") && (notifyType.subtype != "select_subtype") && $('#notifyAddress').val()) {
     	console.log(notifyType.subtype);
@@ -754,7 +757,7 @@ function createEvent(event){
 			break;	
 	}
 
-	eventObject.reliability = event.reliability;
+	eventObject.reliability = Math.round(event.reliability * 100) / 100;
 	eventObject.numNot = event.number_of_notifications;
 	eventObject.lat = event.locations[0].lat;
 	eventObject.lng = event.locations[0].lng;
@@ -820,7 +823,9 @@ function createEvent(event){
 		infoWindow.status = this.status;		
 	  
 		var latLng = marker.getPosition();
-		geocodePosition(marker.getPosition(), null, infoWindow);
+		console.log("pota");
+		geocodePositionAjax(marker.getPosition(), infoWindow);
+		//geocodePosition(marker.getPosition(), null, infoWindow);
 		infoWindow.open(map, marker);
 	};					
 
