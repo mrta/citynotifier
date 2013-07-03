@@ -96,13 +96,13 @@
                                         </select>
                                     </div>
                                     <div class="input-append control-group">
-                                        <input type="text" id="notifyAddress" placeholder="Address">
+                                        <input type="text" id="notifyAddress" placeholder="Address" autocomplete="off">
                                         <button onclick="getLocation()" id="addressButtonNotify" class="btn" type="button">
                                             <i id="addressMarkerNotify" class="icon-map-marker"></i>
                                         </button>
                                     </div>
                                     <div class="control-group">
-                                        <input id="notifyDescription" type="text" placeholder="Description" class="input-block-level ">
+                                        <input id="notifyDescription" type="text" placeholder="Description" class="input-block-level" autocomplete="off">
                                     </div>
                                     <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
                                 </fieldset>
@@ -134,23 +134,23 @@
                                     </div>
                                     
                                     <div class="input-append control-group">
-                                        <input type="text" id="searchAddress" placeholder="Address">
+                                        <input type="text" id="searchAddress" placeholder="Address" autocomplete="off">
                                         <button onclick="getLocation()" id="addressButtonSearch" class="btn" type="button">
                                             <i id="addressMarkerSearch" class="icon-map-marker"></i>
                                         </button>
                                     </div>
                                     
                                     <div class="control-group">
-                                    	<input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')">
+                                    	<input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')" autocomplete="off">
                                     </div>
                                      
 									<div class="input-append date" id="datetimepickerFrom" data-date-format="dd-mm-yyyy">
-										<input type="text" id="timeFromText" placeholder="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+										<input type="text" id="timeFromText" placeholder="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
 									
 									<div class="input-append date" id="datetimepickerTo" data-date-format="dd-mm-yyyy">
-										<input type="text" id="timeToText" placeholder="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii">
+										<input type="text" id="timeToText" placeholder="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
                               
@@ -179,9 +179,9 @@
                             <form>
                                 <fieldset>
                                     <div class="control-group">
-                                        <input id="user" type="text" placeholder="Username"></div>
+                                        <input id="user" type="text" placeholder="Username" autocomplete="off"></div>
                                     <div class="control-group">
-                                        <input id="pass" type="password" placeholder="Password"></div>
+                                        <input id="pass" type="password" placeholder="Password" autocomplete="off"></div>
                                     <button id="login" type="button" class="btn btn-inverse pull-right">Login</button>
                                 </fieldset>
                             </form>

@@ -450,10 +450,6 @@ function sendNotify() {
 	//console.log("Invio notifica con subtype "+notifyType.subtype+" lat: "+notifyObj.lat+" lng: "+notifyObj.lng);
 	
     if ((notifyType.type != "select_type") && (notifyType.subtype != "select_subtype") && $('#notifyAddress').val()) {
-    	if(notifyType.subtype == "coda" && queueCheck){
-			warningAlert();
-		}
-		else{
 		    $.ajax({
 		        url: url,
 		        type: 'POST',
@@ -469,7 +465,6 @@ function sendNotify() {
 		            queueCheck = true;
 		        }
 		    });
-        }
     }
     if ((notifyType.type == "select_type")) {
         $('#notifyType').parent().addClass("error");
@@ -664,7 +659,7 @@ function searchEvent() {
 		    }
 		});
 		
-		//Seconda chiamata remote
+		/*//Seconda chiamata remote
 		parameters["scope"] = "remote"
 		url = urlServer.concat(buildUrl("/richieste", parameters));
 
@@ -707,7 +702,7 @@ function searchEvent() {
 			error: function(err) {
 				errorAlert("Ajax Remote Notify error");
 			}
-		});
+		});*/
 	}
 	else{
 		 if (!$('#searchAddress').val() && $('#searchAddress').next().is('button')) {

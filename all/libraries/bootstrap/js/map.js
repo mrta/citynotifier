@@ -652,6 +652,9 @@ function oldGeocodePosition(position, eventID){
 				content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: position;
 				if(content == position)
 					geocodePosition(position, eventID); //Riprova
+				
+				console.log(results);
+				lastGeo = results[0].address_components;
 					
 				if(eventID)
 					$('#'+eventID).html(content);
