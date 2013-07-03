@@ -8,7 +8,13 @@ var eventsMap = [];
 
 $('.brand').on('click', function(){
 	console.log(jQuery.cookie());
-	errorAlert("Pota");	
+	errorAlert("Pota");
+	heatMapArray = [];
+	for(var i=0; i<Arraydiheatmap.length;i++)
+		Arraydiheatmap[i].setMap(Arraydiheatmap[i].getMap() ? null : map);
+	Arraydiheatmap = [];
+	
+	geocodePosition(new google.maps.LatLng(44.507188428208536, 11.342839968261728), null);
 });
 
 $(window).unload(function() {
@@ -110,6 +116,14 @@ $(document).ready(function(){
 			$('#liveButton').addClass('btn-danger');
 		}
      }
+     
+     $('#notifyTipe').html('<option disabled selected>Select type</option>\
+                                            <option>Problemi stradali</option>\
+                                            <option>Emergenze sanitarie</option>\
+                                            <option>Reati</option>\
+                                            <option>Problemi ambientali</option>\
+                                            <option>Eventi pubblici</option>');
+	$('#notifySubType').html('<option disabled selected>Select subtype</option>');
 });
 
 
@@ -436,7 +450,6 @@ function sendNotify() {
 	//console.log("Invio notifica con subtype "+notifyType.subtype+" lat: "+notifyObj.lat+" lng: "+notifyObj.lng);
 	
     if ((notifyType.type != "select_type") && (notifyType.subtype != "select_subtype") && $('#notifyAddress').val()) {
-    	console.log(notifyType.subtype);
     	if(notifyType.subtype == "coda" && queueCheck){
 			warningAlert();
 		}
@@ -624,73 +637,76 @@ function searchEvent() {
 		$('#addressButtonSearch').removeClass("btn-danger");
 		$('#addressMarkerSearch').removeClass("icon-white");
 		
+		clearOverlays();
+		eventsMap.length = 0;
 		
+		//Prima chiamata local
 		$.ajax({
 		    url: url,
 		    type: 'GET',
 		    success: function(datiString, status, richiesta) {
-	    		eventsMap.length = 0;
-		    	clearOverlays();
+		    	console.log("Ok local..");	
 		    	$('#modalBody').html('');
 		    	
 		    	successAlert("Ricerca in corso...");
 		        $('#search').parent().removeClass('open');
-		          
+		        
+		        if(datiString[0])
+		        	datiString = datiString[0]; /*Fix temporaneo server cambiato che torna un array*/
+		        	  
 		        $.each(datiString.events, function(index, event){
 					createEvent(event);
-				});
-				
-				//Seconda chiamata remote
-				parameters["scope"] = "remote"
-				url = urlServer.concat(buildUrl("/richieste", parameters));
-
-				$.ajax({
-					url: url,
-					type: 'GET',
-					success: function(responseRemote, status, richiesta) {
-						successAlert("Aggiornamento in corso...");
-						$('#search').parent().removeClass('open');
-						
-						
-						$.each(responseRemote, function(index, response){
-							console.log(responseRemote);
-							$.each(response.events, function(index, event){
-								console.log(index);
-								console.log(event);
-								var eventIDRemote = event.event_id;
-							
-								var result = $.grep(eventsMap, function(e){ return e.id == eventIDRemote; });
-							
-								if (result.length == 0) {
-							
-								  //console.log("Nuovo evento");
-									if(event.locations[0]) //Fix temporaneo perchè QuellidiLettere non tornano un array
-								  		createEvent(event);
-								  
-								} else if (result.length == 1) {
-							
-									//console.log("Evento esiste già");
-								  	// access the foo property using result[0].foo
-								  	updateEvent(result[0], event);
-								  
-								} else {
-							
-									console.log("ERROR! Più eventi fanno match!!!!");
-								  // multiple items found
-								  
-								}
-							});
-					 	});
-				 	},
-					error: function(err) {
-						errorAlert("Ajax Remote Notify error");
-					}
 				});
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
 		        errorAlert("Ajax Notify error");
 		    }
+		});
+		
+		//Seconda chiamata remote
+		parameters["scope"] = "remote"
+		url = urlServer.concat(buildUrl("/richieste", parameters));
+
+		$.ajax({
+			url: url,
+			type: 'GET',
+			success: function(responseRemote, status, richiesta) {
+				console.log("Ok remote..");
+				successAlert("Aggiornamento in corso...");
+				$('#search').parent().removeClass('open');
+				
+				
+				$.each(responseRemote, function(index, response){
+					$.each(response.events, function(index, event){
+						var eventIDRemote = event.event_id;
+					
+						var result = $.grep(eventsMap, function(e){ return e.id == eventIDRemote; });
+					
+						if (result.length == 0) {
+					
+						  //console.log("Nuovo evento");
+							if(event.locations[0]) //Fix temporaneo perchè QuellidiLettere non tornano un array
+						  		createEvent(event);
+						  
+						} else if (result.length == 1) {
+					
+							//console.log("Evento esiste già");
+						  	// access the foo property using result[0].foo
+						  	updateEvent(result[0], event);
+						  
+						} else {
+					
+							console.log("ERROR! Più eventi fanno match!!!!");
+						  // multiple items found
+						  
+						}
+					});
+			 	});
+		 	},
+			error: function(err) {
+				errorAlert("Ajax Remote Notify error");
+			}
 		});
 	}
 	else{
@@ -706,6 +722,9 @@ function updateEvent(eventLocal, eventRemote){
 
 	eventLocal.description = eventRemote.description;
 	eventLocal.freshness = eventRemote.freshness;	
+	eventLocal.address = eventRemote.address;
+	eventLocal.lat = eventRemote.lat;
+	eventLocal.lng = eventRemote.lng;
 	eventLocal.status = eventRemote.status.charAt(0).toUpperCase() + eventRemote.status.slice(1);
 	var statusFormatted = eventLocal.status;
 	
@@ -721,9 +740,68 @@ function updateEvent(eventLocal, eventRemote){
 			break;	
 	}
 	
+	if(eventLocal.startTimeUnformatted > eventRemote.startTime){
+		var date = new Date(eventRemote.startTime*1000);
+			var day = date.getDate();
+			var month = date.getMonth();
+			var year = date.getFullYear();
+			var hours = date.getHours();
+			var minutes = date.getMinutes();
+			var seconds = date.getSeconds();
+		eventLocal.startTime = day+'/'+month+'/'+year+'\t'+ hours + ':' + minutes + ':' + seconds;
+		eventLocal.strartTimeUnformatted = event.start_time;
+	}
+	
 	eventLocal.reliability = eventRemote.reliability;
 	eventLocal.numNot = eventRemote.number_of_notifications;
+	
+	$('#'+eventLocal.id+'tr td:nth-child(2)').html(eventLocal.startTime);
+	$('#'+eventLocal.id+'tr td:nth-child(3)').html(eventLocal.address);
+	
+	var descriptionHtml = "";
+	var fullArray = checkArray(eventLocal.description);
+	if(fullArray){
+		for (j in eventLocal.description){
+			if(eventLocal.description[j]){
+				eventLocal.description[j] = eventLocal.description[j].charAt(0).toUpperCase() + eventLocal.description[j].slice(1);
+				descriptionHtml = descriptionHtml.concat('<li><p>'+eventLocal.description[j]+'</p></li>');
+				}
+		}	
+	}
+	$('#'+eventLocal.id+'tr td:nth-child(4)').html('<div class="btn-group">\
+							<a href="#" id="'+eventLocal.eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
+							<ul class="dropdown-menu">'+descriptionHtml+'</ul>');
+	
+	$('#'+eventLocal.id+'tr td:nth-child(5)').html(eventLocal.reliability+'/'+eventLocal.numNot);
+	$('#'+eventLocal.id+'tr td:nth-child(6)').html(eventLocal.status);
+	
+	var expireTimeDate = new Date(eventLocal.freshness*1000);
+	var sbiaditoTime = expireTimeDate + 10*60*1000;
+	var expireTime = expireTimeDate + 20*60*1000;
+	
+	var nowTime = new Date().getTime();
+		
+	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.id; });
+	var heatmapFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.id; });
+	var markerFound = markerFoundArray[0];
+	var heatmapFound = heatmapFoundArray[0];
+					
+	if(expireTime > nowTime){ /*L'evento è scaduto*/
+		markerFound.setMap(null);
+		heatmapFound.setMap(null);
+	}
+	else if(sbiaditoTime > nowTime){ /*L'evento è sbiadito*/
+	var gradient = [
+		'rgba(112, 0, 0, 0)',
+		'rgba(255, 0, 0, 1)'
+	];
+	 heatmapFound.setOptions({
+   				 gradient: gradient
+  			});		
+	}
 }
+
+var infoWindow;
 
 function createEvent(event){		        
 	var eventObject = new Object();
@@ -739,6 +817,7 @@ function createEvent(event){
 		var minutes = date.getMinutes();
 		var seconds = date.getSeconds();
 	eventObject.startTime = day+'/'+month+'/'+year+'\t'+ hours + ':' + minutes + ':' + seconds;
+	eventObject.strartTimeUnformatted = event.start_time;
 	
 	eventObject.freshness = event.freshness;
 
@@ -759,12 +838,13 @@ function createEvent(event){
 
 	eventObject.reliability = Math.round(event.reliability * 100) / 100;
 	eventObject.numNot = event.number_of_notifications;
-	eventObject.lat = event.locations[0].lat;
-	eventObject.lng = event.locations[0].lng;
+	eventObject.lat = middlePoint(event.locations).lat();
+	eventObject.lng = middlePoint(event.locations).lng();
+		
 	eventObject.eventID = event.event_id;
+	eventObject.address = "Via Poppe, 42"; /*Da Implementare*/
 	
 	eventsMap.push(eventObject);
-	
 	
 	if(eventObject.subtype == "Coda"){
 		if(event.locations.length != 1){
@@ -794,7 +874,7 @@ function createEvent(event){
 					}
 				}
 			});
-			distRoute(start, end, null);
+			distRoute(start, end, null, eventObject.eventID);
 			
 		}
 	}
@@ -809,23 +889,28 @@ function createEvent(event){
 	
 	searchMarker.id = eventObject.eventID;
 	searchMarker.type = eventObject.type;	
-	searchMarker.subtype = eventObject.subtype;	
-	searchMarker.status = statusFormatted;				
+	searchMarker.subtype = eventObject.subtype;
+	searchMarker.address = 	eventObject.address;	
+	searchMarker.status = statusFormatted;	
+			
 	markersArray.push(searchMarker);
 	
-	var infoWindow = new google.maps.InfoWindow();			
+	infoWindow = new google.maps.InfoWindow();			
 	
 	var onMarkerClick = function() {
 		var marker = this;
 		infoWindow.id = this.id;
 		infoWindow.type = this.type;	
 		infoWindow.subtype = this.subtype;	
-		infoWindow.status = this.status;		
+		infoWindow.status = this.status;
+		infoWindow.address = this.address;	
+		if($.isNumeric(infoWindow.id))
+			infoWindow.scope = "local";
+		else
+			infoWindow.scope = "remote";
 	  
 		var latLng = marker.getPosition();
-		console.log("pota");
-		geocodePositionAjax(marker.getPosition(), infoWindow);
-		//geocodePosition(marker.getPosition(), null, infoWindow);
+		createInfoWindow2(marker.getPosition(), infoWindow);
 		infoWindow.open(map, marker);
 	};					
 
@@ -847,10 +932,10 @@ function createEvent(event){
 		}	
 	}
 					
-	$('#modalBody').append('<tr>\
+	$('#modalBody').append('<tr "'+eventObject.eventID+'tr">\
 						<td>'+eventObject.type+' > '+eventObject.subtype+'</td>\
 						<td>'+eventObject.startTime+'</td>\
-						<td id='+eventObject.eventID+'></td>\
+						<td id='+eventObject.eventID+'>'+eventObject.address+'</td>\
 						<td><div class="btn-group">\
 							<a href="#" id="'+eventObject.eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
 							<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
@@ -862,7 +947,7 @@ function createEvent(event){
 	if(!fullArray)
 		$(butID).addClass('disabled');
 
-	geocodePosition(new google.maps.LatLng(eventObject.lat, eventObject.lng), eventObject.eventID);
+	//geocodePosition(new google.maps.LatLng(eventObject.lat, eventObject.lng), eventObject.eventID);
 }
 
 $('#liveButton').click(function(){

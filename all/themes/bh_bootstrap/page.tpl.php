@@ -81,7 +81,7 @@
                             <form>
                                 <fieldset>
                                     <div class="control-group">
-                                        <select id="notifyType">
+                                        <select id="notifyType" autocomplete="off">
                                             <option disabled selected>Select type</option>
                                             <option>Problemi stradali</option>
                                             <option>Emergenze sanitarie</option>
@@ -91,7 +91,7 @@
                                         </select>
                                     </div>
                                     <div class="control-group">
-                                        <select id="notifySubType" >
+                                        <select id="notifySubType" autocomplete="off">
                                             <option disabled selected>Select subtype</option>
                                         </select>
                                     </div>
@@ -117,7 +117,7 @@
                                 <fieldset>
                                 
                                     <div class="control-group">
-                                        <select id="searchType">
+                                        <select id="searchType" autocomplete="off">
                                             <option selected>All</option>
                                             <option>Problemi stradali</option>
                                             <option>Emergenze sanitarie</option>
@@ -128,7 +128,7 @@
                                     </div>
                                     
                                     <div class="control-group">
-                                        <select disabled id="searchSubType">
+                                        <select disabled id="searchSubType" autocomplete="off">
                                             <option disabled selected>Select subtype</option>
                                         </select>
                                     </div>
@@ -155,7 +155,7 @@
 									</div>
                               
                                     <div class="control-group">
-                                        <select class="span2" id="searchStatus">
+                                        <select class="span2" id="searchStatus" autocomplete="off">
                                         	<option>All</option>
                                             <option selected>Open</option>
                                             <option>Closed</option>
@@ -256,7 +256,7 @@
     	<img style="width:30%" class="pull-right" src="sites/all/libraries/bootstrap/img/admin.jpg">
     	<form class="form-search">
 		  <div class="input-append">
-		  	<select class="span4" id="serverInput">
+		  	<select class="span4" id="serverInput" autocomplete="off">
                 <option selected>Default: Server Locale</option>
             </select>
 			<button id="serverConnect" type="button" class="btn btn-inverse">Connect</button>
