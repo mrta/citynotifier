@@ -286,13 +286,19 @@ function _citynotifier_get_local_event($data) {
 	$query->addExpression('MIN(cn.created)', 'start');
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$data['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
 
-	switch($data['subtype']) {
+	if($data['type']){
+		$query->condition('cn.type', $data['type'], '=');
+		if($data['subtype'])
+			$query->condition('cn.subtype', $data['subtype'], '=');
+	}
+
+/*	switch($data['subtype']) {
 	case 0:
 	  $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
     $types = array_keys($types_subtypes);
     $subtypes = $types_subtypes[$types[$data['type']]];
     unset($subtypes[0]); /* delete 'all' item */
-    $db_or = db_or();
+/*    $db_or = db_or();
 	  foreach($subtypes as $index_subtype => $subtype) {
 	    $db_and = db_and()->condition('cn.type', $data['type'], '=')
 	                      ->condition('cn.subtype', $index_subtype, '=');
@@ -304,10 +310,9 @@ function _citynotifier_get_local_event($data) {
 	  $query->condition('cn.subtype', $data['subtype'], '=');
 	  break;
 	}
-	  
+*/	  
 	if($data['status'])
 		$query->condition('ce.status', $data['status'],'=');
-
 
 	$query->havingCondition('freshness', $data['timemin'], '>')
 		->havingCondition('freshness', $data['timemax'], '<')

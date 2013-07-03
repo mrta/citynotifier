@@ -236,7 +236,7 @@ function citynotifier_schema() {
         'unsigned' => TRUE,
         'default' => 1,
         ),
-      'lat' => array(
+      'latitude' => array(
         'description' => t('The notify\'s latitude.'),
         'type' => 'numeric',
         'precision' => 10,
@@ -244,7 +244,7 @@ function citynotifier_schema() {
         'not null' => TRUE,
         'default' => 0,
         ),
-      'lng' => array(
+      'longitude' => array(
         'description' => t('The notify\'s longitude.'),
         'type' => 'numeric',
         'precision' => 10,
