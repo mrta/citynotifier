@@ -178,8 +178,13 @@ function _citynotifier_citynotifier2data($data) {
   if($data['status'])
     $data['status'] = _citynotifier_get_index_status($data['status']);
   
-  if(!$data['route'] || !$data['street_number'])
-    $data = array_merge($data, _citynotifier_get_address_from_point($data));
+  if(!$data['route'] || !$data['street_number']) {
+    $address = _citynotifier_get_address_from_point($data);
+    if($address)
+      $data += $address;
+    else
+      watchdog('citynotifier', t("Errore geocoding.") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
+  }
   
 
   $type_cast = array('lat' => 'floatval(%)', 'lng' => 'floatval(%)',
