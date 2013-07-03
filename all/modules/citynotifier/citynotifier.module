@@ -270,7 +270,8 @@ function citynotifier_request() {
 function citynotifier_report() {
 	global $user, $skepticals;
 	header('Content-type: application/json; charset=utf-8');
-	$data = _citynotifier_citynotifier2data(drupal_json_decode(utf8_decode(file_get_contents("php://input"))));
+
+	$data = _citynotifier_citynotifier2data(drupal_json_decode(citynotifier_file_get_contents_utf8("php://input")));
 
 	if(!$user->uid) {
 		drupal_add_http_header("Status", 401);
