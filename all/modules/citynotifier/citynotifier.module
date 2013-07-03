@@ -294,7 +294,7 @@ function citynotifier_report() {
 	case FALSE:
 	case _citynotifier_get_index_status("archived"):
 	  $new_event = TRUE;
-	  $event_id = _citynotifier_create_event();
+	  $event_id = _citynotifier_create_event($data);
 	  break;
 	case _citynotifier_get_index_status("open"):
 	  $event_id = $matched_event['event_id'];

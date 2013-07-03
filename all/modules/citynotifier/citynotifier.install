@@ -107,38 +107,38 @@ function citynotifier_schema() {
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
+        ),
       'event_id' => array(
         'description' => t('The identifier of an event from wich notify belong to'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
+        ),
       'uid' => array(
         'description' => t('The user that created this notify.'),
         'type' => 'int',
         'unsigned' => TRUE,
         'default' => 0,
-      ),
+        ),
       'created' => array(
         'description' => t('The timestamp when this notify was created.'),
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-      ),
+        ),
       'type' => array(
         'description' => t('The notify\'s type.'),
         'type' => 'int',
         'unsigned' => TRUE,
         'default' => 0,
-      ),
+        ),
       'subtype' => array(
         'description' => t('The notify\'s subtype.'),
         'type' => 'int',
         'unsigned' => TRUE,
         'default' => 0,
-      ),
+        ),
       'lat' => array(
         'description' => t('The notify\'s latitude.'),
         'type' => 'numeric',
@@ -146,7 +146,7 @@ function citynotifier_schema() {
         'scale' => 7,
         'not null' => TRUE,
         'default' => 0,
-      ),
+        ),
       'lng' => array(
         'description' => t('The notify\'s longitude.'),
         'type' => 'numeric',
@@ -154,22 +154,71 @@ function citynotifier_schema() {
         'scale' => 7,
         'not null' => TRUE,
         'default' => 0,
-      ),
+        ),
+      'street_number' => array(
+        'description' => t('The notify\'s street number.'),
+        'type' => 'varchar',
+        'length' => 10,
+        'default' => NULL
+        ),
+      'route' => array(
+        'description' => t('The notify\'s route.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'locality' => array(
+        'description' => t('The notify\'s locality.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'administrative_area_level_3' => array(
+        'description' => t('The notify\'s administrative area level 3.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'administrative_area_level_2' => array(
+        'description' => t('The notify\'s administrative area level 2.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'administrative_area_level_1' => array(
+        'description' => t('The notify\'s administrative area level 1.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'country' => array(
+        'description' => t('The notify\'s country.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'postal_code' => array(
+        'description' => t('The notify\'s postal_code.'),
+        'type' => 'varchar',
+        'length' => 10,
+        'default' => NULL
+        ),
       'status' => array(
         'description' => t('The notify\'s status: Open => 1, Closed => 2.'),
         'type' => 'int',
         'not null' => TRUE,
         'unsigned' => TRUE,
         'default' => 1,
-      ),
+        ),
       'description' => array(
         'description' => t('The notify\'s description.'),
         'type' => 'varchar',
         'length' => 255,
+        'default' => NULL
+        ),
       ),
-    ),
     'primary key' => array('notify_id'),
-  );
+    );
   
   $schema['citynotifier_event'] = array(
     'description' => t('Stores events.'),
@@ -179,17 +228,81 @@ function citynotifier_schema() {
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
-      ),
+        ),
       'status' => array(
         'description' => t('The event\'s status: Open => 1, Closed => 2, Archived => 3, Skeptical => 4'),
         'type' => 'int',
         'not null' => TRUE,
         'unsigned' => TRUE,
         'default' => 1,
+        ),
+      'lat' => array(
+        'description' => t('The notify\'s latitude.'),
+        'type' => 'numeric',
+        'precision' => 10,
+        'scale' => 7,
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'lng' => array(
+        'description' => t('The notify\'s longitude.'),
+        'type' => 'numeric',
+        'precision' => 10,
+        'scale' => 7,
+        'not null' => TRUE,
+        'default' => 0,
+        ),
+      'street_number' => array(
+        'description' => t('The notify\'s street number.'),
+        'type' => 'varchar',
+        'length' => 10,
+        'default' => NULL
+        ),
+      'route' => array(
+        'description' => t('The notify\'s route.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'locality' => array(
+        'description' => t('The notify\'s locality.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'administrative_area_level_3' => array(
+        'description' => t('The notify\'s administrative area level 3.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'administrative_area_level_2' => array(
+        'description' => t('The notify\'s administrative area level 2.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'administrative_area_level_1' => array(
+        'description' => t('The notify\'s administrative area level 1.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'country' => array(
+        'description' => t('The notify\'s country.'),
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => NULL
+        ),
+      'postal_code' => array(
+        'description' => t('The notify\'s postal_code.'),
+        'type' => 'varchar',
+        'length' => 10,
+        'default' => NULL
+        )
       ),
-    ),
     'primary key' => array('event_id'),
-  );
+    );
   
   return $schema;
 }

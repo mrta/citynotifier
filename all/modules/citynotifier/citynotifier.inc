@@ -51,9 +51,8 @@ function _citynotifier_update_status_event($event_id, $status){
 }
 
 
-function _citynotifier_create_event() {
-  $data = array("status" => _citynotifier_get_index_status('open'));
-	drupal_write_record("citynotifier_event", $data);
+function _citynotifier_create_event($data) {
+  drupal_write_record("citynotifier_event", $data);
 	return $data['event_id'];
 }
 
@@ -83,7 +82,7 @@ function _citynotifier_get_matched_event($data) {
 	*/
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	$query->fields('ce', array('event_id','status'))
+	$query->fields('ce', array('event_id', 'status', 'lng', 'lat', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'political', 'country', 'postal_code'))
 		->condition('cn.type', $data['type'], '=')
 		->condition('cn.subtype', $data['subtype'], '=')
 		->condition('cn.lat', $data['lat']-$range,'>')
@@ -93,9 +92,13 @@ function _citynotifier_get_matched_event($data) {
 		->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
 	
-	if($type_subtype['type'] == "problemi_stradali" && $type_subtype['subtype'] == "coda")
+	if($event['type'] == "problemi_stradali" && $event['subtype'] == "coda" && $event['route'] == $data['route']) {
+	   return $event;
+	} else {
+	  return FALSE;
+	}
 	  
-	return $event?$event:array("event_id"=>FALSE, "status"=>FALSE);
+	return $event;
 }
 
 /**
@@ -174,7 +177,11 @@ function _citynotifier_citynotifier2data($data) {
 
   $type_cast = array('lat' => 'floatval(%)', 'lng' => 'floatval(%)',
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
-                     'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)');
+                     'timemin' => 'intval(%)', 'description' => 'truncate_utf8(%, 255)',
+                     'street_number' => 'truncate_utf8(%, 10)', 'route' => 'truncate_utf8(%, 50)',
+                     'locality' => 'truncate_utf8(%, 50)', 'administrative_area_level_3' => 'truncate_utf8(%, 50)',
+                     'administrative_area_level_2' => 'truncate_utf8(%, 50)', 'administrative_area_level_1' => 'truncate_utf8(%, 50)',
+                     'country' => 'truncate_utf8(%, 50)', 'postal_code' => 'truncate_utf8(%, 10)');
   foreach($type_cast as $type => $cast) {
     if(isset($data[$type]))
       eval("\$data['" . $type . "']=" . str_replace("%", "\$data['" . $type . "']", $cast) . ";");
@@ -465,6 +472,10 @@ function _citynotifier_check_existing_event($event){
 	$result = $query->execute()->fetchAssoc();
 
 	return $result?$result:array("event_id"=>FALSE);
+}
+
+function _citynotifier_reverse_geocode($lat, $lng) {
+
 }
 
 function citynotifier_debug($data) {
