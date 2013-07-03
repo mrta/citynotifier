@@ -72,8 +72,8 @@ function _citynotifier_get_range_subtype($type, $subtype){
  * @return $event matched or array("event_id"=>FALSE, "status"=>FALSE) if no match
  */
 function _citynotifier_get_matched_event($data) {
-	$type_subtype = _citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype']); 
-	$range = _citynotifier_get_range_subtype($type_subtype['type'], $type_subtype['subtype']);
+	extract(_citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype'])); 
+	$range = _citynotifier_get_range_subtype($type, $subtype);
 
 	/* 3 casi: 2 notifiche 
 	   1) vicine ma su vie diverse => 2 eventi diversi
@@ -82,22 +82,22 @@ function _citynotifier_get_matched_event($data) {
 	*/
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	$query->fields('ce', array('event_id', 'status', 'lng', 'lat', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'political', 'country', 'postal_code'))
-		->condition('cn.type', $data['type'], '=')
-		->condition('cn.subtype', $data['subtype'], '=')
-		->condition('cn.lat', $data['lat']-$range,'>')
-		->condition('cn.lat', $data['lat']+$range,'<')
-		->condition('cn.lng', $data['lng']-$range,'>')
-		->condition('cn.lng', $data['lng']+$range,'<')
-		->orderby('cn.created', 'DESC');
+	
+	$query->fields('ce', array('event_id', 'status', 'lng', 'lat', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'political', 'country', 'postal_code'));
+	
+	$query->condition('cn.type', $data['type'], '=')
+		    ->condition('cn.subtype', $data['subtype'], '=')
+		    ->condition('cn.lat', $data['lat']-$range,'>')
+		    ->condition('cn.lat', $data['lat']+$range,'<')
+		    ->condition('cn.lng', $data['lng']-$range,'>')
+		    ->condition('cn.lng', $data['lng']+$range,'<');
+
+  if($type == "problemi_stradali" && $subtype == "coda")
+  	  $query->condition('cn.route', $data['route'],'=');
+		  
+  $query->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
 	
-	if($event['type'] == "problemi_stradali" && $event['subtype'] == "coda" && $event['route'] == $data['route']) {
-	   return $event;
-	} else {
-	  return FALSE;
-	}
-	  
 	return $event;
 }
 
@@ -174,6 +174,10 @@ function _citynotifier_citynotifier2data($data) {
 
   if($data['status'])
     $data['status'] = _citynotifier_get_index_status($data['status']);
+  
+  if(!$data['route'] || !$data['street_number'])
+    $data = array_merge($data, _citynotifier_get_address_from_point($data));
+  
 
   $type_cast = array('lat' => 'floatval(%)', 'lng' => 'floatval(%)',
                      'radius' => 'intval(%)', 'timemax' => 'intval(%)',
@@ -208,6 +212,22 @@ function _citynotifier_data2citynotifier($data) {
   return $data;
 }
 
+
+
+function _citynotifier_get_address_from_point($data) {
+  $options['language'] = "it";
+  $address = geocoder_reverse('google', $data['lat'], $data['lng'], $options);
+  
+  if(!$address)
+    return FALSE;
+  
+  $result = array();
+  
+  foreach($address->data['geocoder_address_components'] as $component)
+    $result[$component->types[0]] = $component->long_name;
+
+  return $result;
+}
 
 /**
  * Function get index of type and subtype from $data
