@@ -7,7 +7,7 @@ module_load_include('inc', 'citynotifier');
 */
 
 function citynotifier_menu() {
-  $items['admin/citynotifier'] = array(
+  $items['admin/config/citynotifier'] = array(
     'title'=>t('Amministrazione di Citynotifier'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('citynotifier_admin'),
