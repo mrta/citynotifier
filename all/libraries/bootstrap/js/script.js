@@ -659,7 +659,7 @@ function searchEvent() {
 		    }
 		});
 		
-		/*//Seconda chiamata remote
+		//Seconda chiamata remote
 		parameters["scope"] = "remote"
 		url = urlServer.concat(buildUrl("/richieste", parameters));
 
@@ -702,7 +702,7 @@ function searchEvent() {
 			error: function(err) {
 				errorAlert("Ajax Remote Notify error");
 			}
-		});*/
+		});
 	}
 	else{
 		 if (!$('#searchAddress').val() && $('#searchAddress').next().is('button')) {
