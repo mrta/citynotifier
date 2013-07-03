@@ -83,7 +83,10 @@ function _citynotifier_get_matched_event($data) {
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	
-	$query->fields('ce', array('event_id', 'status', 'lng', 'lat', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'political', 'country', 'postal_code'));
+	$query->fields('ce', array('event_id', 'status'));
+	$query->fields('cn', array('lng', 'lat', 'street_number', 'route', 'locality',
+	                           'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1',
+	                           'country', 'postal_code'));
 	
 	$query->condition('cn.type', $data['type'], '=')
 		    ->condition('cn.subtype', $data['subtype'], '=')
