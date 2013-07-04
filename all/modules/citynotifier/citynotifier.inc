@@ -11,8 +11,9 @@ function citynotifier_notify() {
 
 	$data = drupal_json_decode(file_get_contents("php://input"));
 	
-	if(!_citynotifier_check_skeptical($event_id)){
-		_citynotifier_update_status_event($data['event_id'], _citynotifier_get_index_status($data['status']));
+	if(!_citynotifier_check_status($event_id, "skeptical")){
+		$event = array('event_id' => $event_id, 'status' => _citynotifier_get_index_status($data['status']));
+		_citynotifier_update_event($event);
 	}
 	else{
 	//caso scettico cosa fare?
@@ -22,13 +23,13 @@ function citynotifier_notify() {
 	return drupal_json_output(array("result" => t("notifica inviata con successo")));
 }
 
-function _citynotifier_check_skeptical($event_id){
+function _citynotifier_check_status($event_id, $status){
 	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('status'))
 		->condition('ce.event_id', $event_id, '=');
 	$event = $query->execute()->fetchAssoc();
 
-	if($event['status'] == _citynotifier_get_index_status("skeptical"))
+	if($event['status'] == $status)
 		return 	TRUE;
 	else
 		return FALSE;
