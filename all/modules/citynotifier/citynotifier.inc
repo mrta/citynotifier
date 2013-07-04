@@ -34,15 +34,8 @@ function _citynotifier_check_skeptical($event_id){
 		return FALSE;
 }
 
-function _citynotifier_update_status_event($event_id, $status){
-	$query = db_select("citynotifier_event", 'ce')
-		->fields('ce', array('status'))
-		->condition('ce.event_id', $event_id, '=');
-	$event = $query->execute()->fetchAssoc();
-
-	$event['status'] = $status;
-
-	if(!drupal_write_record("citynotifier_event", $event, $event_id)) {
+function _citynotifier_update_event($event){
+	if(!drupal_write_record("citynotifier_event", $event, 'event_id')) {
 		watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
 		drupal_add_http_header("Status", 500);
 		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Errore nella memorizzazione nel database"))));
