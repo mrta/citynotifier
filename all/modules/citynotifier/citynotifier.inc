@@ -75,32 +75,32 @@ function _citynotifier_get_matched_event($data) {
 	extract(_citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype'])); 
 	$range = _citynotifier_get_range_subtype($type, $subtype);
 
-	/* 3 casi: 2 notifiche 
-	   1) vicine ma su vie diverse => 2 eventi diversi
-	   2) 2 notifiche vicine sulla stessa via => stesso evento
-	   3) 2 notifiche lontane sulla stessa via o meno ma fuori dal range => 2 eventi diversi
-	*/
+		/* 3 casi: 2 notifiche 
+		   1) vicine ma su vie diverse => 2 eventi diversi
+		   2) 2 notifiche vicine sulla stessa via => stesso evento
+		   3) 2 notifiche lontane sulla stessa via o meno ma fuori dal range => 2 eventi diversi
+		*/
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	
+
 	$query->fields('ce', array('event_id', 'status'));
 	$query->fields('cn', array('lng', 'lat', 'street_number', 'route', 'locality',
-	                           'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1',
-	                           'country', 'postal_code'));
-	
-	$query->condition('cn.type', $data['type'], '=')
-		    ->condition('cn.subtype', $data['subtype'], '=')
-		    ->condition('cn.lat', $data['lat']-$range,'>')
-		    ->condition('cn.lat', $data['lat']+$range,'<')
-		    ->condition('cn.lng', $data['lng']-$range,'>')
-		    ->condition('cn.lng', $data['lng']+$range,'<');
+		'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1',
+		'country', 'postal_code'));
 
-  if($type == "problemi_stradali" && $subtype == "coda")
-  	  $query->condition('cn.route', $data['route'],'=');
-		  
-  $query->orderby('cn.created', 'DESC');
+	$query->condition('cn.type', $data['type'], '=')
+		->condition('cn.subtype', $data['subtype'], '=')
+		->condition('cn.lat', $data['lat']-$range,'>')
+		->condition('cn.lat', $data['lat']+$range,'<')
+		->condition('cn.lng', $data['lng']-$range,'>')
+		->condition('cn.lng', $data['lng']+$range,'<');
+
+	if($type == "problemi_stradali" && $subtype == "coda")
+		$query->condition('cn.route', $data['route'],'=');
+
+	$query->orderby('cn.created', 'DESC');
 	$event = $query->execute()->fetchAssoc();
-	
+
 	return $event;
 }
 
@@ -114,7 +114,6 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
    $same_event = TRUE;
    $event['event_id'] = TRUE;
    $i = 0;
-   
    while($same_event && $event['event_id']) {
      $event = _citynotifier_get_matched_event(array('lat' => $data_remote_event['locations'][$i]['lat'],
                                                     'lng' => $data_remote_event['locations'][$i]['lng'],
@@ -125,6 +124,8 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
      
      $prev_event = $event;
      $i++;
+     if(!$data_remote_event['locations'][$i]['lat'])
+     	break;
    };
    return $same_event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
