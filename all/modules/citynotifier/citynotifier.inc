@@ -65,6 +65,16 @@ function _citynotifier_get_range_subtype($type, $subtype){
   return FALSE;
 }
 
+function _citynotifier_get_event_freshness($event_id){
+	$query = db_select("citynotifier_event", 'ce');
+	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+	$query->addExpression('MAX(cn.created)', 'freshness');
+	$query->condition('cn.event_id', $event_id, '=');
+	$event = $query->execute()->fetchAssoc();
+
+	return $event['freshness'];
+}
+
 /**
  * Get matched event to notify
  *
