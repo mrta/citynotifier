@@ -3,6 +3,10 @@ html {
 	
 }
 
+p.ul {
+	padding-left: 100px;
+}
+
 body {
 	height: 100%;
 	overflow-y: hidden;

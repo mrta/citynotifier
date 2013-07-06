@@ -36,6 +36,7 @@ $(window).unload(function() {
 	}
 });
 
+
 $(document).ready(function(){
 	if(jQuery.cookie('session_user')){
 		$('#account').fadeOut(1000, function() {
@@ -445,9 +446,6 @@ function sendNotify() {
     var addressError = $('<span id="address_span">Select an address on map</span>');
 
     var notifyJSON = JSON.stringify(notifyObj);
-    //console.log(notifyType.type);
-
-	//console.log("Invio notifica con subtype "+notifyType.subtype+" lat: "+notifyObj.lat+" lng: "+notifyObj.lng);
 	
     if ((notifyType.type != "select_type") && (notifyType.subtype != "select_subtype") && $('#notifyAddress').val()) {
 		    $.ajax({
@@ -676,17 +674,17 @@ function searchEvent() {
 					$.each(response.events, function(index, event){
 						var eventIDRemote = event.event_id;
 					
-						var result = $.grep(eventsMap, function(e){ return e.id == eventIDRemote; });
+						var result = $.grep(eventsMap, function(e){ return e.eventID == eventIDRemote; });
 					
 						if (result.length == 0) {
 					
-						  //console.log("Nuovo evento");
+						  console.log("Nuovo evento");
 							if(event.locations[0]) //Fix temporaneo perchè QuellidiLettere non tornano un array
 						  		createEvent(event);
 						  
 						} else if (result.length == 1) {
 					
-							//console.log("Evento esiste già");
+							console.log("Evento esiste già");
 						  	// access the foo property using result[0].foo
 						  	updateEvent(result[0], event);
 						  
@@ -747,11 +745,11 @@ function updateEvent(eventLocal, eventRemote){
 		eventLocal.strartTimeUnformatted = event.start_time;
 	}
 	
-	eventLocal.reliability = eventRemote.reliability;
-	eventLocal.numNot = eventRemote.number_of_notifications;
+	eventLocal.reliability += eventRemote.reliability; 
+	eventLocal.numNot += eventRemote.number_of_notifications;
 	
-	$('#'+eventLocal.id+'tr td:nth-child(2)').html(eventLocal.startTime);
-	$('#'+eventLocal.id+'tr td:nth-child(3)').html(eventLocal.address);
+	$('#'+eventLocal.eventID+'tr td:nth-child(2)').html(eventLocal.startTime);
+	$('#'+eventLocal.eventID+'tr td:nth-child(3)').html(eventLocal.address);
 	
 	var descriptionHtml = "";
 	var fullArray = checkArray(eventLocal.description);
@@ -763,37 +761,63 @@ function updateEvent(eventLocal, eventRemote){
 				}
 		}	
 	}
-	$('#'+eventLocal.id+'tr td:nth-child(4)').html('<div class="btn-group">\
+	$('#'+eventLocal.eventID+'tr td:nth-child(4)').html('<div class="btn-group">\
 							<a href="#" id="'+eventLocal.eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
 							<ul class="dropdown-menu">'+descriptionHtml+'</ul>');
 	
-	$('#'+eventLocal.id+'tr td:nth-child(5)').html(eventLocal.reliability+'/'+eventLocal.numNot);
-	$('#'+eventLocal.id+'tr td:nth-child(6)').html(eventLocal.status);
+	$('#'+eventLocal.eventID+'tr td:nth-child(5)').html(eventLocal.numNot+' / '+eventLocal.reliability);
+	$('#'+eventLocal.eventID+'tr td:nth-child(6)').html(eventLocal.status);
 	
-	var expireTimeDate = new Date(eventLocal.freshness*1000);
-	var sbiaditoTime = expireTimeDate + 10*60*1000;
-	var expireTime = expireTimeDate + 20*60*1000;
-	
-	var nowTime = new Date().getTime();
-		
-	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.id; });
-	var heatmapFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.id; });
-	var markerFound = markerFoundArray[0];
-	var heatmapFound = heatmapFoundArray[0];
-					
-	if(expireTime > nowTime){ /*L'evento è scaduto*/
-		markerFound.setMap(null);
-		heatmapFound.setMap(null);
-	}
-	else if(sbiaditoTime > nowTime){ /*L'evento è sbiadito*/
-	var gradient = [
-		'rgba(112, 0, 0, 0)',
-		'rgba(255, 0, 0, 1)'
-	];
-	 heatmapFound.setOptions({
-   				 gradient: gradient
-  			});		
-	}
+	var expireTimeDate = new Date(eventLocal.freshness).getTime();
+    var sbiaditoTime = expireTimeDate + 10*60;
+    var expireTime = expireTimeDate + 20*60;
+    var nowTime = new Date().getTime() / 1000;
+
+    if(expireTime < nowTime){ /*L'evento è scaduto*/
+        console.log("Evento " +eventLocal.eventID+ " scaduto");
+    }
+    else if(sbiaditoTime < nowTime){
+        console.log("Evento " +eventLocal.eventID+ " sbiadito");
+    }
+
+    /*if(eventLocal.subtype == "coda"){ //DA TESTARE!!!!!!!!!!!!!!!!!!	
+    	var markerFoundArray = $.grep(markersArray, function(e){ return e.eventID == eventLocal.eventID; });
+    	var heatmapFoundArray = $.grep(Arraydiheatmap, function(e){ return e.eventID == eventLocal.eventID; });
+        console.log(Arraydiheatmap);
+    	var markerFound = markerFoundArray[0];
+    	var heatmapFound = heatmapFoundArray[0];
+
+        if(expireTime < nowTime){ //L'evento è scaduto
+            console.log("Coda " +eventLocal.eventID+ " scaduta");
+            var gradient = [
+                'rgba(34, 139, 34, 0)',
+                'rgba(34, 139, 34, 1)' //Gradiente verde
+            ];
+            heatmapFound.setOptions({
+                gradient: gradient
+            });
+        }
+        else if(sbiaditoTime < nowTime){ //L'evento è sbiadito
+            console.log("Coda " +eventLocal.eventID+ " sbiadita");
+            var gradient = [
+                'rgba(255, 165, 0, 0)',
+                'rgba(255, 165, 0, 1)' //Gradiente arancio
+            ];
+            heatmapFound.setOptions({
+                gradient: gradient
+            });
+        }
+        else{ //Coda Fresca
+            console.log("Coda " +eventObject.eventID+ " fresca");
+            var gradient = [
+                'rgba(255, 0, 0, 0)',
+                'rgba(255, 0, 0, 1)' //Gradiente rosso
+            ];
+            heatmapFound.setOptions({
+                gradient: gradient
+            });
+            }
+    }*/
 }
 
 var infoWindow;
@@ -869,13 +893,48 @@ function createEvent(event){
 					}
 				}
 			});
-			distRoute(start, end, null, eventObject.eventID);
+			
+
+            var expireTimeDate = new Date(eventObject.freshness).getTime();
+            var sbiaditoTime = expireTimeDate + 10*60;
+            var expireTime = expireTimeDate + 20*60;
+            var nowTime = new Date().getTime() / 1000;
+
+            console.log("Sbiadisce a: "+ sbiaditoTime)
+            console.log("Scade a: "+ expireTime);
+            console.log("Ora sono: "+nowTime)
+                            
+            if(expireTime < nowTime){ /*L'evento è scaduto*/
+                console.log("Coda " +eventObject.eventID+ " scaduta");
+                var gradient = [
+                'rgba(34, 139, 34, 0)',
+                'rgba(34, 139, 34, 1)' //Gradiente verde
+                ];
+                distRoute(start, end, null, eventObject.eventID, gradient);
+            }
+            else if(sbiaditoTime < nowTime){ /*L'evento è sbiadito*/
+                console.log("Coda " +eventObject.eventID+ " sbiadita");
+                var gradient = [
+                'rgba(255, 165, 0, 0)',
+                'rgba(255, 165, 0, 1)' //Gradiente arancio
+                ];
+                distRoute(start, end, null, eventObject.eventID, gradient);
+            }
+            else{ //Coda Fresca
+                console.log("Coda " +eventObject.eventID+ " fresca");
+                var gradient = [
+                'rgba(255, 0, 0, 0)',
+                'rgba(255, 0, 0, 1)' //Gradiente rosso
+                ];
+                distRoute(start, end, null, eventObject.eventID, gradient);
+            }
 			
 		}
 	}
 
 	searchMarker = new google.maps.Marker({
 		position: new google.maps.LatLng(eventObject.lat, eventObject.lng),
+        icon: getPin(eventObject.type, eventObject.subtype),
 		map: map,
 		draggable: false,
 		title: eventObject.eventID,
@@ -927,7 +986,7 @@ function createEvent(event){
 		}	
 	}
 					
-	$('#modalBody').append('<tr "'+eventObject.eventID+'tr">\
+	$('#modalBody').append('<tr id="'+eventObject.eventID+'tr">\
 						<td>'+eventObject.type+' > '+eventObject.subtype+'</td>\
 						<td>'+eventObject.startTime+'</td>\
 						<td id='+eventObject.eventID+'>'+eventObject.address+'</td>\
@@ -1022,8 +1081,6 @@ $('#searchAddress').typeahead({
                                 location: new google.maps.LatLng(44.494860,11.342598), radius: 5000 }, function(predictions, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
         process($.map(predictions, function(prediction) {
-        	//console.log(prediction.terms.slice(-1)[0].offset);
-        	console.log($('li.open ul.typeahead').css('display'));
         	if( $('li.open ul.typeahead').css('display') == 'none'){
       			$('#searchAddress').parent().addClass("error");
       			$('#searchAddress').parent().addClass("error");
@@ -1078,7 +1135,6 @@ $('#notifyAddress').typeahead({
                                 location: new google.maps.LatLng(44.494860,11.342598), radius: 5000 }, function(predictions, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
         process($.map(predictions, function(prediction) {
-        	//console.log(prediction.terms.slice(-1)[0].offset);
         	if( $('li.open ul.typeahead').css('display') == 'none'){
       			$('#notifyAddress').parent().addClass("error");
       			$('#notifyAddress').parent().addClass("error");
@@ -1125,17 +1181,6 @@ $('#notifyAddress').typeahead({
   }
 });
 
-function warningAlert(){
-	$('#alertBox').html('<div class="alert fade in">\
-		  <button type="button" class="close" data-dismiss="alert">&times;</button>\
-		  <span id="alertMsg"><strong>Attenzione!</strong> Il sistema di monitoraggio traffico è delicato!<br>\
-							Assicurati che nessuno abbia già fatto una segnalazione di Coda dove sei tu!<br>\
-							Controlla inoltre di NON segnalare una coda se l\'hai già superata!!"</span>\
-		  <p id="pota" style="padding-top: 20px"><button id="queueCheck" class="btn btn-warning" onclick="queueOk()">Notify</button> <button id="queueCancel" onclick="alertClose()" class="btn">Close</button></p>\
-		  </div>');
-		  $('#alertBox').fadeTo(500, 1);
-}
-
 function errorAlert(error){
 	$('#alertBox').html('<div class="alert alert-error ">\
 		  <button type="button" class="close"></button>\
@@ -1158,13 +1203,11 @@ function successAlert(msg){
 $("#account").next().delegate("#adminPanelButton", "click", function() {
 	console.log("Aggiungo server");
 	if($('#serverInput > option').length == 1){
-		console.log("Aggiungo server");
 		url = urlServer.concat("/servers"); 							
 		$.ajax({
 			url: url,
 			type: 'GET',
 			success: function(serverString, status){
-				//console.log(serverString);
 				for (var i in serverString)
 				$('#serverInput').append('<option>'+ i + ": "+ serverString[i].name + " "+ serverString[i].url+'</option>');
 			},
@@ -1238,7 +1281,54 @@ function getIcon(type, subtype){
 			break;
 		break;
 		}
-}		
+}
+
+function getPin(type, subtype){
+    var dir = "sites/all/libraries/bootstrap/img/pins/";
+    switch (type){
+        case"Problemi stradali" :
+            switch(subtype){
+                case "Incidente": return dir+"car_accident.png";
+                case "Buca": return dir+"buca.png";
+                case "Coda": return dir+"coda.png";
+                case "Lavori in corso": return dir+"lavoriincorso.png";
+                case "Strada impraticabile": return dir+"stradanonpercorribile.png";
+            }
+            break;
+        
+        case "Emergenze sanitarie" :
+            switch(subtype){
+                case "Incidente": return dir+"incidente.png";
+                case "Malore": return dir+"malore.png";
+                case "Ferito": return dir+"ferito.png";
+                }
+            break;
+        
+        case "Reati" :
+            switch(subtype){
+                case "Furto": return dir+"thief.png";
+                case "Attentato": return dir+"shooting.png";
+            }
+            break;
+            
+        case "Problemi ambientali" :
+            switch(subtype){
+                case "Incendio" : return dir+"fire.png";
+                case "Tornado" : return dir+"tornado.png";
+                case "Neve" : return dir+"snow.png";
+                case "Alluvione" : return dir+"rain.png";
+            }
+            break;
+        case "Eventi pubblici" :
+            switch(subtype){
+                case "Partita" : return dir+"football.png";
+                case "Manifestazione" : return dir+"manifestazione.png";
+                case "Concerto" : return dir+"livemusic.png";
+                }
+            break;
+        break;
+        }
+}       
 
 function change(){
 	var changeObj = new Object();

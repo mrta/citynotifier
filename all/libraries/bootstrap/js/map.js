@@ -173,8 +173,6 @@ var longitude;
 
 
 function geocodePosition(position, eventID){
-	/*console.log(eventID);
-	console.log(position);*/
 	geocoder.geocode({'latLng': position}, function(results, status) {
 		if (status == google.maps.GeocoderStatus.OK) {
 				content = results && results[1] ? results[0].address_components[1].long_name + ", " + results[0].address_components[0].long_name: position,
@@ -386,7 +384,7 @@ RadiusWidget.prototype.setDistance = function() {
 
 /******************/
 
-function distRoute(start, end, waypointsArray, eventID) {
+function distRoute(start, end, waypointsArray, eventID, gradient) {
 	var directionsService = new google.maps.DirectionsService(); 
 	var request = {		
 		origin: start, 
@@ -419,9 +417,9 @@ function distRoute(start, end, waypointsArray, eventID) {
 				pathLenES.len = google.maps.geometry.spherical.computeLength(path);
 				
 				if(pathLenSE.len <= pathLenES.len)
-					calcRoute(start, end, waypointsArray, pathLenSE.path, eventID);
+					calcRoute(start, end, waypointsArray, pathLenSE.path, eventID, gradient);
 				else
-					calcRoute(end, start, waypointsArray, pathLenES.path, eventID);
+					calcRoute(end, start, waypointsArray, pathLenES.path, eventID, gradient);
 				}
 			});
 		}
@@ -430,49 +428,26 @@ function distRoute(start, end, waypointsArray, eventID) {
 
 var Arraydiheatmap = [];
 var heatMapArray = [];
-function calcRoute(start, end, waypointsArray, AllPath, eventID) {
-			path = AllPath;			
-						
-			/*if(heatmap){
-				console.log("Pulisco heatmap ");
-				console.log(heatmap.getMap());
-				//heatmap.setMap(heatmap.getMap() ? null : map);
-				}*/
+function calcRoute(start, end, waypointsArray, AllPath, eventID, gradient) {
+			path = AllPath;
+			heatMapArray.length = 0;	
 				
 			for(var j=0; j<path.length-1; j++){
-			var z=0;
+				var z=0;
 				for(var i=0.01; i<1; i+=0.05){
-				z++;
-				
-				var heatpoint = google.maps.geometry.spherical.interpolate(path[j], path[j+1], i);
-				heatMapArray.push(heatpoint);
+					z++;	
+					var heatpoint = google.maps.geometry.spherical.interpolate(path[j], path[j+1], i);
+					heatMapArray.push(heatpoint);
 				}
-				console.log(z);
 			}
-			var pointArray = new google.maps.MVCArray(heatMapArray);				
+			var pointArray = new google.maps.MVCArray(heatMapArray);
 			var heatmap = new google.maps.visualization.HeatmapLayer({
     			data: pointArray
   			});
-  			
-  			var gradient = [
-				'rgba(112, 0, 0, 0)',
-				//'rgba(0, 255, 255, 1)',
-				//'rgba(0, 191, 255, 1)',
-				//'rgba(0, 127, 255, 1)',
-				//'rgba(0, 63, 255, 1)',
-				'rgba(255, 0, 0, 1)',
-				//'rgba(0, 0, 223, 1)',
-				//'rgba(0, 0, 191, 1)',
-				//'rgba(0, 0, 159, 1)',
-				//'rgba(0, 0, 127, 1)',
-				//'rgba(63, 0, 91, 1)',
-				//'rgba(127, 0, 63, 1)',
-				//'rgba(191, 0, 31, 1)',
-				//'rgba(255, 0, 0, 1)'
-				]
- 			 heatmap.setOptions({
+
+ 			heatmap.setOptions({
    				 gradient: heatmap.get('gradient') ? null : gradient
-  			});		
+  			});	
 
   			heatmap.eventID = eventID;
   			
@@ -512,32 +487,19 @@ function createInfoWindow(latlng, infoWindow){
 			$('#coordModal').html(latlng.lat() + " , " + latlng.lng());
 							
 			switch (infoStatus) {
-				case "Open":
-					if(infoScope == "local"){
+				case "Open":			
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
 						if(!$("#statusModal").next().is("li"))
 							$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
-					}
-					else{
-						infoStatus = '<div><button id="infoWindowStatus" type="button" class="btn btn-success disabled">'+infoStatus+'</button>';
-						changeStatus = '';
-					}
 					break;
-				case "Closed":
-					if(infoScope == "local"){
+				case "Closed":	
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
 						if(!$("#statusModal").next().is("li"))
 							$('#statusModal').after('<li><span id="statusModalValue" class="label label-success">Open</span>');
-					}
-					else{
-						infoStatus = '<div><button id="infoWindowStatus" type="button" class="btn btn-danger disabled">'+infoStatus+'</button>';
-						changeStatus = '';
-					}
 					break;
 				case "Skeptical":
-					if(infoScope == "local"){
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
 						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
 						if(!$("#statusModal").next().is("li"))
@@ -545,11 +507,6 @@ function createInfoWindow(latlng, infoWindow){
 														<input type="radio" name="optionsRadios" id="optionsRadios1" value="open" checked style="vertical-align: middle"><span class="label label-success">Open</span></label></li>\
 														<li><label class="radio">\
 														<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
-					}
-					else{
-						infoStatus = '<div><button id="infoWindowStatus" type="button" class="btn btn-warning disabled">'+infoStatus+'</button>';
-						changeStatus = '';
-					}
 					break;	
 			}
 			  
@@ -589,43 +546,29 @@ function createInfoWindow2(latlng, infoWindow){
 							
 			switch (infoStatus) {
 				case "Open":
-					if(infoScope == "local"){
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
-						if(!$("#statusModal").next().is("li"))
-							$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
-					}
-					else{
-						infoStatus = '<div><button id="infoWindowStatus" type="button" class="btn btn-success disabled">'+infoStatus+'</button>';
-						changeStatus = '';
-					}
+						if($("#statusModal").next().is("li"))
+							$("#statusModal").next().remove();
+						$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
 					break;
 				case "Closed":
-					if(infoScope == "local"){
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
-						if(!$("#statusModal").next().is("li"))
-							$('#statusModal').after('<li><span id="statusModalValue" class="label label-success">Open</span>');
-					}
-					else{
-						infoStatus = '<div><button id="infoWindowStatus" type="button" class="btn btn-danger disabled">'+infoStatus+'</button>';
-						changeStatus = '';
-					}
+						if($("#statusModal").next().is("li"))
+							$("#statusModal").next().remove();
+						$('#statusModal').after('<li><span id="statusModalValue" class="label label-success">Open</span>');
+
 					break;
 				case "Skeptical":
-					if(infoScope == "local"){
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
 						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
-						if(!$("#statusModal").next().is("li"))
-							$('#statusModal').after('<li><label class="radio">\
-														<input type="radio" name="optionsRadios" id="optionsRadios1" value="open" checked style="vertical-align: middle"><span class="label label-success">Open</span></label></li>\
-														<li><label class="radio">\
-														<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
-					}
-					else{
-						infoStatus = '<div><button id="infoWindowStatus" type="button" class="btn btn-warning disabled">'+infoStatus+'</button>';
-						changeStatus = '';
-					}
+						if($("#statusModal").next().is("li"))
+							$("#statusModal").next().remove();
+						$('#statusModal').after('<li><label class="radio">\
+													<input type="radio" name="optionsRadios" id="optionsRadios1" value="open" checked style="vertical-align: middle"><span class="label label-success">Open</span></label></li>\
+													<li><label class="radio">\
+													<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
 					break;	
 			}
 			  
@@ -653,7 +596,6 @@ function oldGeocodePosition(position, eventID){
 				if(content == position)
 					geocodePosition(position, eventID); //Riprova
 				
-				console.log(results);
 				lastGeo = results[0].address_components;
 					
 				if(eventID)
