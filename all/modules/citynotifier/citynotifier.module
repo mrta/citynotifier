@@ -256,7 +256,6 @@ function citynotifier_request() {
               //fai la geocode e aggiungi campi all evento
               $address = _citynotifier_get_address_from_point($event['locations'][0]);
               $data_remote[$i_fp]["events"][$i_event] = array_merge($data_remote[$i_fp]["events"][$i_event], $address);
-              citynotifier_debug($data_remote[$i_fp]["events"][$i_event]);
              }
            };
          } else {
