@@ -56,7 +56,7 @@ function _citynotifier_update_event($event){
 
 
 function _citynotifier_create_event($data) {
-  drupal_write_record("citynotifier_event", $data);
+	drupal_write_record("citynotifier_event", $data);
 	return $data['event_id'];
 }
 
@@ -301,7 +301,7 @@ function _citynotifier_get_local_event($data) {
 	$query->fields('cn', array());
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
-	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(lat * pi()/180) *POWER(SIN(('.$data['lng'].' - lng) * pi()/180 / 2), 2) ))'), 'distance');
+	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
 
 	if($data['type']){
 		$query->condition('cn.type', $data['type'], '=');
