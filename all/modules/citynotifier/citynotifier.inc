@@ -524,10 +524,6 @@ function _citynotifier_check_existing_event($event){
 	return $result?$result:array("event_id"=>FALSE);
 }
 
-function _citynotifier_reverse_geocode($lat, $lng) {
-
-}
-
 function citynotifier_debug($data) {
   if (is_array($data) || is_object($data))
     $data = print_r($data, TRUE);
