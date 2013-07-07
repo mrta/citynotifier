@@ -10,19 +10,29 @@ function citynotifier_notify() {
 	}
 
 	$data = drupal_json_decode(file_get_contents("php://input"));
+
+	_citynotifier_citynotifier2data($data);
 	
-	if(!_citynotifier_check_status($event_id, "skeptical")){
-		$event = array('event_id' => $event_id, 'status' => _citynotifier_get_index_status($data['status']));
-		_citynotifier_update_event($event);
+	if(_citynotifier_check_status($event_id, "skeptical") || (_citynotifier_get_status($data['event_id']) == _citynotifier_get_index_status("closed") && $data['status'] == "open")){
+			//caso scettico cosa fare?
 	}
 	else{
-	//caso scettico cosa fare?
+		$event = array('event_id' => $data['event_id'], 'status' => _citynotifier_get_index_status($data['status']));
+		_citynotifier_update_event($event);
 	}
 
 	drupal_add_http_header("Status", 200);
 	return drupal_json_output(array("result" => t("notifica inviata con successo")));
 }
 
+function _citynotifier_get_status($event_id){
+	$query = db_select("citynotifier_event", 'ce')
+		->fields('ce', array('status'))
+		->condition('ce.event_id', $event_id, '=');
+	$event = $query->execute()->fetchAssoc();
+
+	return $event['status'];
+}
 function _citynotifier_check_status($event_id, $status){
 	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('status'))
