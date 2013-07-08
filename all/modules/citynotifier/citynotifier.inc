@@ -296,28 +296,24 @@ function _citynotifier_get_value_type_subtype_from_index($index_type, $index_sub
 
 
 function citynotifier_get_assiduity($uid) {
+	$subquery = db_select("citynotifier_notify", 'cn')->groupBy('cn.uid');
+	$subquery->fields('cn', array('uid'));
+	$subquery->addExpression('COUNT(*)', 'count');
+	
 	$query = db_select("users", 'u');
-	$query->addExpression('COUNT(*)', 'count');
-	$query->condition('u.uid', 0, '>'); /* Avoid from counting anonymous user */
-	$users = $query->execute()->fetchAll();
+	$query->fields('u', array('uid'));
+	$query->addExpression('MAX(cn.count)', 'max');
+  $query->join($subquery,'cn', 'cn.uid=u.uid');
+	
+	$notifications = $query->execute()->fetchAll();
 
 	$query = db_select("citynotifier_notify", 'cn');
+	$query->fields('cn', array('uid'))->condition('cn.uid', $uid, '=');
 	$query->addExpression('COUNT(*)', 'count');
-	$notifications = $query->execute()->fetchAll();
 	
-	$query = db_select("users", 'u');
-	$query->addExpression('COUNT(*)', 'count');
-	$query->condition('u.uid', $uid, '=');
-	$user = $query->execute()->fetchAll();
-	
-	$average = $notifications->count / $users->count;
+	$notifications_by_user = $query->execute()->fetchAll();
 
-	$assiduity = $non->assiduity * 0.1;
-
-	if($assiduity > 1)
-		$assiduity = 1;
-
-	return $assiduity;
+	return $notifications_by_user[0]->count/$notifications[0]->max;
 }
 
 
@@ -450,7 +446,6 @@ function citynotifier_file_get_contents_utf8($fn) {
 function citynotifier_encode_event_id($event_id, $url) {
   if(!preg_match("/(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/", $url, $matches))
     return FALSE;
-  
   return $matches[1] . "_" . $event_id;
 }
 
