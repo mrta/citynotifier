@@ -5,7 +5,7 @@
  */
 function citynotifier_request() {
    header('Content-type: application/json; charset=utf-8');
-   
+
    if($_SERVER["REQUEST_METHOD"] != "GET") {
      drupal_add_http_header("Status", "405", TRUE); 
      echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Metodo non consentito"))));

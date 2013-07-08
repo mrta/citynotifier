@@ -175,7 +175,7 @@
 
                     <li class="dropdown">
                         <a href="#" id="account" class="dropdown-toggle" data-toggle="dropdown">Account <i class="icon-user icon-white"></i></a>
-                        <ul class="dropdown-menu">
+                        <ul id="dropdown_account" class="dropdown-menu">
                             <form>
                                 <fieldset>
                                     <div class="control-group">
@@ -277,6 +277,7 @@
   </div>
   <div class="modal-body">
   	<p><strong><span class="text-info">Evento: </span></strong><span id="eventIDModal"></span></p>
+    <p><strong><span class="text-info">Tipologia: </span></strong><span id="typeModal"></span> > <span id="subtypeModal"></span></p>
   	<p><strong><span class="text-info">Coordinate: </span></strong><span id="coordModal"></span></p>
   	<p><ul class="inline">
   		<li id="statusModal" class="text-info" style="font-weight: bold; padding-left: 0;">Nuovo Status: </li>
