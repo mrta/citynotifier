@@ -334,14 +334,14 @@ function change(){
 	changeObj.lat = $('#coordModal').html().split(" , ")[0];
 	changeObj.lng = $('#coordModal').html().split(" , ")[1];
 	changeObj.description = $('#descModal').html();
-	changeObj.type = $('#typeModal').html();
-	changeObj.subtype = $('#subtypeModal').html();
+	changeObj.type = $('#typeModal').html().toLowerCase().replace(/ /g, "_");;
+	changeObj.subtype = $('#subtypeModal').html().toLowerCase().replace(/ /g, "_");;
 
 	
 	if($('input[name=optionsRadios]:checked').val())
-		changeObj.status = $('input[name=optionsRadios]:checked').val();
+		changeObj.status = $('input[name=optionsRadios]:checked').val().toLowerCase();
 	else
-		changeObj.status = $('#statusModalValue').html();
+		changeObj.status = $('#statusModalValue').html().toLowerCase();
 	
 	xmlhttp = new XMLHttpRequest();
     url = URLSERVER.concat("/notifica");	
