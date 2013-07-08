@@ -1,5 +1,5 @@
 <?php
-
+/*
 function citynotifier_notify() {
 	global $user;
 	header('Content-type: application/json; charset=utf-8');
@@ -24,7 +24,7 @@ function citynotifier_notify() {
 	drupal_add_http_header("Status", 200);
 	return drupal_json_output(array("result" => t("notifica inviata con successo")));
 }
-
+*/
 function _citynotifier_get_status($event_id){
 	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('status'))
