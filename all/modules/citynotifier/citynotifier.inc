@@ -313,7 +313,7 @@ function citynotifier_get_assiduity($uid) {
 	
 	$notifications_by_user = $query->execute()->fetchAll();
 
-	return $notifications_by_user[0]->count/$notifications[0]->max;
+	return (float)((int)$notifications_by_user[0]->count/(int)$notifications[0]->max);
 }
 
 
