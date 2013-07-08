@@ -193,6 +193,10 @@ function _citynotifier_citynotifier2data($data) {
   if($data['status'])
     $data['status'] = _citynotifier_get_index_status($data['status']);
   
+  if($data['index_id'])
+    $data['index_id'] = citynotifier_decode_event_id($data['index_id']);
+    
+  
   if(!$data['route'] || !$data['street_number']) {
     $address = _citynotifier_get_address_from_point($data);
     if($address)
@@ -342,7 +346,7 @@ function _citynotifier_get_local_event($data) {
 
 	foreach($events as $event){
 		$event_result = array();
-		$event_result['event_id'] = $event->event_id;
+		$event_result['event_id'] = citynotifier_encode_event_id($event->event_id, $_SERVER['HTTP_HOST']);
 		$event_result['type'] = _citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype);
 		$event_result['status'] = $statuses[$event->status];
 		$event_result['start_time'] = (int)$event->start;
@@ -558,5 +562,9 @@ function citynotifier_encode_event_id($event_id, $url) {
 
 function citynotifier_decode_event_id($event_id) {
   $result = explode("_", $event_id);
-  return (int)$result[1];
+  
+  if($result[1])
+    return (int)$result[1];
+  
+  return (int)$result[0];
 }
