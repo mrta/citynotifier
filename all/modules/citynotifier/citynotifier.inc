@@ -549,4 +549,14 @@ function citynotifier_file_get_contents_utf8($fn) {
 }
 
 
+function citynotifier_encode_event_id($event_id, $url) {
+  if(!preg_match("/(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/", $url, $matches))
+    return FALSE;
+  
+  return $matches[1] . "_" . $event_id;
+}
 
+function citynotifier_decode_event_id($event_id) {
+  $result = explode("_", $event_id);
+  return (int)$result[1];
+}
