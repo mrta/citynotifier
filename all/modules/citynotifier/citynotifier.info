@@ -6,6 +6,9 @@ package = "CityNotifier"
 files[] = citynotifier.inc
 files[] = citynotifier.module
 files[] = citynotifier.admin.inc
+files[] = citynotifier.notify.inc
+files[] = citynotifier.report.inc
+files[] = citynotifier.request.inc
 
 dependencies[] = geocoder
 

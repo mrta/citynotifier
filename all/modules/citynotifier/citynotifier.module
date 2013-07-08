@@ -21,6 +21,7 @@ function citynotifier_menu() {
     'page callback' => 'citynotifier_request',
     'access arguments' => array('access content'),
     'access callback' => true,
+    'file' => 'citynotifier.request.inc',
     'type' => MENU_CALLBACK,
     );
   
@@ -29,6 +30,7 @@ function citynotifier_menu() {
     'page callback' => 'citynotifier_report',
     'access arguments' => array('access content'),
     'access callback' => true,
+    'file' => 'citynotifier.report.inc',
     'type' => MENU_CALLBACK,
     );
   
@@ -37,6 +39,7 @@ function citynotifier_menu() {
     'page callback' => 'citynotifier_notify',
     'access arguments' => array('access content'),
     'access callback' => true,
+    'file' => 'citynotifier.notify.inc',
     'type' => MENU_CALLBACK,
     );
   
@@ -175,176 +178,6 @@ function citynotifier_logout() {
 
   drupal_add_http_header("Status", 200);
   echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("logout effettuato con successo"))));
-  return;
-}
-
-
-/**
- * Request service.
- */
-function citynotifier_request() {
-   header('Content-type: application/json; charset=utf-8');
-   $data = _citynotifier_citynotifier2data($_GET);
-   $statuses = variable_get('citynotifier_settings_statuses', array());
-
-   $validation = _citynotifier_validate($data, 'request');
-   
-   if($validation['code'] <> 200) {
-     drupal_add_http_header("Status", $validation['code'], TRUE); 
-     echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
-     return;
-   }
-   
-   if ($data['scope'] == "local" ) {
-     drupal_add_http_header("Status", 200);
-     echo drupal_convert_to_utf8(drupal_json_encode(array("request_time" => time(),
-                                                          "result" => "Messaggio di servizio",
-                                                          "from_server" => "http://" . $_SERVER['HTTP_HOST'],
-                                                          "events" => _citynotifier_get_local_event($data))));
-     return;
-   };
-   
-   if ($data['scope'] == "remote") {
-     $data = _citynotifier_data2citynotifier($data);
-     $servers = citynotifier_get_subscribed_servers();
-
-     if(isset($data['dest'])) {
-       $servers = array($servers[$data['dest']]);
-       unset($data['dest']);
-     } 
-     
-     $fps = array();
-     $data_remote = array();
-     $data['scope'] = "local"; /* from server to server are local requests */
-
-     foreach($servers as $index => $server) {
-       $fp = citynotifier_get_fp_for_asynchronous_http_get_request($server['url'] . "/richieste", $data);
-       if(!$fp['errno']) {
-         $fps[] = array("fp" => $fp['fp'], "server" => $server['name'], "request_time" => time());
-         $data_remote[$index] = '';
-       } else {
-         /** 200 non va bene bisogna stabilire, per esempio, se va in timeout **/
-         drupal_add_http_header("Status", 200);
-         echo drupal_convert_to_utf8(drupal_json_encode(array("request_time" => time(),
-           "result" => $fp['errstr'],
-           "from_server" => $server['name'],
-           "events" => array())));
-       }
-     }
-
-     while(!empty($fps)) {
-       foreach($fps as $i_fp => $fp) {
-         $fgets = fgets($fp['fp']);
-
-         if (!$fgets) {
-           fclose($fp['fp']);
-           unset($fps[$i_fp]);
-           $data_remote[$i_fp] = explode("\r\n\r\n", $data_remote[$i_fp]);
-           $data_remote[$i_fp] = drupal_json_decode($data_remote[$i_fp][1]);
-
-           foreach($data_remote[$i_fp]["events"] as $i_event => $event) {
-             $data_local = _citynotifier_get_matched_remote_event(_citynotifier_citynotifier2data($event));
-            if($data_local["event_id"]) {
-               $data_remote[$i_fp]["events"][$i_event]["event_id"] = $data_local["event_id"];
-               if(_citynotifier_get_event_freshness($data_local["event_id"]) < $data_remote[$i_fp]["events"][$i_event]["freshness"] && $data_remote[$i_fp]["events"][$i_event]["status"] <> $statuses[$data_local["status"]]) {
-                if($data_remote[$i_fp]["events"][$i_event]["status"] == "open" && $statuses[$data_local["status"]] == "closed"){
-                   $data_remote[$i_fp]["events"][$i_event]["status"] = "skeptical";
-                   $data_local = array("event_id" => $data_local["event_id"], "status" => _citynotifier_get_index_status("skeptical"));
-                   _citynotifier_update_event($data_local);
-                }
-                else{
-                  $data_local = array("event_id" => $data_local["event_id"], "status" => _citynotifier_get_index_status($event['status']));
-                  _citynotifier_update_event($data_local);
-                }
-               };
-             }
-             else{
-              $address = _citynotifier_get_address_from_point($event['locations'][0]);
-              $data_remote[$i_fp]["events"][$i_event] = array_merge($data_remote[$i_fp]["events"][$i_event], $address);
-             }
-           };
-         } else {
-           $data_remote[$i_fp] = $data_remote[$i_fp] . $fgets;
-         };
-       };
-     };
-     drupal_add_http_header("Status", 200);
-     echo drupal_convert_to_utf8(drupal_json_encode($data_remote));    
-     return;
-   };
-};
-
-/**
- * Report service.
- */
-function citynotifier_report() {
-	global $user, $skepticals;
-	header('Content-type: application/json; charset=utf-8');
-
-	$data = _citynotifier_citynotifier2data(drupal_json_decode(citynotifier_file_get_contents_utf8("php://input")));
-
-	if(!$user->uid) {
-		drupal_add_http_header("Status", 401);
-		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
-		return;
-	}
-	
-	$validation = _citynotifier_validate($data, "report");
-
-	if($validation['code'] <> 200) {
-		drupal_add_http_header("Status", $validation['code'], TRUE); 
-		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => $validation['response'])));
-		return;
-	}
-
-	$matched_event = _citynotifier_get_matched_event($data);
-
-	$new_event = FALSE;
-	switch ($matched_event['status']) {
-	case FALSE:
-	case _citynotifier_get_index_status("archived"):
-	  $new_event = TRUE;
-	  $event_id = _citynotifier_create_event($data);
-	  break;
-	case _citynotifier_get_index_status("open"):
-	  $event_id = $matched_event['event_id'];
-	  break;
-	case _citynotifier_get_index_status("closed"):
-	  _citynotifier_update_status_event($matched_event['event_id'], _citynotifier_get_index_status("skeptical"));
-		$event_id = $matched_event['event_id'];
-		break;
-	case _citynotifier_get_index_status("skeptical"):
-	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
-	  break;
-	};
-
-	/* Casi
-	1) Non c'è evento, crealo
-	2) Evento esiste
-	  1) Aperto: collega notifica a questo evento
-	  2) Chiuso:
-	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
-	    2) Freshness > N: aprire un nuovo evento
-	*/
-	//citynotifier_debug($data);
-  
-  /** Ad extra $data **/
-  $data += array (
-    "uid" => $user->uid,
-    "event_id" => $event_id,
-    "created" => time(),
-    );
-  
-  if(!drupal_write_record("citynotifier_notify", $data)) {
-    watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
-    drupal_add_http_header("Status", 500);
-    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Errore nella memorizzazione nel database"))));
-    return;
-  };
-
-  drupal_add_http_header("Status", 200);
-  echo drupal_convert_to_utf8(drupal_json_encode(array("event_id" => $data['event_id'],
-                                                       "result" => $new_event?t("nuova segnalazione aperta con successo"):t("segnalazione di un evento già in memoria avvenuta con successo"))));
   return;
 }
 
