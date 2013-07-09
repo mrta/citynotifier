@@ -13,7 +13,7 @@ function citynotifier_notify() {
 
 	_citynotifier_citynotifier2data($data);
 	
-	if(_citynotifier_check_status($event_id, "skeptical") || (_citynotifier_get_status($data['event_id']) == _citynotifier_get_index_status("closed") && $data['status'] == "open")){
+	if(_citynotifier_check_status($event_id, "skeptical") || (_citynotifier_get_event_status($data['event_id']) == _citynotifier_get_index_status("closed") && $data['status'] == "open")){
 			//caso scettico cosa fare?
 	}
 	else{
@@ -25,7 +25,7 @@ function citynotifier_notify() {
 	return drupal_json_output(array("result" => t("notifica inviata con successo")));
 }
 */
-function _citynotifier_get_status($event_id){
+function _citynotifier_get_event_status($event_id){
 	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('status'))
 		->condition('ce.event_id', $event_id, '=');
@@ -46,6 +46,7 @@ function _citynotifier_check_status($event_id, $status){
 }
 
 function _citynotifier_update_event($event){
+	$event['last_update'] = time();
 	if(!drupal_write_record("citynotifier_event", $event, 'event_id')) {
 		watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
 		drupal_add_http_header("Status", 500);
@@ -56,6 +57,7 @@ function _citynotifier_update_event($event){
 
 
 function _citynotifier_create_event($data) {
+	$data['last_update'] = time();
 	drupal_write_record("citynotifier_event", $data);
 	return $data['event_id'];
 }
@@ -212,7 +214,8 @@ function _citynotifier_citynotifier2data($data) {
                      'street_number' => 'truncate_utf8(%, 10)', 'route' => 'truncate_utf8(%, 50)',
                      'locality' => 'truncate_utf8(%, 50)', 'administrative_area_level_3' => 'truncate_utf8(%, 50)',
                      'administrative_area_level_2' => 'truncate_utf8(%, 50)', 'administrative_area_level_1' => 'truncate_utf8(%, 50)',
-                     'country' => 'truncate_utf8(%, 50)', 'postal_code' => 'truncate_utf8(%, 10)');
+                     'country' => 'truncate_utf8(%, 50)', 'postal_code' => 'truncate_utf8(%, 10)',
+                     'event_id' => 'citynotifier_decode_event_id(%)');
   foreach($type_cast as $type => $cast) {
     if(isset($data[$type]))
       eval("\$data['" . $type . "']=" . str_replace("%", "\$data['" . $type . "']", $cast) . ";");
@@ -395,19 +398,6 @@ function _citynotifier_get_remote_event($data){
 	return $result;
 }
 
-function _citynotifier_check_remote_events($events){
-	foreach($events as $i => $event){
-		$id = _citynotifier_check_existing_event($event);
-		if($id['event_id'])
-			$events[$i]['event_id'] = $id['event_id'];
-		else
-		//da vedere bene cosa fare in questo caso
-			$events[$i]['event_id'] = _citynotifier_create_event();
-	}
-
-	return $events;
-}
-
 function _citynotifier_check_existing_event($event){
 	$range = _citynotifier_get_range_subtype($event['type']['type'], $event['type']['subtype']);
 	extract(_citynotifier_get_index_type_subtype($event['type']), EXTR_OVERWRITE);
@@ -456,4 +446,20 @@ function citynotifier_decode_event_id($event_id) {
     return (int)$result[1];
   
   return (int)$result[0];
+}
+
+function citynotifier_sync() {
+	$query = db_select('citynotifier_event', 'ce');
+	$query->fields('ce', array('event_id', 'status', 'last_update'))
+		->condition('ce.status', _citynotifier_get_index_status("skeptical"), '=');
+	$skeptical_events = $query->execute()->fetchAll();
+
+	foreach ($skeptical_events as $skeptical_event) {
+		if($skeptical_event->last_update < time()-variable_get('citynotifier_settings_waiting_skeptical', 0)){
+			$query = db_select('citynotifier_notify', 'cn');
+			$query->fields('cn', array('uid', 'status'))
+				->condition('cn.created', $skeptical_event->last_update, '>');
+			$notifications = $query->execute()->fetchAll();
+		}
+	}
 }

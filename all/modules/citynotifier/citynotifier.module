@@ -109,6 +109,9 @@ function citynotifier_help($path, $arg) {
   }
 }
 
+function citynotifier_cron(){
+  citynotifier_sync();
+}
 
 /**
  * Implements login service.

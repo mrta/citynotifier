@@ -41,7 +41,8 @@ function citynotifier_install() {
   variable_set('citynotifier_settings_servers', '');
   variable_set('citynotifier_settings_types_subtypes', $types_subtypes);
   variable_set('citynotifier_settings_statuses', array("all", "open", "closed", "archived", "skeptical"));
-  
+  variable_set('citynotifier_settings_waiting_skeptical', 60);
+
   /** Add field reputation to user profile **/
   
   if(!field_info_field("reputation")) {
@@ -85,8 +86,9 @@ function citynotifier_uninstall() {
   
   variable_del('citynotifier_settings_catalogue');
   variable_del('citynotifier_settings_servers');
-  variable_del('citynotifier_settings_types');
-  variable_del('citynotifier_settings_status');
+  variable_del('citynotifier_settings_types_subtypes');
+  variable_del('citynotifier_settings_statuses');
+  variable_del('citynotifier_settings_waiting_skeptical');
   
   /** Delete field reputation from user profile **/
   field_delete_field("reputation");
@@ -125,7 +127,6 @@ function citynotifier_schema() {
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
-        'default' => 0,
         ),
       'type' => array(
         'description' => t('The notify\'s type.'),
@@ -251,6 +252,12 @@ function citynotifier_schema() {
         'scale' => 7,
         'not null' => TRUE,
         'default' => 0,
+        ),
+      'last_update' => array(
+        'description' => t('The last update timestamp.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
         ),
       'street_number' => array(
         'description' => t('The notify\'s street number.'),

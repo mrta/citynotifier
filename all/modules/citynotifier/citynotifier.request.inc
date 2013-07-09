@@ -109,10 +109,10 @@ function citynotifier_get_local_event($data) {
 
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	//$query->fields('ce', array('event_id', 'status'));
-	//$query->fields('cn', array('type','subtype','lat','lng'));
-	$query->fields('ce', array());
-	$query->fields('cn', array());
+	$query->fields('ce', array('event_id', 'status'));
+	$query->fields('cn', array('type','subtype','lat','lng', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code', 'description'));
+	//$query->fields('ce', array());
+	//$query->fields('cn', array());
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
