@@ -74,7 +74,7 @@ function sendNotify() {
 /**
  * Notify event on click on Submit button
  */
-$("#notify").next().delegate("#notifySubmit", "click", function() {
+$("#notify").next().on("click", "#notifySubmit", function() {
     sendNotify();
 });
 
@@ -205,3 +205,45 @@ $("#notifyType").on('change', function() {
         }
     }
 });
+
+/**
+ * Notify Citynotifier about an event modification
+ */
+function changeStatus(){
+
+	// Change Object: ID, coordinates, Modify reason, type, subtype
+	var changeObj = new Object();
+	changeObj.event_id = $('#eventIDModal').html();
+	changeObj.lat = $('#coordModal').html().split(" , ")[0];
+	changeObj.lng = $('#coordModal').html().split(" , ")[1];
+	changeObj.description = $('#descModal').html();
+	changeObj.type = $('#typeModal').html().toLowerCase().replace(/ /g, "_");;
+	changeObj.subtype = $('#subtypeModal').html().toLowerCase().replace(/ /g, "_");;
+
+	// Status skeptical
+	if($('input[name=optionsRadios]:checked').val())
+		changeObj.status = $('input[name=optionsRadios]:checked').val().toLowerCase();
+	else
+		changeObj.status = $('#statusModalValue').html().toLowerCase();
+
+	// Create JSON Object from notifyObject
+    var changeJSON = JSON.stringify(changeObj);
+	
+	xmlhttp = new XMLHttpRequest();
+    url = URLSERVER.concat("/notifica");	
+	
+	$.ajax({
+            url: url,
+            type: 'POST',
+            data: changeJSON,
+            contentType: "application/json; charset=utf-8",
+            success: function(datiString, status, richiesta) {
+            	successAlert("Modifica segnalata con successo"); 
+            	$('#notifyPanel').modal('toggle');
+            },
+            error: function(err) {
+                errorAlert("Errore nella modifica dell'evento");
+                $('#notifyPanel').modal('toggle');
+            }  	
+       });
+}

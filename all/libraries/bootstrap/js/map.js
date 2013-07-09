@@ -1,82 +1,75 @@
+// Enable new Google Maps
+google.maps.visualRefresh = NEW_GOOGLE_MAP;
 
-var sizer;
-var markersArray = [];
+// Global variables
+var map;
+var directionsService;
+var directionsDisplay;
 
-function clearOverlays() {
-  for (var i = 0; i < markersArray.length; i++ ) {
-    markersArray[i].setMap(null);
-  }
-  markersArray = [];
-  
-	for(var i=0; i<heatmapArray.length;i++)
-		heatmapArray[i].setMap(heatmapArray[i].getMap() ? null : map);
-	heatmapArray = [];
+ /**
+ * Google Map initialization
+ */
+function initialize() {
+
+    var mapOptions = {
+        disableDoubleClickZoom: true,
+        zoom: 15,
+        center: CITYCENTER,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+    
+    // Load Directions Service to draw routes on map
+    directionsService = new google.maps.DirectionsService();
+	var rendererOptions = { draggable: true, map: map };
+	directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+    directionsDisplay.setMap(map);
+
+    // Get user Location
+    getLocation();
+
+    // Click Listener on map
+    google.maps.event.addListener(map, 'click', function(event) {
+
+        // Keep track of the user's last location
+        lastLatitude = event.latLng.lat();
+        lastLongitude = event.latLng.lng();
+
+         // Create new markerPosition
+        var markerPosition = new google.maps.LatLng(lastLatitude, lastLongitude);
+
+        // Do not display radiusWidget
+        if (distanceWidget) radiusWidget = null;
+        radiusWidgetCheck = false;
+
+        // Drop userMarker on map
+        createUserMarker(markerPosition);               
+    });
 }
 
-$('#refresh').on('click', function() {
-	if(userMarker){	
-    	userMarker.setMap(null);
-    	userMarker = null;
-    }
-	clearOverlays();
-	$('#modalBody').html('');
-    radiusWidgetCheck = false;
+// Only load the map when the window is ready
+$(window).load(function () {
+    initialize();
 });
 
-
-
-function createInfoWindow(latlng, infoWindow){
-			var infoID = infoWindow.id;
-			var infoType = infoWindow.type;
-			var infoSubType = infoWindow.subtype;
-			var infoStatus = infoWindow.status;
-			var infoScope = infoWindow.scope;
-			var address = infoWindow.address;
-		
-			$('#eventIDModal').html(infoID);
-			$('#coordModal').html(latlng.lat() + " , " + latlng.lng());
-			$('#typeModal').html(infoType);
-			$('#subtypeModal').html(infoSubType);
-							
-			switch (infoStatus) {
-				case "Open":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
-						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
-						if($("#statusModal").next().is("li"))
-							$("#statusModal").next().remove();
-						$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
-					break;
-				case "Closed":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
-						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
-						if($("#statusModal").next().is("li"))
-							$("#statusModal").next().remove();
-						$('#statusModal').after('<li><span id="statusModalValue" class="label label-success">Open</span>');
-
-					break;
-				case "Skeptical":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
-						changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
-						if($("#statusModal").next().is("li"))
-							$("#statusModal").next().remove();
-						$('#statusModal').after('<li><label class="radio">\
-													<input type="radio" name="optionsRadios" id="optionsRadios1" value="open" checked style="vertical-align: middle"><span class="label label-success">Open</span></label></li>\
-													<li><label class="radio">\
-													<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
-					break;	
-			}
-			  
-			infoWindow.setContent('<div class="hero-unit">\
-										<h2>'+infoSubType+'<img style="padding-left: 35px;" class="pull-right" src='+getIcon(infoType, infoSubType)+'></h2>\
-										<h4>'+address+'</h4>\
-										<p>'+infoType+' > '+infoSubType+'</p>\
-										'+infoStatus+'\
-											<ul class="dropdown-menu">\
-												<li>'+changeStatus+'</li>\
-											</ul>\
-										</div>\
-									</div>');
-}
-
+$(window).unload(function() {
+    // Create cookies
+    if(jQuery.cookie('session_user')){
+        jQuery.cookie('last_type', $('#searchType').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_subtype', $('#searchSubType').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_address', $('#searchAddress').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_radius', $('#searchRadius').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_status', $('#searchStatus').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_timeFrom', $('#timeFromText').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_timeTo', $('#timeToText').val(), { path: '/', expires: 30 });
+    
+        // Save last location clicked
+        if(userMarker){
+            jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
+            jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
+        }     
+    }
+});
 
 

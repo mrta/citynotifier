@@ -97,7 +97,7 @@
                                     </div>
                                     <div class="input-append control-group">
                                         <input type="text" id="notifyAddress" placeholder="Address" autocomplete="off">
-                                        <button onclick="getLocation()" id="addressButtonNotify" class="btn" type="button">
+                                        <button id="addressButtonNotify" class="btn" type="button">
                                             <i id="addressMarkerNotify" class="icon-map-marker"></i>
                                         </button>
                                     </div>
@@ -135,7 +135,7 @@
                                     
                                     <div class="input-append control-group">
                                         <input type="text" id="searchAddress" placeholder="Address" autocomplete="off">
-                                        <button onclick="getLocation()" id="addressButtonSearch" class="btn" type="button">
+                                        <button id="addressButtonSearch" class="btn" type="button">
                                             <i id="addressMarkerSearch" class="icon-map-marker"></i>
                                         </button>
                                     </div>
@@ -287,7 +287,7 @@
   </div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button id="changeButton" class="btn btn-primary" onclick="change()">Invia notifica</button>
+    <button id="changeButton" class="btn btn-primary">Invia notifica</button>
   </div>
 </div>
 

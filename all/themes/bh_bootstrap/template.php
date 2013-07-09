@@ -576,20 +576,20 @@ function bh_bootstrap_preprocess_page(&$variables, $hook) {
   drupal_add_js($bootstrap_path . '/js/config.js', array('scope' => 'footer'));
 	drupal_add_js($bootstrap_path . '/js/bootstrap.min.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/bootstrap-datetimepicker.js', array('scope' => 'footer'));	
-  drupal_add_js($bootstrap_path . '/js/script.js', array('scope' => 'footer'));
+  drupal_add_js($bootstrap_path . '/js/gui.js', array('scope' => 'footer'));
+  drupal_add_js($bootstrap_path . '/js/utils.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/account.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/admin_panel.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/notify.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/search.js', array('scope' => 'footer'));
-  drupal_add_js($bootstrap_path . '/js/map2.js', array('scope' => 'footer'));
-	drupal_add_js($bootstrap_path . '/js/map.js', array('scope' => 'footer'));
+  drupal_add_js($bootstrap_path . '/js/map.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/user_marker.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/geocoder.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/distance_widget.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/route.js', array('scope' => 'footer'));
 	
 	drupal_add_js($bootstrap_path . '/js/jquery.cookie.js', array('scope' => 'footer'));
-	drupal_add_js($bootstrap_path . '/js/gmap3.js', array('scope' => 'footer'));
+	//drupal_add_js($bootstrap_path . '/js/gmap3.js', array('scope' => 'footer'));
 	
 
   // Main menu

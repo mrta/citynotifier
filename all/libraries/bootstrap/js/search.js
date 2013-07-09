@@ -1,5 +1,9 @@
 // Global Variables
 var infoWindow;
+var urlCrossDomain = -1; // No other Server specified
+var eventArray = [];
+var markersArray = [];
+
 
 /**
  * searchEvent() permette all'utente di cercare eventi segnalati nel sistema CityNotifier
@@ -64,7 +68,7 @@ function searchEvent() {
 		
 		// Remove all markers from map and from events Array
 		clearOverlays();
-		eventsMap.length = 0;
+		eventArray.length = 0;
 		
 		// First call: local
 		$.ajax({
@@ -77,8 +81,6 @@ function searchEvent() {
 		    	// Clear list table
 		    	$('#modalBody').html('');
 		    	
-									        if(datiString[0])
-									        	datiString = datiString[0]; /*Fix temporaneo server cambiato che torna un array*/
 		        // Create events	  
 		        $.each(datiString.events, function(index, event){
 					createEvent(event);
@@ -107,25 +109,25 @@ function searchEvent() {
 				// Update events local with new informations
 				// Add new event from remote servers
 				$.each(responseRemote, function(index, response){
-					$.each(response.events, function(index, event){
-						var eventIDRemote = event.event_id;
-					
-						var result = $.grep(eventsMap, function(e){ return e.eventID == eventIDRemote; });
+					if(response.events)
+						$.each(response.events, function(index, event){
+							var eventIDRemote = event.event_id;
 						
-						if (result.length == 0) {
-							// New event from remote server
-							console.log("Nuovo evento");
-							if(event.locations[0]) //Fix temporaneo perchè QuellidiLettere non tornano un array
-						  		createEvent(event);
-						  
-						} else if (result.length == 1) {
-							// Update local event
-							console.log("Evento esiste già");
-						  	updateEvent(result[0], event);
-						  
-						} else
-						console.log("ERROR! Più eventi fanno match!!!!");
-					});
+							var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
+							
+							if (result.length == 0) {
+								// New event from remote server
+								console.log("Nuovo evento");
+							  	createEvent(event);
+							  
+							} else if (result.length == 1) {
+								// Update local event
+								console.log("Evento esiste già");
+							  	updateEvent(result[0], event);
+							  
+							} else
+							console.log("ERROR! Più eventi fanno match!!!!");
+						});
 			 	});
 		 	},
 			error: function(err) {
@@ -329,10 +331,15 @@ function createEvent(event){
 	eventObject.eventID = event.event_id;
 
 	// Event address
-								eventObject.address = "Via Poppe, 42"; /*Da Implementare*/
+	if(event.route && event.street)
+		eventObject.address = event.route + ", " + event.street_number;
+	else if(event.route)
+		eventObject.address = event.route;
+	else
+		eventObject.address = eventObject.lat + ", " + eventObject.lng;
 	
 	// Add event to global Events Array
-	eventsMap.push(eventObject);
+	eventArray.push(eventObject);
 	
 	// Draw Queue
 	if(eventObject.subtype == "Coda"){
