@@ -9,7 +9,7 @@ var lastLongitude = CITYCENTER.lng();
 */
 function getLocation() {
     if (navigator.geolocation) {
-        var options = {timeout: 60000}; // milliseconds (60 seconds)
+        var options = {timeout: 5000}; // milliseconds (60 seconds)
         navigator.geolocation.getCurrentPosition(showLocation, errorHandler, options);
     } else {
         console.log("error")
@@ -41,9 +41,7 @@ function showLocation(position) {
 * getLocation error handling
 * @param error
 */
-function errorHandler(err) {  
-    console.log(err);  
-
+function errorHandler(err) {   
     // Do not duplicate userMarker & turn off radiusWidget
     if (userMarker) userMarker.setMap(null);
     radiusWidgetCheck = false;
@@ -63,7 +61,11 @@ function errorHandler(err) {
         // Drop userMarker on map
         createUserMarker(new google.maps.LatLng(44.494860,11.342598));
     }
-    else errorAlert("GeocodePosition unknown error"); 
+    else{ 
+        errorAlert("GeocodePosition unknown error");
+        if(err.code == 3)
+            getLocation();
+    }
 }
 
 /**
