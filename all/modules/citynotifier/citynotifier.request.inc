@@ -192,12 +192,8 @@ function citynotifier_get_local_event($data) {
 		$sum = 0;
 
 		foreach($fetched_res as $res){
-			$profile = user_load($res->uid);
-
-			$rep = $profile->reputation;
-
-			$ass = citynotifier_get_assiduity($res->uid);
-			$sum += (1 + $rep['und'][0]['value'] * $ass);
+			$assiduity = citynotifier_get_assiduity($res->uid);
+			$sum += (1 + citynotifier_get_reputation($res->uid) * $assiduity);
 
 			$location = array();
 			$location['lat'] = (float)$res->lat;

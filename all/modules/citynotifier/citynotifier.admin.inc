@@ -122,5 +122,61 @@ function theme_citynotifier_admin($variables) {
 
 
 function citynotifier_admin_users() {
-  return;
+  
+  $header = array(
+    'username' => array('data' => t('Username'), 'field' => 'u.name'),
+    'status' => array('data' => t('Status'), 'field' => 'u.status'),
+    'member_for' => array('data' => t('Member for'), 'field' => 'u.created', 'sort' => 'desc'),
+    'access' => array('data' => t('Last access'), 'field' => 'u.access'),
+    'notifications' => array('data' => t('Notifiche')),
+    'assiduity' => array('data' => t('Assiduità')),
+    'reputation' => array('data' => t('Reputazione')),
+  );
+  
+  $query = db_select('users', 'u');
+  $query->condition('u.uid', 0, '<>');
+  user_build_filter_query($query);
+
+  $count_query = clone $query;
+  $count_query->addExpression('COUNT(u.uid)');
+
+  $query = $query->extend('PagerDefault')->extend('TableSort');
+  $query
+    ->fields('u', array('uid', 'name', 'status', 'created', 'access'))
+    ->limit(50)
+    ->orderByHeader($header)
+    ->setCountQuery($count_query);
+  $result = $query->execute();
+  
+  $status = array(t('blocked'), t('active'));
+  $roles = array_map('check_plain', user_roles(TRUE));
+  $accounts = array();
+  foreach ($result as $account) {
+    $users_roles = array();
+    $roles_result = db_query('SELECT rid FROM {users_roles} WHERE uid = :uid', array(':uid' => $account->uid));
+    foreach ($roles_result as $user_role) {
+      $users_roles[] = $roles[$user_role->rid];
+    }
+    asort($users_roles);
+
+    $options[$account->uid] = array(
+      'username' => theme('username', array('account' => $account)),
+      'status' =>  $status[$account->status],
+      'member_for' => format_interval(REQUEST_TIME - $account->created),
+      'access' =>  $account->access ? t('@time ago', array('@time' => format_interval(REQUEST_TIME - $account->access))) : t('never'),
+      'notifications' => count(citynotifier_get_notifications_by_user($account->uid)),
+      'assiduity' => citynotifier_get_assiduity($account->uid),
+      'reputation' => citynotifier_get_reputation($account->uid),
+    );
+  }
+  
+  $form['accounts'] = array(
+    '#type' => 'tableselect',
+    '#header' => $header,
+    '#options' => $options,
+    '#empty' => t('No people available.'),
+  );
+  $form['pager'] = array('#markup' => theme('pager'));
+
+  return $form;
 }

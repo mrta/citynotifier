@@ -307,18 +307,31 @@ function citynotifier_get_assiduity($uid) {
 	$query->fields('u', array('uid'));
 	$query->addExpression('MAX(cn.count)', 'max');
   $query->join($subquery,'cn', 'cn.uid=u.uid');
-	
 	$notifications = $query->execute()->fetchAll();
-
+	
+	if(!$notifications[0]->max)
+	  return 0;
+	  
 	$query = db_select("citynotifier_notify", 'cn');
 	$query->fields('cn', array('uid'))->condition('cn.uid', $uid, '=');
 	$query->addExpression('COUNT(*)', 'count');
 	
 	$notifications_by_user = $query->execute()->fetchAll();
 
-	return (float)((int)$notifications_by_user[0]->count/(int)$notifications[0]->max);
+	return (float)(count(citynotifier_get_notifications_by_user($uid))/(int)$notifications[0]->max);
 }
 
+function citynotifier_get_reputation($uid) {
+  $user = user_load($uid);
+  return $user->reputation['und'][0]['value'];
+}
+
+function citynotifier_get_notifications_by_user($uid) {
+  $query = db_select("citynotifier_notify", 'cn');
+  $query->fields('cn', array('uid', 'lat','lng','description'));
+  $query->condition('cn.uid', $uid, '=');
+  return $query->execute()->fetchAll();
+}
 
 function citynotifier_get_subscribed_servers() {
   $result = array();
