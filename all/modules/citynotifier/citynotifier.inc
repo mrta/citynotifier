@@ -470,7 +470,7 @@ function citynotifier_decode_event_id($event_id) {
 function citynotifier_sync() {
 	$query = db_select('citynotifier_event', 'ce');
 	$query->fields('ce', array('event_id', 'status', 'last_update'))
-		->condition('ce.status', _citynotifier_get_index_status("open"), '=');
+		->condition('ce.status', _citynotifier_get_index_status("skeptical"), '=');
 	$skeptical_events = $query->execute()->fetchAll();
 
 	foreach ($skeptical_events as $skeptical_event) {
