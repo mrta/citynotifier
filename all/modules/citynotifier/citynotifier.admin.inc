@@ -119,3 +119,8 @@ function theme_citynotifier_admin($variables) {
 
   return $output;
 }
+
+
+function citynotifier_admin_users() {
+  return;
+}

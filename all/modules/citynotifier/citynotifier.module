@@ -12,8 +12,29 @@ function citynotifier_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('citynotifier_admin'),
     'access arguments' => array('citynotifier administrator'),
+    'position' => 'left',
+    'weight' => -4,
     'file' => 'citynotifier.admin.inc',
-    'type' => MENU_CALLBACK
+  );
+  
+  $items['admin/config/citynotifier/config'] = array(
+    'title'=>t('Amministrazione di Citynotifier'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('citynotifier_admin'),
+    'access arguments' => array('citynotifier administrator'),
+    'position' => 'left',
+    'weight' => 0,
+    'file' => 'citynotifier.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK
+  );
+  
+  $items['admin/config/citynotifier/users'] = array(
+    'title'=>t('Utenti'),
+    'page callback' => 'citynotifier_admin_users',
+    'access arguments' => array('citynotifier administrator'),
+    'file' => 'citynotifier.admin.inc',
+    'weight' => 1,
+    'type' => MENU_LOCAL_TASK
   );
     
   $items['richieste'] = array(
