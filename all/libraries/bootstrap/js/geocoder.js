@@ -18,20 +18,9 @@ function geocodePosition(position){
 				
 				if(address == position)
 					geocodePosition(position); //Retry if Geocoder fails
-				else{
-																			// TODO MOVE TO GUI FUNCTION
-					$('#notifyAddress').val(address);
-		            $('#searchAddress').val(address);
-		            $('#infoAddress').html(address);
-		            $('#notifyAddress').parent().removeClass("error");
-		            $('#notifyAddress').next().removeClass("btn-danger");
-		            $('#addressMarkerSearch').removeClass("icon-white");
-		            $('#addressButtonSearch').removeClass("btn-danger");
-					$('#addressMarkerSearch').removeClass("icon-white");
-					$('#addressButtonNotify').removeClass("btn-danger");
-					$('#addressMarkerNotify').removeClass("icon-white");
-                }
-			}
+				else
+					updateAddress(address);
+		}
 		else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {    
 		    setTimeout(function() {
 		        geocodePosition(position);

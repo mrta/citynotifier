@@ -54,8 +54,6 @@ function searchEvent() {
 	// Event Status
 	parameters["status"] = $('#searchStatus').val().toLowerCase();
 
-	console.log("scope="+parameters["scope"]+"&type="+parameters["type"]+"&subtype="+parameters["subtype"]+"&lat="+parameters["lat"]+"&lng="+parameters["lng"]+"&radius="+parameters["radius"]+"&timemin="+parameters["timemin"]+"&timemax="+parameters["timemax"]+"&status="+parameters["status"]+"&dest="+parameters["dest"]);
-
 	url = URLSERVER.concat(buildUrl("/richieste", parameters));
 
 	if($('#searchAddress').val() != ''){
@@ -134,6 +132,26 @@ function searchEvent() {
 				errorAlert("Ajax Remote Search error");
 			}
 		});
+
+		// Third call: skeptical around me
+		parameters["scope"] = "local";
+		parameters["status"] = "skeptical";
+
+		// Event min Timestamp
+		timeMin = toTimestamp(dateStart); // 6 months ago
+		parameters["timemin"] = timeMin;
+
+		// Event max Timestamp
+		timeMax = toTimestamp(new Date()); // Now
+		parameters["timemax"] = timeMax;
+
+		parameters["type"] = "all";
+		parameters["subtype"] = "all"
+
+		// Event radius (metres)
+		parameters["radius"] = 0.5 * 1000;
+
+		searchSkeptical(parameters);
 	}
 	else{
 		// Error: Address not specified
@@ -331,7 +349,7 @@ function createEvent(event){
 	eventObject.eventID = event.event_id;
 
 	// Event address
-	if(event.route && event.street)
+	if(event.route && event.street_number)
 		eventObject.address = event.route + ", " + event.street_number;
 	else if(event.route)
 		eventObject.address = event.route;
@@ -664,7 +682,6 @@ function drawQueue(event){
                 // Disegno la coda
                 distRoute(start, end, null, event.event_id, gradient);
             }
-			
 		}
 }
 
@@ -718,4 +735,63 @@ function addEventMarker(eventObject){
 
 	// Close infoWindow on map click
 	google.maps.event.addListener(map, 'click', function() { infoWindow.close(); });
+}
+
+function searchSkeptical(parameters){
+
+    if (navigator.geolocation) {
+        var options = {timeout: 2000}; // milliseconds (60 seconds)
+        navigator.geolocation.getCurrentPosition(
+        	function(position){
+        		// Success
+        		parameters["lat"] = position.coords.latitude;
+    			parameters["lng"] = position.coords.longitude;
+
+    			url = URLSERVER.concat(buildUrl("/richieste", parameters));
+
+    			$.ajax({
+					url: url,
+					type: 'GET',
+					success: function(responseSkeptical, status, richiesta) {
+						console.log("Ok Skeptical.. ");
+						
+				    	
+				        // Update events local with new informations
+						// Add new event from remote servers
+						$.each(responseSkeptical, function(index, response){
+							if(response.events){
+								skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
+								$.each(response.events, function(index, event){
+									var eventIDRemote = event.event_id;
+								
+									var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
+									
+									if (result.length == 0) {
+										// New event from remote server
+										console.log("Nuovo evento Skeptical");
+									  	createEvent(event);
+									  
+									} else if (result.length == 1) {
+										// Update local event
+										console.log("Evento Skeptical esiste già");
+									} else
+									console.log("ERROR! Più eventi fanno match!!!!");
+								});
+							}
+			 			});
+			 		},
+				    error: function(err) {
+				        errorAlert("Skeptical Ajax error");
+				    }
+				});
+        	},
+        	function(){
+        		// Error
+        		skepticalAlert("E' necessario attivare la GeoLocalizzazione per trovare gli eventi scettici");
+        		console.log("GetLocation Skeptical error");
+        	}, 
+        	options);
+    } else {
+        errorAlert("Sorry, browser does not support geolocation!");
+    }
 }

@@ -105,7 +105,7 @@ $('.brand').on('click', function(){
 	    // jQuery is loaded => print the version
 	    alert(jQuery.fn.jquery);
 	}*/
-
+	searchSkeptical(null);
 	console.log(lastLongitude + " " + lastLatitude);
 });
 
@@ -124,6 +124,7 @@ $('#refresh').on('click', function() {
 
 	// Clear event Table
 	$('#modalBody').html('');
+	$('#infoAddress').html('Seleziona un punto sulla mappa')
 
 	// Turn off radiusWidget
     radiusWidgetCheck = false;
@@ -204,7 +205,7 @@ $('#datetimepickerTo').datetimepicker({
 function errorAlert(error){
 	$('#alertBox').html('<div class="alert alert-error ">\
 		  <button type="button" class="close"></button>\
-		  <span id="alertMsg"><strong>Warning! '+error+'</strong></span></div>');
+		  <span id="alertMsg"><strong>Attenzione! '+error+'</strong></span></div>');
 	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
 		$('#alertBox').css('display', 'none');
 	});
@@ -220,6 +221,20 @@ function successAlert(msg){
 		  <button type="button" class="close"></button>\
 		  <span id="alertMsg"><strong>'+msg+'</strong></span></div>');
 	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
+		$('#alertBox').css('display', 'none');
+	});
+}
+
+/**
+ * Skeptical alert
+ * @param msg Skeptical message
+ */
+function skepticalAlert(msg){
+	$('#alertBox').html('<div class="alert alert-warning ">\
+		  <button type="button" class="close"></button>\
+		  <span id="alertMsg"><strong>'+msg+'</strong></span></div>');
+	$('#alertBox').delay(7000).fadeTo(500, 1);
+	$('#alertBox').delay(1500).fadeTo(500, 0, function(){
 		$('#alertBox').css('display', 'none');
 	});
 }
@@ -286,20 +301,37 @@ function createInfoWindow(latlng, infoWindow){
 									</div>');
 }
 
+/**
+ * Update radius value on search
+ */
 function updateRadius(distance){
 	$('#searchRadius').val(Math.round(distance * 1000) / 1000 + " km");
 	$('#searchRadius').val(($('#searchRadius').val().replace('.',',')));
 }
 
 /**
- * Create infoWindow
+ * Update address after GeocodePosition
+ */
+ function updateAddress(address){
+	$('#notifyAddress').val(address);
+    $('#searchAddress').val(address);
+    $('#infoAddress').html(address);
+    $('#notifyAddress').parent().removeClass("error");
+    $('#notifyAddress').next().removeClass("btn-danger");
+    $('#addressMarkerSearch').removeClass("icon-white");
+    $('#addressButtonSearch').removeClass("btn-danger");
+	$('#addressMarkerSearch').removeClass("icon-white");
+	$('#addressButtonNotify').removeClass("btn-danger");
+	$('#addressMarkerNotify').removeClass("icon-white");
+}
+
+/**
+ * getLocation on press search/notify location button
  */
 $('#addressButtonSearch').on('click', function(){
-	console.log("Search pota");
 	getLocation();
 });
 $('#addressButtonNotify').on('click', function(){
-	console.log("Notify pota");
 	getLocation();
 });
 
