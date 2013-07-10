@@ -206,7 +206,7 @@
                         <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>  
                     </li>
                     <li>
-                    	<p id="infoAddress" class="span4 offset3 text-center"> Hodor? </p>
+                    	<p id="infoAddress" class="span4 offset3 text-center"> Seleziona un punto sulla mappa </p>
                     </li>
                 </ul>
                 <ul class="nav pull-right">

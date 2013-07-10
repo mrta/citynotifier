@@ -7,9 +7,9 @@ var lastLongitude = CITYCENTER.lng();
 /**
 * Returns the user's location
 */
-function getLocation() {
+function getLocation(mode) {
     if (navigator.geolocation) {
-        var options = {timeout: 5000}; // milliseconds (60 seconds)
+        var options = {timeout: 2000}; // milliseconds (60 seconds)
         navigator.geolocation.getCurrentPosition(showLocation, errorHandler, options);
     } else {
         console.log("error")
@@ -42,13 +42,9 @@ function showLocation(position) {
 * @param error
 */
 function errorHandler(err) {   
-    // Do not duplicate userMarker & turn off radiusWidget
-    if (userMarker) userMarker.setMap(null);
-    radiusWidgetCheck = false;
-    
     // Browser doesn't support geolocation
     if (err.code == 1 || err.code == 2) {
-        errorAlert("Position is not available!");
+        errorAlert("Posizione non disponibile!");
         
         // Try to get last known position
         if(jQuery.cookie('last_lat'))
@@ -59,12 +55,19 @@ function errorHandler(err) {
             var markerPosition = CITYCENTER;
 
         // Drop userMarker on map
-        createUserMarker(new google.maps.LatLng(44.494860,11.342598));
+        createUserMarker(markerPosition);
     }
     else{ 
-        errorAlert("GeocodePosition unknown error");
-        if(err.code == 3)
-            getLocation();
+        // GeoPosition could fail : http://stackoverflow.com/questions/3397585/navigator-geolocation-getcurrentposition-sometimes-works-sometimes-doesnt
+        errorAlert("GeocodePosition momentaneamente non disponibile");
+
+        // Set userMarker to default location
+        var markerPosition = CITYCENTER;
+        map.panTo(markerPosition);
+        if(userMarker)
+            userMarker.setPosition(markerPosition);
+        else
+            createUserMarker(markerPosition);
     }
 }
 

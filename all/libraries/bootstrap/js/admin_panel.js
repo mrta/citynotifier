@@ -6,7 +6,7 @@ $("#account").next().on('click', "#adminPanelButton", function() {
 	// Verifica che i server non siano già stati scaricati, altrimenti li scarica
 	if($('#serverInput > option').length == 1){
 		console.log("Aggiungo server");
-		url = urlServer.concat("/servers"); 							
+		url = URLSERVER.concat("/servers"); 							
 		$.ajax({
 			url: url,
 			type: 'GET',
