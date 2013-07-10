@@ -526,3 +526,24 @@ function citynotifier_increase_decrease_reputation($usr_notifications, $status_i
 	}
 }
 
+function citynotifier_sync_fading() {
+	$query = db_select('citynotifier_event', 'ce');
+	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+	$query->fields('ce', array('event_id', 'status'));
+	$query->fields('cn', array('type', 'subtype'));
+	$query->addExpression('MAX(cn.created)', 'freshness');
+	$query->condition('ce.status', _citynotifier_get_index_status("open"), '=');
+	$events = $query->execute()->fetchAll();
+
+	foreach ($events as $event) {
+		$fading = citynotifier_get_fading($event);
+		if ($event['freshness'] < time() - $fading) {
+			$event_update = array('event_id' => $event['event_id'], 'status' => _citynotifier_get_index_status("close"));
+			_citynotifier_update_event($event_update);
+		}
+	}
+}
+
+function citynotifier_get_fading($event) {
+
+}
