@@ -326,6 +326,12 @@ function citynotifier_get_reputation($uid) {
   return $user->reputation['und'][0]['value'];
 }
 
+function citynotifier_set_reputation($uid, $reputation) {
+  $user = user_load($uid);
+  $user->reputation['und'][0]['value'] = $reputation;
+  user_save($uid);
+}
+
 function citynotifier_get_notifications_by_user($uid) {
   $query = db_select("citynotifier_notify", 'cn');
   $query->fields('cn', array('uid', 'lat','lng','description'));
@@ -464,16 +470,59 @@ function citynotifier_decode_event_id($event_id) {
 function citynotifier_sync() {
 	$query = db_select('citynotifier_event', 'ce');
 	$query->fields('ce', array('event_id', 'status', 'last_update'))
-		->condition('ce.status', _citynotifier_get_index_status("skeptical"), '=');
+		->condition('ce.status', _citynotifier_get_index_status("open"), '=');
 	$skeptical_events = $query->execute()->fetchAll();
 
 	foreach ($skeptical_events as $skeptical_event) {
 		if($skeptical_event->last_update < time()-variable_get('citynotifier_settings_waiting_skeptical', 0)){
 			$query = db_select('citynotifier_notify', 'cn');
 			$query->fields('cn', array('uid', 'status'))
+				->distinct()
 				->condition('cn.created', $skeptical_event->last_update, '>')
 				->condition('cn.event_id', $skeptical_event->event_id, '=');
-			$notifications = $query->execute()->fetchAll();
+			$query->orderby('cn.created', 'DESC');
+			$usr_notifications = $query->execute()->fetchAll();
+
+			$open = $close = 0;
+
+			foreach ($usr_notifications as $notification) {
+				if ($notification->status == _citynotifier_get_index_status("open")) {
+					$open += 1;
+				}
+				elseif ($notification->status == _citynotifier_get_index_status("close")) {
+					$close += 1;
+				}
+			}
+
+			if ($open == $close)
+				continue;
+
+			switch ($open > $close) {
+				case TRUE:
+					citynotifier_increase_decrease_reputation($usr_notifications, _citynotifier_get_index_status("open"));
+					$event = array('event_id' => $skeptical_event->event_id, 'status' => _citynotifier_get_index_status("open"));
+					break;
+				
+				case FALSE:
+					citynotifier_increase_decrease_reputation($usr_notifications, _citynotifier_get_index_status("close"));
+					$event = array('event_id' => $skeptical_event->event_id, 'status' => _citynotifier_get_index_status("close"));
+					break;
+				default:
+					break;
+			}
+			_citynotifier_update_event($event);
 		}
 	}
 }
+
+function citynotifier_increase_decrease_reputation($usr_notifications, $status_inc) {
+	foreach ($usr_notifications as $notification) {
+		$reputation = citynotifier_get_reputation($notification['uid']);
+		if ($notification['status'] == $status_inc) 
+			$reputation += 0.1;
+		else
+			$reputation -= 0.1;
+		citynotifier_set_reputation($notification['uid'], $reputation);
+	}
+}
+
