@@ -4,7 +4,7 @@
  * Report service.
  */
 function citynotifier_report() {
-	global $user, $skepticals;
+	global $user;
 	header('Content-type: application/json; charset=utf-8');
 
 	if($_SERVER["REQUEST_METHOD"] != "POST") {

@@ -458,7 +458,8 @@ function citynotifier_sync() {
 		if($skeptical_event->last_update < time()-variable_get('citynotifier_settings_waiting_skeptical', 0)){
 			$query = db_select('citynotifier_notify', 'cn');
 			$query->fields('cn', array('uid', 'status'))
-				->condition('cn.created', $skeptical_event->last_update, '>');
+				->condition('cn.created', $skeptical_event->last_update, '>')
+				->condition('cn.event_id', $skeptical_event->event_id, '=');
 			$notifications = $query->execute()->fetchAll();
 		}
 	}

@@ -25,8 +25,9 @@ function citynotifier_notify() {
 		$data['status'] = _citynotifier_get_index_status("skeptical");
 	}
 
-	if(_citynotifier_check_status($data['event_id'], "skeptical")) {
-			//caso scettico cosa fare?
+	if(_citynotifier_check_status($data['event_id'], _citynotifier_get_index_status("skeptical"))) {
+		$data += array ("uid" => $user->uid, "created" => time());
+		drupal_write_record("citynotifier_notify", $data);
 	}
 	else {
 		$event = array('event_id' => $data['event_id'], 'status' => $data['status']);
