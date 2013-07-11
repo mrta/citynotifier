@@ -198,31 +198,32 @@ $('#datetimepickerTo').datetimepicker({
 });
 
 
+var msgArray = [];
+var count = 0;
+
 /**
  * Error alert
  * @param error Error message
  */
 function errorAlert(error){
-	$('#alertBox').html('<div class="alert alert-error ">\
-		  <button type="button" class="close"></button>\
-		  <span id="alertMsg"><strong>Attenzione! '+error+'</strong></span></div>');
-	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
-		$('#alertBox').css('display', 'none');
-	});
+	var msgObj = new Object();
+	msgObj.msg = error;
+	msgObj.type = "error";
+	msgArray.push(msgObj);
+	handleMsg(msgObj);
 	
 }
 
 /**
  * Succcess alert
- * @param error Success message
+ * @param msg Success message
  */
 function successAlert(msg){
-	$('#alertBox').html('<div class="alert alert-success ">\
-		  <button type="button" class="close"></button>\
-		  <span id="alertMsg"><strong>'+msg+'</strong></span></div>');
-	$('#alertBox').fadeTo(500, 1).delay(1500).fadeTo(500, 0, function(){
-		$('#alertBox').css('display', 'none');
-	});
+	var msgObj = new Object();
+	msgObj.msg = msg;
+	msgObj.type = "success";
+	msgArray.push(msgObj);
+	handleMsg(msgObj);
 }
 
 /**
@@ -230,14 +231,50 @@ function successAlert(msg){
  * @param msg Skeptical message
  */
 function skepticalAlert(msg){
-	$('#alertBox').html('<div class="alert alert-warning ">\
-		  <button type="button" class="close"></button>\
-		  <span id="alertMsg"><strong>'+msg+'</strong></span></div>');
-	$('#alertBox').delay(7000).fadeTo(500, 1);
-	$('#alertBox').delay(1500).fadeTo(500, 0, function(){
-		$('#alertBox').css('display', 'none');
-	});
+	var msgObj = new Object();
+	msgObj.msg = msg;
+	msgObj.type = "warning";
+	msgArray.push(msgObj);
+	handleMsg(msgObj);
 }
+
+function handleMsg(msgObj){
+			$('#alertBox').css('display', 'block');
+			$('#alertBox').css('opacity', 1);
+			$('#alertBox').prepend('<div id="'+count+'alert" class="alert alert-'+msgObj.type+'">\
+									<button type="button" class="close"></button>\
+									<span id="alertMsg"><strong>'+msgObj.msg+'</strong></span></div>');
+			var pota = '#'+count+'alert';
+			$(pota).delay(2000).fadeTo(2000, 0, function(){
+				$(this).css('display', 'none');
+				$(this).remove();
+				count--;
+			});
+			count++;
+
+				/*$('#alertBox div:last-child').fadeTo(0, 0, function(){
+				$('#alertBox div:last-child').css('display', 'none');
+				$('#alertBox div:last-child').remove();
+			});
+			//$('#alertBox div:last-child').remove();
+			/*$('#alertBox div:last-child').fadeTo(3500, 0, function(){
+				$('#alertBox div:last-child').css('display', 'none');
+				$('#alertBox div:last-child').remove();
+			});*/
+	}
+	/*while(msgArray.length > 0){
+			var msgObj = msgArray.shift();
+			$('#alertBox').html('<div class="alert alert-'+msgObj.type+'">\
+									<button type="button" class="close"></button>\
+									<span id="alertMsg"><strong>'+msgObj.msg+'</strong></span></div>');
+			//$('#alertBox').animate({opacity: 1, display:'block'}, 4000);
+			//$('#alertBox').animate({opacity: 0, display: none}, 4000);
+			$('#alertBox').fadeIn(1500);
+				
+			});*/
+			/*$('#alertBox').fadeTo(500, 1, function() { console.log("------ Pota ----------") }).delay(2000).fadeTo(500, 0, function(){
+				$('#alertBox').css('display', 'none');
+			});*/
 
 /**
  * Create infoWindow

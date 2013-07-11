@@ -133,6 +133,7 @@ function citynotifier_help($path, $arg) {
 
 function citynotifier_cron(){
   citynotifier_sync();
+  citynotifier_sync_fading();
 }
 
 /**
