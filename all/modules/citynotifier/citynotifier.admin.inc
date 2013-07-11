@@ -122,15 +122,15 @@ function theme_citynotifier_admin($variables) {
 
 
 function citynotifier_admin_users() {
-  
+  /*
   $header = array(
     'username' => array('data' => t('Username'), 'field' => 'u.name'),
     'status' => array('data' => t('Status'), 'field' => 'u.status'),
-    'member_for' => array('data' => t('Member for'), 'field' => 'u.created', 'sort' => 'desc'),
+    'member_for' => array('data' => t('Member for'), 'field' => 'u.created'),
     'access' => array('data' => t('Last access'), 'field' => 'u.access'),
-    'notifications' => array('data' => t('Notifiche')),
+    'notifications' => array('data' => t('Notifiche'), 'field' => 'number_of_notifications', 'sort' => 'desc'),
     'assiduity' => array('data' => t('Assiduità')),
-    'reputation' => array('data' => t('Reputazione')),
+    'reputation' => array('data' => t('Reputazione'), 'field' => 'rep.reputation_value'),
   );
   
   $query = db_select('users', 'u');
@@ -139,32 +139,31 @@ function citynotifier_admin_users() {
 
   $count_query = clone $query;
   $count_query->addExpression('COUNT(u.uid)');
-
-  $query = $query->extend('PagerDefault')->extend('TableSort');
+ 
+  $query->join("citynotifier_notify", 'cn', 'cn.uid = u.uid');
+  $query->join("field_data_reputation", 'rep', 'rep.entity_id = u.uid');
+  $query = $query->extend('PagerDefault')->extend('TableSort')->groupBy('u.uid');
+  
   $query
     ->fields('u', array('uid', 'name', 'status', 'created', 'access'))
+    ->fields('cn', array('notify_id'))
+    ->fields('rep', array('reputation_value'))
     ->limit(50)
     ->orderByHeader($header)
     ->setCountQuery($count_query);
+  $query->addExpression('COUNT(notify_id)', 'number_of_notifications');
+  $query->addExpression('MAX(number_of_notifications)', 'max');
   $result = $query->execute();
   
   $status = array(t('blocked'), t('active'));
-  $roles = array_map('check_plain', user_roles(TRUE));
   $accounts = array();
   foreach ($result as $account) {
-    $users_roles = array();
-    $roles_result = db_query('SELECT rid FROM {users_roles} WHERE uid = :uid', array(':uid' => $account->uid));
-    foreach ($roles_result as $user_role) {
-      $users_roles[] = $roles[$user_role->rid];
-    }
-    asort($users_roles);
-
     $options[$account->uid] = array(
       'username' => theme('username', array('account' => $account)),
       'status' =>  $status[$account->status],
       'member_for' => format_interval(REQUEST_TIME - $account->created),
       'access' =>  $account->access ? t('@time ago', array('@time' => format_interval(REQUEST_TIME - $account->access))) : t('never'),
-      'notifications' => count(citynotifier_get_notifications_by_user($account->uid)),
+      'notifications' => $account->number_of_notifications,
       'assiduity' => citynotifier_get_assiduity($account->uid),
       'reputation' => citynotifier_get_reputation($account->uid),
     );
@@ -178,5 +177,71 @@ function citynotifier_admin_users() {
   );
   $form['pager'] = array('#markup' => theme('pager'));
 
-  return $form;
+  return $form;*/
+  
+  $header = array(
+    'username' => array('data' => t('Username'), 'field' => 'username'),
+    'status' => array('data' => t('Status'), 'field' => 'status'),
+    'member_for' => array('data' => t('Membro da'), 'field' => 'created'),
+    'access' => array('data' => t('Ultimo accesso'), 'field' => 'access'),
+    'notifications' => array('data' => t('Notifiche'), 'field' => 'notifications', 'sort' => 'desc'),
+    'assiduity' => array('data' => t('Assiduità'), 'field' => 'assiduity'),
+    'reputation' => array('data' => t('Reputazione'), 'field' => 'reputation')
+    );
+  
+  $query = db_select('users', 'u');
+  $query->condition('u.uid', 0, '<>');
+  user_build_filter_query($query);
+
+  $count_query = clone $query;
+  $count_query->addExpression('COUNT(u.uid)');
+ 
+  $query->join("citynotifier_notify", 'cn', 'cn.uid = u.uid');
+  $query->join("field_data_reputation", 'rep', 'rep.entity_id = u.uid');
+  $query = $query->extend('PagerDefault')->extend('TableSort')->groupBy('u.uid');
+  
+  $query
+    ->fields('u', array('uid', 'name', 'status', 'created', 'access'))
+    ->fields('cn', array('notify_id'))
+    ->fields('rep', array('reputation_value'))
+    ->limit(50)
+    ->setCountQuery($count_query);
+  $query->addExpression('COUNT(notify_id)', 'number_of_notifications');
+  $result = $query->execute();
+  
+  $status = array(t('blocked'), t('active'));
+  $accounts = array();
+  foreach ($result as $account) {
+    $options[$account->uid] = array(
+      'username' => theme('username', array('account' => $account)),
+      'status' =>  $status[$account->status],
+      'member_for' => format_interval(REQUEST_TIME - $account->created),
+      'access' =>  $account->access ? t('@time ago', array('@time' => format_interval(REQUEST_TIME - $account->access))) : t('never'),
+      'notifications' => $account->number_of_notifications,
+      'assiduity' => citynotifier_get_assiduity($account->uid),
+      'reputation' => citynotifier_get_reputation($account->uid),
+    );
+  }
+  
+  $order = tablesort_get_order($header);
+  $sort = tablesort_get_sort($header);
+  var_dump($order);
+  var_dump($sort);
+  $rows = array();
+  foreach ($options as $entry) {
+    $rows[] = array(
+      array('data' => $entry['username']),
+      array('data' => $entry['status']),
+      array('data' => $entry['member_for']),
+      array('data' => $entry['access']),
+      array('data' => $entry['notifications']),
+      array('data' => $entry['assiduity']),
+      array('data' => $entry['reputation'])
+      );
+  }
+  
+  // add any attributes and sent everything to theme table
+  $attributes = array('class' => array('my_class'));
+  $table = array('header' => $header, 'attributes' => $attributes, 'rows' => $rows);
+  return theme('table', $table);
 }

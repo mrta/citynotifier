@@ -30,7 +30,7 @@ function citynotifier_menu() {
   
   $items['admin/config/citynotifier/users'] = array(
     'title'=>t('Utenti'),
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'citynotifier_admin_users',
     'page arguments' => array('citynotifier_admin_users'),
     'access arguments' => array('citynotifier administrator'),
     'file' => 'citynotifier.admin.inc',
