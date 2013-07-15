@@ -182,7 +182,7 @@ function citynotifier_admin_users() {
   $header = array(
     'username' => array('data' => t('Username'), 'field' => 'username'),
     'status' => array('data' => t('Status'), 'field' => 'status'),
-    'member_for' => array('data' => t('Membro da'), 'field' => 'created'),
+    'member_for' => array('data' => t('Membro da'), 'field' => 'member_for'),
     'access' => array('data' => t('Ultimo accesso'), 'field' => 'access'),
     'notifications' => array('data' => t('Notifiche'), 'field' => 'notifications', 'sort' => 'desc'),
     'assiduity' => array('data' => t('Assiduità'), 'field' => 'assiduity'),
@@ -213,27 +213,29 @@ function citynotifier_admin_users() {
   $accounts = array();
   foreach ($result as $account) {
     $options[$account->uid] = array(
-      'username' => theme('username', array('account' => $account)),
+      'username' => $account->name,
       'status' =>  $status[$account->status],
-      'member_for' => format_interval(REQUEST_TIME - $account->created),
-      'access' =>  $account->access ? t('@time ago', array('@time' => format_interval(REQUEST_TIME - $account->access))) : t('never'),
+      'member_for' => $account->created,
+      'access' =>  $account->access ? REQUEST_TIME - $account->access : 0,
       'notifications' => $account->number_of_notifications,
       'assiduity' => citynotifier_get_assiduity($account->uid),
       'reputation' => citynotifier_get_reputation($account->uid),
+      'account' => $account
     );
   }
   
   $order = tablesort_get_order($header);
   $sort = tablesort_get_sort($header);
-  var_dump($order);
-  var_dump($sort);
+
+  $options = _citynotifier_admin_users_sort($options, $order['sql'], $sort);
+  
   $rows = array();
   foreach ($options as $entry) {
     $rows[] = array(
-      array('data' => $entry['username']),
+      array('data' => theme('username', array('account' => $entry['account']))),
       array('data' => $entry['status']),
-      array('data' => $entry['member_for']),
-      array('data' => $entry['access']),
+      array('data' => format_interval(REQUEST_TIME - $entry['account']->created)),
+      array('data' => $entry['account']->access ? t('@time ago', array('@time' => format_interval(REQUEST_TIME - $entry['account']->access))) : t('never')),
       array('data' => $entry['notifications']),
       array('data' => $entry['assiduity']),
       array('data' => $entry['reputation'])
@@ -244,4 +246,19 @@ function citynotifier_admin_users() {
   $attributes = array('class' => array('my_class'));
   $table = array('header' => $header, 'attributes' => $attributes, 'rows' => $rows);
   return theme('table', $table);
+}
+
+function _citynotifier_admin_users_sort($data, $order, $sort) {
+  foreach ($data as $key => $row) {
+    $username[$key] = $row['username'];
+    $status[$key] = $row['status'];
+    $member_for[$key] = $row['member_for'];
+    $access[$key] = $row['access'];
+    $notifications[$key] = $row['notifications'];
+    $assiduity[$key] = $row['assiduity'];
+    $reputation[$key] = $row['reputation'];
+  }
+  
+  eval("array_multisort(\$" . $order . ", (\$sort == 'desc'? SORT_DESC:SORT_ASC), \$data);");
+  return $data;
 }
