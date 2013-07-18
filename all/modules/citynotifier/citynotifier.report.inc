@@ -52,14 +52,14 @@ function citynotifier_report_apply($data, $mode = NULL) {
 	  $event_id = $matched_event['event_id'];
 	  break;
 	case citynotifier_get_index_status("closed"):
-	  _citynotifier_update_status_event($matched_event['event_id'], citynotifier_get_index_status("skeptical"));
-		$event_id = $matched_event['event_id'];
+	  $matched_event['status'] = citynotifier_get_index_status("skeptical");
+	  drupal_write_record("citynotifier_event", $matched_event, 'event_id');
 		break;
 	case citynotifier_get_index_status("skeptical"):
 	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
 	  break;
 	};
-	
+
 	/* Casi
 	1) Non c'è evento, crealo
 	2) Evento esiste

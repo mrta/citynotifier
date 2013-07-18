@@ -36,7 +36,7 @@ function citynotifier_notify() {
 	if (($data['status'] == citynotifier_get_index_status("open") && $event['status'] == citynotifier_get_index_status("closed")) ||
 	    ($data['status'] == citynotifier_get_index_status("closed") && $event['status'] == citynotifier_get_index_status("open"))) {
     	$event['status'] = citynotifier_get_index_status("skeptical");
-	    drupal_write_record("citynotifier_event", $event);
+	    drupal_write_record("citynotifier_event", $event, 'event_id');
 	  }
 	
 	  drupal_add_http_header("Status", 200);
