@@ -148,7 +148,8 @@ $('#liveButton').click(function(){
     	// timeTo set to NOW
     	$('#timeToText').val('');
 
-    	searchEvent();
+    	var interval = 1000 * 60 * 1; // where X is your every X minutes
+		setInterval(searchEvent, interval);
      }      
      else {
      	// Stop live

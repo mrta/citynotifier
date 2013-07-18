@@ -37,7 +37,7 @@ function searchEvent() {
 	parameters["lng"] = userMarker.getPosition().lng();
 
 	// Event radius (metres)
-	parameters["radius"] = radiusWidget.get('distance') * 1000;
+	radiusWidget ? parameters["radius"] = radiusWidget.get('distance') * 1000 : parameters["radius"] = 2000;
 
 	// Event min Timestamp
 	var timeMin = toTimestamp(parseDate($("#timeFromText").val().replace(/\-/g,'/')));
@@ -64,10 +64,6 @@ function searchEvent() {
 		$('#addressButtonSearch').removeClass("btn-danger");
 		$('#addressMarkerSearch').removeClass("icon-white");
 		
-		// Remove all markers from map and from events Array
-		clearOverlays();
-		eventArray.length = 0;
-		
 		// First call: local
 		$.ajax({
 			url: url,
@@ -78,11 +74,35 @@ function searchEvent() {
 
 		    	// Clear list table
 		    	$('#modalBody').html('');
+
+		    	console.log(datiString);
+
+		    	// Update events local with new informations
+					if(datiString.events)
+						$.each(datiString.events, function(index, event){
+							console.log("Pota local.. ");
+							var eventIDRemote = event.event_id;
+						
+							var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
+							
+							if (result.length == 0) {
+								// New event from remote server
+								console.log("Nuovo evento");
+							  	createEvent(event);
+							  
+							} else if (result.length == 1) {
+								// Update local event
+								console.log("Evento esiste già");
+							  	updateEvent(result[0], event);
+							  
+							} else
+							console.log("ERROR! Più eventi fanno match!!!!");
+						});
 		    	
-		        // Create events	  
+		        /*// Create events	  
 		        $.each(datiString.events, function(index, event){
 					createEvent(event);
-				});
+				});*/
 
 				// Animation loading
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
@@ -405,6 +425,11 @@ function createEvent(event){
  * Search event on click on Search button
  */
 $("#search").next().on("click", "#searchSubmit", function() {
+	if($('#searchAddress').val() != ''){
+		// Remove all markers from map and from events Array
+		clearOverlays();
+		eventArray.length = 0;
+	}
     searchEvent();
 });
 
