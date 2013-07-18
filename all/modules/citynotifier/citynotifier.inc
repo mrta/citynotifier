@@ -1,30 +1,22 @@
 <?php
-/*
-function citynotifier_notify() {
-	global $user;
-	header('Content-type: application/json; charset=utf-8');
 
-	if(!$user->uid) {
-		drupal_add_http_header("Status", 401);
-		return drupal_json_output(array("result" => t("Per inviare una notifica bisogna essere loggati")));
-	}
+/********************** EVENT FUNCTION **********************/
 
-	$data = drupal_json_decode(file_get_contents("php://input"));
-
-	_citynotifier_citynotifier2data($data);
-	
-	if(_citynotifier_check_status($event_id, "skeptical") || (_citynotifier_get_event_status($data['event_id']) == _citynotifier_get_index_status("closed") && $data['status'] == "open")){
-			//caso scettico cosa fare?
-	}
-	else{
-		$event = array('event_id' => $data['event_id'], 'status' => _citynotifier_get_index_status($data['status']));
-		_citynotifier_update_event($event);
-	}
-
-	drupal_add_http_header("Status", 200);
-	return drupal_json_output(array("result" => t("notifica inviata con successo")));
+function citynotifier_create_event($data) {
+	$data['last_update'] = time();
+	drupal_write_record("citynotifier_event", $data);
+	return $data['event_id'];
 }
-*/
+
+function citynotifier_get_event($data) {
+	$query = db_select("citynotifier_event", 'ce')
+		       ->fields('ce', array('event_id', 'status', 'lat', 'lng', 'last_update', 'street_number',
+		                            'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2',
+		                            'administrative_area_level_1', 'country', 'postal_code'))
+		       ->condition('ce.event_id', $data['event_id'], '=');
+	return $query->execute()->fetchAssoc();
+}
+
 function _citynotifier_get_event_status($event_id){
 	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('status'))
@@ -56,11 +48,7 @@ function _citynotifier_update_event($event){
 }
 
 
-function _citynotifier_create_event($data) {
-	$data['last_update'] = time();
-	drupal_write_record("citynotifier_event", $data);
-	return $data['event_id'];
-}
+
 
 function _citynotifier_get_range_subtype($type, $subtype){
   $types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
@@ -87,7 +75,7 @@ function _citynotifier_get_event_freshness($event_id){
  * @param $data
  * @return $event matched or array("event_id"=>FALSE, "status"=>FALSE) if no match
  */
-function _citynotifier_get_matched_event($data) {
+function citynotifier_get_matched_event($data) {
 	extract(_citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype'])); 
 	$range = _citynotifier_get_range_subtype($type, $subtype);
 
@@ -131,7 +119,7 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
    $event['event_id'] = TRUE;
    $i = 0;
    while($same_event && $event['event_id']) {
-     $event = _citynotifier_get_matched_event(array('lat' => $data_remote_event['locations'][$i]['lat'],
+     $event = citynotifier_get_matched_event(array('lat' => $data_remote_event['locations'][$i]['lat'],
                                                     'lng' => $data_remote_event['locations'][$i]['lng'],
                                                     'type' => $data_remote_event['type'],
                                                     'subtype' => $data_remote_event['subtype']));
@@ -193,7 +181,7 @@ function _citynotifier_citynotifier2data($data) {
   $data['subtype'] = $subtype;
 
   if($data['status'])
-    $data['status'] = _citynotifier_get_index_status($data['status']);
+    $data['status'] = citynotifier_get_index_status($data['status']);
   
   if($data['index_id'])
     $data['index_id'] = citynotifier_decode_event_id($data['index_id']);
@@ -286,7 +274,7 @@ function _citynotifier_get_map_subtype($subtypes) {
 }
 
 
-function _citynotifier_get_index_status($status){
+function citynotifier_get_index_status($status){
 	return array_search($status, variable_get('citynotifier_settings_statuses', array()));
 }
 
@@ -417,26 +405,6 @@ function _citynotifier_get_remote_event($data){
 	return $result;
 }
 
-function _citynotifier_check_existing_event($event){
-	$range = _citynotifier_get_range_subtype($event['type']['type'], $event['type']['subtype']);
-	extract(_citynotifier_get_index_type_subtype($event['type']), EXTR_OVERWRITE);
-
-	$query = db_select("citynotifier_event", 'ce');
-	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	$query->fields('ce', array('event_id'))
-		->condition('cn.type', $type, '=')
-		->condition('cn.subtype', $subtype, '=')
-		->condition('ce.status', $event['status'], '=')
-		->condition('cn.lat', $event['locations']['lat']-$range,'>')
-		->condition('cn.lat', $event['locations']['lat']+$range,'<')
-		->condition('cn.lng', $event['locations']['lng']-$range,'>')
-		->condition('cn.lng', $event['locations']['lng']+$range,'<')
-		->orderby('cn.created', 'DESC');
-	$result = $query->execute()->fetchAssoc();
-
-	return $result?$result:array("event_id"=>FALSE);
-}
-
 function citynotifier_debug($data) {
   if (is_array($data) || is_object($data))
     $data = print_r($data, TRUE);
@@ -470,7 +438,7 @@ function citynotifier_decode_event_id($event_id) {
 function citynotifier_sync() {
 	$query = db_select('citynotifier_event', 'ce');
 	$query->fields('ce', array('event_id', 'status', 'last_update'))
-		->condition('ce.status', _citynotifier_get_index_status("skeptical"), '=');
+		->condition('ce.status', citynotifier_get_index_status("skeptical"), '=');
 	$skeptical_events = $query->execute()->fetchAll();
 
 	foreach ($skeptical_events as $skeptical_event) {
@@ -486,10 +454,10 @@ function citynotifier_sync() {
 			$open = $close = 0;
 
 			foreach ($usr_notifications as $notification) {
-				if ($notification->status == _citynotifier_get_index_status("open")) {
+				if ($notification->status == citynotifier_get_index_status("open")) {
 					$open += 1;
 				}
-				elseif ($notification->status == _citynotifier_get_index_status("close")) {
+				elseif ($notification->status == citynotifier_get_index_status("close")) {
 					$close += 1;
 				}
 			}
@@ -499,13 +467,13 @@ function citynotifier_sync() {
 
 			switch ($open > $close) {
 				case TRUE:
-					citynotifier_increase_decrease_reputation($usr_notifications, _citynotifier_get_index_status("open"));
-					$event = array('event_id' => $skeptical_event->event_id, 'status' => _citynotifier_get_index_status("open"));
+					citynotifier_increase_decrease_reputation($usr_notifications, citynotifier_get_index_status("open"));
+					$event = array('event_id' => $skeptical_event->event_id, 'status' => citynotifier_get_index_status("open"));
 					break;
 				
 				case FALSE:
-					citynotifier_increase_decrease_reputation($usr_notifications, _citynotifier_get_index_status("close"));
-					$event = array('event_id' => $skeptical_event->event_id, 'status' => _citynotifier_get_index_status("close"));
+					citynotifier_increase_decrease_reputation($usr_notifications, citynotifier_get_index_status("close"));
+					$event = array('event_id' => $skeptical_event->event_id, 'status' => citynotifier_get_index_status("close"));
 					break;
 				default:
 					break;
@@ -532,14 +500,14 @@ function citynotifier_sync_fading() {
 	$query->fields('ce', array('event_id', 'status'));
 	$query->fields('cn', array('type', 'subtype'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
-	$query->condition('ce.status', _citynotifier_get_index_status("open"), '=');
+	$query->condition('ce.status', citynotifier_get_index_status("open"), '=');
 	$events = $query->execute()->fetchAll();
 
 	/*
 	foreach ($events as $event) {
 		$fading = citynotifier_get_fading($event);
 		if ($event['freshness'] < time() - $fading) {
-			$event_update = array('event_id' => $event['event_id'], 'status' => _citynotifier_get_index_status("close"));
+			$event_update = array('event_id' => $event['event_id'], 'status' => citynotifier_get_index_status("close"));
 			_citynotifier_update_event($event_update);
 		}
 	}*/

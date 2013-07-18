@@ -1,5 +1,7 @@
 <?php
 
+module_load_include('inc', 'citynotifier', 'citynotifier.report');
+ 
 /**
  * Notify service.
  */
@@ -21,20 +23,23 @@ function citynotifier_notify() {
 
 	$data = _citynotifier_citynotifier2data(drupal_json_decode(citynotifier_file_get_contents_utf8("php://input")));
 
-	if(_citynotifier_get_event_status($data['event_id']) == _citynotifier_get_index_status("closed") && $data['status'] == _citynotifier_get_index_status("open")) {
-		$data['status'] = _citynotifier_get_index_status("skeptical");
+	list($event, $new_event) = citynotifier_report_apply($data, "notify");
+	
+	/* Notify on a non local event, create new one */
+	if($new_event) {
+	  drupal_add_http_header("Status", 200);
+	  echo drupal_convert_to_utf8(drupal_json_encode(array("event_id" => $event['event_id'],
+	                                                       "result" => t("notifica inviata con successo su un evento non esistente in locale che ora è stato creato"))));
+	  return;
 	}
-
-	if(_citynotifier_check_status($data['event_id'], _citynotifier_get_index_status("skeptical"))) {
-		$data += array ("uid" => $user->uid, "created" => time());
-		drupal_write_record("citynotifier_notify", $data);
-	}
-	else {
-		$event = array('event_id' => $data['event_id'], 'status' => $data['status']);
-		_citynotifier_update_event($event);
-	}
-
-	drupal_add_http_header("Status", 200);
+	
+	if (($data['status'] == citynotifier_get_index_status("open") && $event['status'] == citynotifier_get_index_status("closed")) ||
+	    ($data['status'] == citynotifier_get_index_status("closed") && $event['status'] == citynotifier_get_index_status("open"))) {
+    	$event['status'] = citynotifier_get_index_status("skeptical");
+	    drupal_write_record("citynotifier_event", $event);
+	  }
+	
+	  drupal_add_http_header("Status", 200);
 	echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("notifica inviata con successo"))));
 	return;
 }

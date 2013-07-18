@@ -29,55 +29,56 @@ function citynotifier_report() {
 		return;
 	}
 
-	$matched_event = _citynotifier_get_matched_event($data);
-
-	$new_event = FALSE;
-	switch ($matched_event['status']) {
-	case FALSE:
-	case _citynotifier_get_index_status("archived"):
-	  $new_event = TRUE;
-	  $event_id = _citynotifier_create_event($data);
-	  break;
-	case _citynotifier_get_index_status("open"):
-	  $event_id = $matched_event['event_id'];
-	  break;
-	case _citynotifier_get_index_status("closed"):
-	  _citynotifier_update_status_event($matched_event['event_id'], _citynotifier_get_index_status("skeptical"));
-		$event_id = $matched_event['event_id'];
-		break;
-	case _citynotifier_get_index_status("skeptical"):
-	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
-	  break;
-	};
-
-	/* Casi
-	1) Non c'è evento, crealo
-	2) Evento esiste
-	  1) Aperto: collega notifica a questo evento
-	  2) Chiuso:
-	    1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
-	    2) Freshness > N: aprire un nuovo evento
-	*/
-	//citynotifier_debug($data);
-  
-  /** Ad extra $data **/
-  $data += array (
-    "uid" => $user->uid,
-    "event_id" => $event_id,
-    "created" => time(),
-    );
-  
-  if(!drupal_write_record("citynotifier_notify", $data)) {
-    watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
-    drupal_add_http_header("Status", 500);
-    echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Errore nella memorizzazione nel database"))));
-    return;
-  };
-
+  list($data, $new_event) = citynotifier_report_apply($data);
   drupal_add_http_header("Status", 200);
   echo drupal_convert_to_utf8(drupal_json_encode(array("event_id" => $data['event_id'],
                                                        "result" => $new_event?t("nuova segnalazione aperta con successo"):t("segnalazione di un evento già in memoria avvenuta con successo"))));
   return;
 }
+
+function citynotifier_report_apply($data, $mode = NULL) {
+  global $user;
+  
+  $matched_event = citynotifier_get_matched_event($data);
+  
+	$new_event = FALSE;
+	switch ($matched_event['status']) {
+	case FALSE:
+	case citynotifier_get_index_status("archived"):
+	  $new_event = TRUE;
+	  $event_id = citynotifier_create_event($data);
+	  break;
+	case citynotifier_get_index_status("open"):
+	  $event_id = $matched_event['event_id'];
+	  break;
+	case citynotifier_get_index_status("closed"):
+	  _citynotifier_update_status_event($matched_event['event_id'], citynotifier_get_index_status("skeptical"));
+		$event_id = $matched_event['event_id'];
+		break;
+	case citynotifier_get_index_status("skeptical"):
+	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
+	  break;
+	};
+	
+	/* Casi
+	1) Non c'è evento, crealo
+	2) Evento esiste
+	1) Aperto: collega notifica a questo evento
+	2) Chiuso:
+	1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
+	2) Freshness > N: aprire un nuovo evento
+	*/
+	//citynotifier_debug($data);
+
+  /** Ad extra $data **/
+  $data = array_merge($data, array("uid" => $user->uid, "event_id" => $event_id, "created" => time()));
+  drupal_write_record("citynotifier_notify", $data);
+  
+  if($mode=="notify")
+    return array(citynotifier_get_event($event_id), $new_event);
+  
+  return array($data, $new_event);
+}
+
 
 
