@@ -1,3 +1,7 @@
+/* Global Variables */
+var msgArray = []; // Array per gestire visualizzazione alert
+var count = 0; // Count ordine alerts
+
 $(document).ready(function(){
 	if(jQuery.cookie('session_user')){
 		$('#account').fadeOut(1000, function() {
@@ -92,21 +96,22 @@ $(document).ready(function(){
  * Test on brand click
  */
 $('.brand').on('click', function(){
-	console.log(jQuery.cookie());
+	//console.log(jQuery.cookie());
 	errorAlert("Pota");
-	heatMapArray = [];
+	/*heatMapArray = [];
 	for(var i=0; i<heatmapArray.length;i++)
 		heatmapArray[i].setMap(heatmapArray[i].getMap() ? null : map);
 	heatmapArray = [];
 	
-	geocodePosition(new google.maps.LatLng(44.507188428208536, 11.342839968261728), null);
+	geocodePosition(new google.maps.LatLng(44.507188428208536, 11.342839968261728), null);*/
 
 	/*if (typeof jQuery != 'undefined') {  
 	    // jQuery is loaded => print the version
 	    alert(jQuery.fn.jquery);
 	}*/
-	searchSkeptical(null);
-	console.log(lastLongitude + " " + lastLatitude);
+	userMarker.setMap(null);
+	//searchSkeptical(null);
+	//console.log(lastLongitude + " " + lastLatitude);
 });
 
 /**
@@ -197,10 +202,6 @@ $('#datetimepickerTo').datetimepicker({
 	todayHighlight: true,
 });
 
-
-var msgArray = [];
-var count = 0;
-
 /**
  * Error alert
  * @param error Error message
@@ -251,30 +252,7 @@ function handleMsg(msgObj){
 				count--;
 			});
 			count++;
-
-				/*$('#alertBox div:last-child').fadeTo(0, 0, function(){
-				$('#alertBox div:last-child').css('display', 'none');
-				$('#alertBox div:last-child').remove();
-			});
-			//$('#alertBox div:last-child').remove();
-			/*$('#alertBox div:last-child').fadeTo(3500, 0, function(){
-				$('#alertBox div:last-child').css('display', 'none');
-				$('#alertBox div:last-child').remove();
-			});*/
 	}
-	/*while(msgArray.length > 0){
-			var msgObj = msgArray.shift();
-			$('#alertBox').html('<div class="alert alert-'+msgObj.type+'">\
-									<button type="button" class="close"></button>\
-									<span id="alertMsg"><strong>'+msgObj.msg+'</strong></span></div>');
-			//$('#alertBox').animate({opacity: 1, display:'block'}, 4000);
-			//$('#alertBox').animate({opacity: 0, display: none}, 4000);
-			$('#alertBox').fadeIn(1500);
-				
-			});*/
-			/*$('#alertBox').fadeTo(500, 1, function() { console.log("------ Pota ----------") }).delay(2000).fadeTo(500, 0, function(){
-				$('#alertBox').css('display', 'none');
-			});*/
 
 /**
  * Create infoWindow
@@ -301,14 +279,14 @@ function createInfoWindow(latlng, infoWindow){
 				case "Open":
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
-						if($("#statusModal").next().is("li"))
+						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
 						$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
 					break;
 				case "Closed":
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
-						if($("#statusModal").next().is("li"))
+						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
 						$('#statusModal').after('<li><span id="statusModalValue" class="label label-success">Open</span>');
 
@@ -316,7 +294,7 @@ function createInfoWindow(latlng, infoWindow){
 				case "Skeptical":
 						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
-						if($("#statusModal").next().is("li"))
+						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
 						$('#statusModal').after('<li><label class="radio">\
 													<input type="radio" name="optionsRadios" id="optionsRadios1" value="open" checked style="vertical-align: middle"><span class="label label-success">Open</span></label></li>\
@@ -363,11 +341,21 @@ function updateRadius(distance){
 }
 
 /**
+ * Reset address after GeocodePosition error
+ */
+ function resetAddress(){
+ 	$('#notifyAddress').val('');
+    $('#searchAddress').val('');
+    $('#infoAddress').html("Seleziona un punto sulla mappa");
+ }
+
+/**
  * getLocation on press search/notify location button
  */
 $('#addressButtonSearch').on('click', function(){
 	getLocation();
 });
+
 $('#addressButtonNotify').on('click', function(){
 	getLocation();
 });

@@ -31,6 +31,13 @@ function showLocation(position) {
     if (userMarker){
         map.panTo(markerPosition);
         userMarker.setPosition(markerPosition);
+
+        // Update current address and display where needed
+        geocodePosition(markerPosition);
+
+        // Keep track of the user's last location
+        lastLatitude = markerPosition.lat();
+        lastLongitude = markerPosition.lng();
     }
     else
         // Drop userMarker on map if it doesn't exist
@@ -64,8 +71,16 @@ function errorHandler(err) {
         // Set userMarker to default location
         var markerPosition = CITYCENTER;
         map.panTo(markerPosition);
-        if(userMarker)
+        if(userMarker){
             userMarker.setPosition(markerPosition);
+
+            // Update current address and display where needed
+            geocodePosition(markerPosition);
+
+            // Keep track of the user's last location
+            lastLatitude = markerPosition.lat();
+            lastLongitude = markerPosition.lng();
+        }
         else
             createUserMarker(markerPosition);
     }
@@ -110,6 +125,10 @@ function updateMarker(event){
     // Get the position where the drag ended
     var lat = event.latLng.lat();
     var lng = event.latLng.lng();
+
+    // Keep track of the user's last location
+    lastLatitude = lat;
+    lastLongitude = lng;
 
     // Move the userMarker
     var markerPosition = new google.maps.LatLng(lat, lng)

@@ -44,7 +44,8 @@ function initialize() {
         radiusWidgetCheck = false;
 
         // Drop userMarker on map
-        createUserMarker(markerPosition);               
+        createUserMarker(markerPosition);    
+        console.log("Pota");           
     });
 }
 

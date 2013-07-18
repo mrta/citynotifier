@@ -75,7 +75,7 @@ function getIcon(type, subtype){
                 case "Incidente": return dir+"CarAccident.png";
                 case "Buca": return dir+"Hole.png";
                 case "Coda": return dir+"Queue.png";
-                case "Lavori in corso": return dir+"Works.png";
+                case "Lavori in corso": return dir+"Work.png";
                 case "Strada impraticabile": return dir+"StopRoad.png";
             }
             break;

@@ -77,13 +77,13 @@ div.datetimepicker {
 	left: 50%;
 	margin-top: -50px;
 	margin-left: -100px;
-	height: 200px;
-	width: 200px;
+	height: 100px;
+	width: 100px;
 	text-indent: 250px;
 	white-space: nowrap;
 	overflow: hidden;
 	
-	background-image: url(../img/spinner.png);
+	background-image: url(../img/spinner2.png);
 		
 	animation-name: spinnerRotate;
 	animation-duration: 2s;
