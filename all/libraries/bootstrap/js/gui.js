@@ -109,7 +109,9 @@ $('.brand').on('click', function(){
 	    // jQuery is loaded => print the version
 	    alert(jQuery.fn.jquery);
 	}*/
-	userMarker.setMap(null);
+	//userMarker.setMap(null);
+	console.log(eventArray);
+	//pota();
 	//searchSkeptical(null);
 	//console.log(lastLongitude + " " + lastLatitude);
 });
@@ -148,13 +150,27 @@ $('#liveButton').click(function(){
     	// timeTo set to NOW
     	$('#timeToText').val('');
 
-    	var interval = 1000 * 60 * 1; // where X is your every X minutes
-		setInterval(searchEvent, interval);
+    	// Create new markerPosition
+		var markerPosition = new google.maps.LatLng(lastLatitude, lastLongitude);
+
+		// Drop userMarker on map
+		createUserMarker(markerPosition);
+
+		if(!radiusWidgetCheck){
+			// Create new distanceWidget
+        	distanceWidget = new DistanceWidget(map);
+        	radiusWidgetCheck = true;
+		}
+		searchEvent();
+    	var interval = 1000 * LIVE_SECOND * 1; // Every LIVE_SECOND seconds. Default: 30
+		refreshIntervalId = setInterval(searchEvent, interval);	
      }      
      else {
      	// Stop live
       	$(this).removeClass('btn-success');
-    	$(this).addClass('btn-danger');	
+    	$(this).addClass('btn-danger');
+
+		clearInterval(refreshIntervalId);
       }	
 });
 

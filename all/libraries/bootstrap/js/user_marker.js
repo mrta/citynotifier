@@ -110,7 +110,13 @@ function createUserMarker(markerPosition){
         draggable: true,
         title: "You're here",
         animation: google.maps.Animation.DROP
-    });   
+    });
+
+    if(radiusWidgetCheck){
+        // Create new distanceWidget
+        distanceWidget = new DistanceWidget(map);
+    }
+
 
     // userMarker drag listener
     google.maps.event.addListener(userMarker, 'dragend', updateMarker);

@@ -158,10 +158,10 @@ div.datetimepicker {
 	position: absolute;
 	left:30%;
 	right:30%;
-	margin-top: 0;
+	margin-top: 45px;
 	margin-left:auto;
 	margin-right:auto;
-	z-index: 5000;
+	z-index: 999;
 	opacity: 0;
 	display: none;	
 }
@@ -207,3 +207,6 @@ div.datetimepicker {
 	to { background-position: -50px 0; }
 }
 
+.live-radio { float:left; clear:none; }
+.live-radio label { float:left; clear:none; display:block; padding: 2px 20px 0 5px; }
+.live-radio input[type=radio], input.radio { float:left; clear:none; margin: 5px 0 0 2px; }

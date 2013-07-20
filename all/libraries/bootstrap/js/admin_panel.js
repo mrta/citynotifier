@@ -44,3 +44,11 @@ $('#serverConnect').on('click', function(){
 	urlCrossDomain = $("#serverInput").prop("selectedIndex")-1;
 	$('#serverInput').attr('onfocus', '');
 });
+
+/**
+* Cambia i secondi di attesa tra un search e l'altro in modalità LIVE
+*/	
+$('input:radio[name="timeLive"]').change( 
+	function(){
+        LIVE_SECOND = $(this).val();
+	});

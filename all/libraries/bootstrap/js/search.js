@@ -3,6 +3,7 @@ var infoWindow;
 var urlCrossDomain = -1; // No other Server specified
 var eventArray = [];
 var markersArray = [];
+var radiusWidgetCheck = false;
 
 
 /**
@@ -37,7 +38,9 @@ function searchEvent() {
 	parameters["lng"] = userMarker.getPosition().lng();
 
 	// Event radius (metres)
-	radiusWidget ? parameters["radius"] = radiusWidget.get('distance') * 1000 : parameters["radius"] = 2000;
+	radiusWidget ? parameters["radius"] = radiusWidget.get('distance') * 1000 : parameters["radius"] = distanceDefault * 1000;
+	console.log("DistanceDefault vale: "+ distanceDefault);
+	console.log("Radius vale: " + parameters["radius"]);
 
 	// Event min Timestamp
 	var timeMin = toTimestamp(parseDate($("#timeFromText").val().replace(/\-/g,'/')));
@@ -59,12 +62,33 @@ function searchEvent() {
 	if($('#searchAddress').val() != ''){
 
 		// Ok search
-		$('#infoAddress').append('<p id="spinner"></p>');
+		if(! $('#infoAddress').next().is('p'))
+			$('#infoAddress').after('<p id="spinner"></p>');
 		$('#searchAddress').parent().removeClass("error");
 		$('#addressButtonSearch').removeClass("btn-danger");
 		$('#addressMarkerSearch').removeClass("icon-white");
 		
 		// First call: local
+		searchLocal();
+		
+		// Second call: remote
+		searchRemote(parameters);
+
+		// Third call: skeptical
+		searchSkeptical(parameters);
+	}
+	else{
+		// Error: Address not specified
+		if (!$('#searchAddress').val() && $('#searchAddress').next().is('button')) {
+		    $('#searchAddress').parent().addClass("error");
+		    $('#searchAddress').next().addClass("btn-danger");
+		    $('#addressMarkerSearch').addClass("icon-white");
+    	}
+	}
+}
+
+function searchLocal(){
+	// First call: local
 		$.ajax({
 			url: url,
 			type: 'GET',
@@ -73,14 +97,13 @@ function searchEvent() {
 				successAlert("Ricerca in corso...");	
 
 		    	// Clear list table
-		    	$('#modalBody').html('');
+		    	//$('#modalBody').html('');
 
 		    	console.log(datiString);
 
 		    	// Update events local with new informations
 					if(datiString.events)
 						$.each(datiString.events, function(index, event){
-							console.log("Pota local.. ");
 							var eventIDRemote = event.event_id;
 						
 							var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
@@ -93,16 +116,12 @@ function searchEvent() {
 							} else if (result.length == 1) {
 								// Update local event
 								console.log("Evento esiste già");
+								console.log(event);
 							  	updateEvent(result[0], event);
 							  
 							} else
 							console.log("ERROR! Più eventi fanno match!!!!");
 						});
-		    	
-		        /*// Create events	  
-		        $.each(datiString.events, function(index, event){
-					createEvent(event);
-				});*/
 
 				// Animation loading
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
@@ -112,8 +131,10 @@ function searchEvent() {
 		        errorAlert("Ajax Search error");
 		    }
 		});
-		
-		// Second call: remote
+}
+
+function searchRemote(parameters){
+	// Second call: remote
 		parameters["scope"] = "remote"
 		url = URLSERVER.concat(buildUrl("/richieste", parameters));
 
@@ -152,35 +173,82 @@ function searchEvent() {
 				errorAlert("Ajax Remote Search error");
 			}
 		});
+}
 
-		// Third call: skeptical around me
-		parameters["scope"] = "local";
-		parameters["status"] = "skeptical";
+function searchSkeptical(parameters){
+	// Third call: skeptical around me
+	parameters["scope"] = "local";
+	parameters["status"] = "skeptical";
 
-		// Event min Timestamp
-		timeMin = toTimestamp(dateStart); // 6 months ago
-		parameters["timemin"] = timeMin;
+	// Event min Timestamp
+	timeMin = toTimestamp(dateStart); // 6 months ago
+	parameters["timemin"] = timeMin;
 
-		// Event max Timestamp
-		timeMax = toTimestamp(new Date()); // Now
-		parameters["timemax"] = timeMax;
+	// Event max Timestamp
+	timeMax = toTimestamp(new Date()); // Now
+	parameters["timemax"] = timeMax;
 
-		parameters["type"] = "all";
-		parameters["subtype"] = "all"
+	parameters["type"] = "all";
+	parameters["subtype"] = "all"
 
-		// Event radius (metres)
-		parameters["radius"] = 0.5 * 1000;
+	// Event radius (metres)
+	parameters["radius"] = 0.5 * 1000;
 
-		searchSkeptical(parameters);
-	}
-	else{
-		// Error: Address not specified
-		 if (!$('#searchAddress').val() && $('#searchAddress').next().is('button')) {
-		    $('#searchAddress').parent().addClass("error");
-		    $('#searchAddress').next().addClass("btn-danger");
-		    $('#addressMarkerSearch').addClass("icon-white");
-    	}
-	}
+    if (navigator.geolocation) {
+        var options = {timeout: 2000}; // milliseconds (60 seconds)
+        navigator.geolocation.getCurrentPosition(
+        	function(position){
+        		// Success
+        		parameters["lat"] = position.coords.latitude;
+    			parameters["lng"] = position.coords.longitude;
+
+    			url = URLSERVER.concat(buildUrl("/richieste", parameters));
+
+    			$.ajax({
+					url: url,
+					type: 'GET',
+					success: function(responseSkeptical, status, richiesta) {
+						skepticalAlert("Ok Skeptical.. ");
+						
+				    	
+				        // Update events local with new informations
+						// Add new event from remote servers
+						$.each(responseSkeptical, function(index, response){
+							if(response.events){
+								skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
+								$.each(response.events, function(index, event){
+									var eventIDRemote = event.event_id;
+								
+									var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
+									
+									if (result.length == 0) {
+										// New event from remote server
+										console.log("Nuovo evento Skeptical");
+									  	createEvent(event);
+									  
+									} else if (result.length == 1) {
+										// Update local event
+										console.log("Evento Skeptical esiste già");
+									} else
+									console.log("ERROR! Più eventi fanno match!!!!");
+								});
+							}
+			 			});
+			 		},
+				    error: function(err) {
+				        errorAlert("Skeptical Ajax error");
+				    }
+				});
+        	},
+        	function(){
+        		// Error
+        		skepticalAlert("E' necessario attivare la GeoLocalizzazione per trovare gli eventi scettici");
+        		console.log("GetLocation Skeptical error");
+        	}, 
+        	options);
+    } else {
+        errorAlert("Sorry, browser does not support geolocation!");
+    }
 }
 
 /**
@@ -207,12 +275,15 @@ function updateEvent(eventLocal, eventRemote){
 				eventLocal.freshness = eventRemote.freshness;	
 
 	// New Address
-	// TODO: Se diverso, aggiornare infoWindow e Table
-	eventLocal.address = eventRemote.address;
+	if(eventRemote.route){
+		var eventRemoteAddress = eventRemote.route + ", " + eventRemote.street_number;
+		if(eventLocal.address != eventRemoteAddress)
+			eventLocal.address = eventRemoteAddress;
+	}
 
 	// New coordinates
-	eventLocal.lat = eventRemote.lat;
-	eventLocal.lng = eventRemote.lng;
+	eventLocal.lat = middlePoint(eventRemote.locations).lat();
+	eventLocal.lng = middlePoint(eventRemote.locations).lng();
 
 	// New Status
 	eventLocal.status = eventRemote.status.charAt(0).toUpperCase() + eventRemote.status.slice(1);	
@@ -242,7 +313,8 @@ function updateEvent(eventLocal, eventRemote){
 	}
 	
 	// New number of Notification
-    eventLocal.numNot += eventRemote.number_of_notifications;
+	if(eventLocal.numNot != (eventLocal.numNot + eventRemote.number_of_notifications))
+    	eventLocal.numNot += eventRemote.number_of_notifications;
 
     // New relyability
 	var rely = (eventLocal.reliability * 2 + eventRemote.reliability * 2)/(2*(eventLocal.numNot));
@@ -430,6 +502,8 @@ $("#search").next().on("click", "#searchSubmit", function() {
 		clearOverlays();
 		eventArray.length = 0;
 	}
+	// Clear list table
+	$('#modalBody').html('');
     searchEvent();
 });
 
@@ -760,63 +834,4 @@ function addEventMarker(eventObject){
 
 	// Close infoWindow on map click
 	google.maps.event.addListener(map, 'click', function() { infoWindow.close(); });
-}
-
-function searchSkeptical(parameters){
-
-    if (navigator.geolocation) {
-        var options = {timeout: 2000}; // milliseconds (60 seconds)
-        navigator.geolocation.getCurrentPosition(
-        	function(position){
-        		// Success
-        		parameters["lat"] = position.coords.latitude;
-    			parameters["lng"] = position.coords.longitude;
-
-    			url = URLSERVER.concat(buildUrl("/richieste", parameters));
-
-    			$.ajax({
-					url: url,
-					type: 'GET',
-					success: function(responseSkeptical, status, richiesta) {
-						skepticalAlert("Ok Skeptical.. ");
-						
-				    	
-				        // Update events local with new informations
-						// Add new event from remote servers
-						$.each(responseSkeptical, function(index, response){
-							if(response.events){
-								skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
-								$.each(response.events, function(index, event){
-									var eventIDRemote = event.event_id;
-								
-									var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
-									
-									if (result.length == 0) {
-										// New event from remote server
-										console.log("Nuovo evento Skeptical");
-									  	createEvent(event);
-									  
-									} else if (result.length == 1) {
-										// Update local event
-										console.log("Evento Skeptical esiste già");
-									} else
-									console.log("ERROR! Più eventi fanno match!!!!");
-								});
-							}
-			 			});
-			 		},
-				    error: function(err) {
-				        errorAlert("Skeptical Ajax error");
-				    }
-				});
-        	},
-        	function(){
-        		// Error
-        		skepticalAlert("E' necessario attivare la GeoLocalizzazione per trovare gli eventi scettici");
-        		console.log("GetLocation Skeptical error");
-        	}, 
-        	options);
-    } else {
-        errorAlert("Sorry, browser does not support geolocation!");
-    }
 }

@@ -211,7 +211,7 @@
                 </ul>
                 <ul class="nav pull-right">
                 	<li>
-                		<button id="liveButton" type="button" class="btn btn-success loading">Live <i class="icon-eye-open icon-white"></i></button>
+                		<button id="liveButton" type="button" class="btn btn-danger">Live <i class="icon-eye-open icon-white"></i></button>
                 	</li>
                 </ul>
             </div>
@@ -262,7 +262,18 @@
 			<button id="serverConnect" type="button" class="btn btn-inverse">Connect</button>
 		  </div>
 		  <div id="adminAlert"></div>
-		  </form>
+		</form>
+        <p class="text-info">Inserisci i secondi di aggiornamento LIVE</p>
+          <div class="live-radio">
+            <input type="radio" class="radioLive" name="timeLive" value="10" id="10s" />
+            <label for="10s">10 secondi</label>
+            <input type="radio" class="radioLive" name="timeLive" value="20" id="20s" />
+            <label for="20s">20 secondi</label>
+            <input type="radio" class="radioLive" name="timeLive" value="30" id="30s" checked="checked"/>
+            <label for="30s">30 secondi</label>
+            <input type="radio" class="radioLive" name="timeLive" value="60" id="60s" />
+            <label for="60s">60 secondi</label>
+          </div>
     </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
