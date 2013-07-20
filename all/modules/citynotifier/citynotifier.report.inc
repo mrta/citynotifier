@@ -71,11 +71,12 @@ function citynotifier_report_apply($data, $mode = NULL) {
 	//citynotifier_debug($data);
 
   /** Ad extra $data **/
+
   $data = array_merge($data, array("uid" => $user->uid, "event_id" => $event_id, "created" => time()));
   drupal_write_record("citynotifier_notify", $data);
-  
+
   if($mode=="notify")
-    return array(citynotifier_get_event($event_id), $new_event);
+    return array(citynotifier_get_event($data), $new_event);
   
   return array($data, $new_event);
 }

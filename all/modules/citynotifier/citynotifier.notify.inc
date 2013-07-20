@@ -24,7 +24,7 @@ function citynotifier_notify() {
 	$data = _citynotifier_citynotifier2data(drupal_json_decode(citynotifier_file_get_contents_utf8("php://input")));
 
 	list($event, $new_event) = citynotifier_report_apply($data, "notify");
-	
+
 	/* Notify on a non local event, create new one */
 	if($new_event) {
 	  drupal_add_http_header("Status", 200);
@@ -33,13 +33,17 @@ function citynotifier_notify() {
 	  return;
 	}
 	
-	if (($data['status'] == citynotifier_get_index_status("open") && $event['status'] == citynotifier_get_index_status("closed")) ||
-	    ($data['status'] == citynotifier_get_index_status("closed") && $event['status'] == citynotifier_get_index_status("open"))) {
+	if (($data['status'] == citynotifier_get_index_status("open") && $event['status'] == citynotifier_get_index_status("closed"))) {
     	$event['status'] = citynotifier_get_index_status("skeptical");
 	    drupal_write_record("citynotifier_event", $event, 'event_id');
-	  }
+	}
+	else {
+		$event['status'] = $data['status'];
+		drupal_write_record("citynotifier_event", $event, 'event_id');
+	}
 	
-	  drupal_add_http_header("Status", 200);
+	drupal_add_http_header("Status", 200);
+
 	echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("notifica inviata con successo"))));
 	return;
 }

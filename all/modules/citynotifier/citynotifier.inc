@@ -514,5 +514,10 @@ function citynotifier_sync_fading() {
 }
 
 function citynotifier_get_fading($event) {
+	$types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
 
+	foreach($types_subtypes[$event['type']] as $st)
+	  if($st['subtype'] == $event['subtype']) return $st['fading'];
+
+	return FALSE;
 }
