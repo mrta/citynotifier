@@ -486,11 +486,11 @@ function citynotifier_sync() {
 function citynotifier_increase_decrease_reputation($usr_notifications, $status_inc) {
 	foreach ($usr_notifications as $notification) {
 		$reputation = citynotifier_get_reputation($notification->uid);
-		if ($notification['status'] == $status_inc) 
+		if ($notification->status == $status_inc) 
 			$reputation += 0.1;
 		else
 			$reputation -= 0.1;
-		citynotifier_set_reputation($notification['uid'], $reputation);
+		citynotifier_set_reputation($notification->uid, $reputation);
 	}
 }
 
