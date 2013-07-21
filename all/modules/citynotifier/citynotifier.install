@@ -32,7 +32,7 @@ function citynotifier_install() {
                                                           array("subtype" => "malore", "range"=> s_range, "fading" => l_fading),
                                                           array("subtype" => "ferito", "range"=> s_range, "fading" => l_fading)),
                            "reati" => array(array("subtype" => "all"),
-                                            array("subtype" => "furto", "range"=> m_range, "fading" => l_fading),
+                                            array("subtype" => "furto", "range"=> m_range, "fading" => s_fading),
                                             array("subtype" => "attentato", "range"=> m_range, "fading" => l_fading)),
                            "problemi_ambientali" => array(array("subtype" => "all"),
                                                           array("subtype" => "incendio", "range"=> xl_range, "fading" => l_fading),

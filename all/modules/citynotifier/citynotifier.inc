@@ -503,21 +503,21 @@ function citynotifier_sync_fading() {
 	$query->condition('ce.status', citynotifier_get_index_status("open"), '=');
 	$events = $query->execute()->fetchAll();
 
-	/*
+	
 	foreach ($events as $event) {
 		$fading = citynotifier_get_fading($event);
-		if ($event['freshness'] < time() - $fading) {
-			$event_update = array('event_id' => $event['event_id'], 'status' => citynotifier_get_index_status("close"));
+		if ($event->freshness < time() - $fading) {
+			$event_update = array('event_id' => $event->event_id, 'status' => citynotifier_get_index_status("close"));
 			_citynotifier_update_event($event_update);
 		}
-	}*/
+	}
 }
 
 function citynotifier_get_fading($event) {
 	$types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
 
-	foreach($types_subtypes[$event['type']] as $st)
-	  if($st['subtype'] == $event['subtype']) return $st['fading'];
+	foreach($types_subtypes[$event->type] as $st)
+	  if($st['subtype'] == $event->subtype) return $st['fading'];
 
 	return FALSE;
 }
