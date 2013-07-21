@@ -12,7 +12,7 @@ function citynotifier_report() {
      echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Metodo non consentito"))));
      return;
    };
-   
+
 	if(!$user->uid) {
 		drupal_add_http_header("Status", 401);
 		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
@@ -53,10 +53,12 @@ function citynotifier_report_apply($data, $mode = NULL) {
 	  break;
 	case citynotifier_get_index_status("closed"):
 	  $matched_event['status'] = citynotifier_get_index_status("skeptical");
+	  $matched_event['last_update'] = time();
 	  drupal_write_record("citynotifier_event", $matched_event, 'event_id');
 		break;
 	case citynotifier_get_index_status("skeptical"):
 	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
+	  $event_id = $matched_event['event_id'];
 	  break;
 	};
 

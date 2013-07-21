@@ -55,7 +55,7 @@ function citynotifier_install() {
   if(!field_info_field("reputation")) {
     $field = array(
       'field_name'    => "reputation",
-      'type'          => 'number_integer',
+      'type'          => 'number_float',
       'locked'        => TRUE,
       'module'        => 'citynotifier'
       );

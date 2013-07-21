@@ -144,6 +144,8 @@ function citynotifier_get_local_event($data) {
 */	  
 	if($data['status'])
 		$query->condition('ce.status', $data['status'],'=');
+	else
+		$query->condition('ce.status', citynotifier_get_index_status("archived"),'<>');
 
 	$query->havingCondition('freshness', $data['timemin'], '>')
 		->havingCondition('freshness', $data['timemax'], '<')

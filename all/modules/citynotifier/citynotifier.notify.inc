@@ -32,13 +32,15 @@ function citynotifier_notify() {
 	                                                       "result" => t("notifica inviata con successo su un evento non esistente in locale che ora è stato creato"))));
 	  return;
 	}
-	
+
 	if (($data['status'] == citynotifier_get_index_status("open") && $event['status'] == citynotifier_get_index_status("closed"))) {
     	$event['status'] = citynotifier_get_index_status("skeptical");
+    	$event['last_update'] = time();
 	    drupal_write_record("citynotifier_event", $event, 'event_id');
 	}
-	else {
+	elseif ($event['status'] != citynotifier_get_index_status("skeptical")){
 		$event['status'] = $data['status'];
+		$event['last_update'] = time();
 		drupal_write_record("citynotifier_event", $event, 'event_id');
 	}
 	
