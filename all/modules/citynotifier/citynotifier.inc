@@ -311,7 +311,7 @@ function citynotifier_get_assiduity($uid) {
 
 function citynotifier_get_reputation($uid) {
   $user = user_load($uid);
-  return $user->reputation['und'][0]['value'];
+  return (float)$user->reputation['und'][0]['value'];
 }
 
 function citynotifier_set_reputation($uid, $reputation) {

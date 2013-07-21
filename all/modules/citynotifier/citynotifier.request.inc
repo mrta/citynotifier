@@ -75,7 +75,7 @@ function citynotifier_request() {
             if($data_local["event_id"]) {
             	$data_local["event_id"] = citynotifier_encode_event_id($data_local["event_id"], $_SERVER['HTTP_HOST']);
                $data_remote[$i_fp]["events"][$i_event]["event_id"] = $data_local["event_id"];
-               if(_citynotifier_get_event_freshness($data_local["event_id"]) < $data_remote[$i_fp]["events"][$i_event]["freshness"] && $data_remote[$i_fp]["events"][$i_event]["status"] <> $statuses[$data_local["status"]]) {
+               if(_citynotifier_get_event_freshness($data_local["event_id"]) < $data_remote[$i_fp]["events"][$i_event]["freshness"]/* && $data_remote[$i_fp]["events"][$i_event]["status"] <> $statuses[$data_local["status"]])*/ ){
                 if($data_remote[$i_fp]["events"][$i_event]["status"] == "open" && $statuses[$data_local["status"]] == "closed"){
                    $data_remote[$i_fp]["events"][$i_event]["status"] = "skeptical";
                    $data_local = array("event_id" => $data_local["event_id"], "status" => citynotifier_get_index_status("skeptical"));
@@ -85,7 +85,11 @@ function citynotifier_request() {
                   $data_local = array("event_id" => $data_local["event_id"], "status" => citynotifier_get_index_status($event['status']));
                   _citynotifier_update_event($data_local);
                 }
-               };
+               }
+               elseif ($data_remote[$i_fp]["events"][$i_event]["status"] == "closed" && $statuses[$data_local["status"]] == "open"){
+               		$data_local = array("event_id" => $data_local["event_id"], "status" => citynotifier_get_index_status("skeptical"));
+               		_citynotifier_update_event($data_local);
+               }
              }
              else{
               $address = _citynotifier_get_address_from_point($event['locations'][0]);
