@@ -116,7 +116,7 @@ function searchLocal(){
 						});
 
 				// Animation loading
-				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
+				//$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
 		        errorAlert("Ajax Search error");
