@@ -103,7 +103,7 @@
                                         </button>
                                     </div>
                                     <div class="control-group">
-                                        <input id="notifyDescription" type="text" placeholder="Description" class="input-block-level" autocomplete="off">
+                                        <input id="notifyDescription" type="text" placeholder="Description" autocomplete="off">
                                     </div>
                                     <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
                                 </fieldset>
