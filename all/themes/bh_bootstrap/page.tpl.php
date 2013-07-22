@@ -103,7 +103,7 @@
                                         </button>
                                     </div>
                                     <div class="control-group">
-                                        <input id="notifyDescription" type="text" placeholder="Description" class="input-block-level" autocomplete="off">
+                                        <input id="notifyDescription" type="text" placeholder="Description" autocomplete="off">
                                     </div>
                                     <button id="notifySubmit" type="button" class="btn btn-inverse pull-right">Notify </button>
                                 </fieldset>
@@ -304,10 +304,6 @@
     <button id="changeButton" class="btn btn-primary">Invia notifica</button>
   </div>
 </div>
-
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
 
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script src="http://code.jquery.com/jquery.js"></script>

@@ -122,6 +122,7 @@ function searchLocal(){
 		        errorAlert("Ajax Search error");
 		    }
 		});
+		$('#search').dropdown();
 }
 
 function searchRemote(parameters){
@@ -516,7 +517,6 @@ $("#search").next().on("click", "#searchSubmit", function() {
 	// Clear list table
 	$('#modalBody').html('');
     searchEvent();
-    $('#search').dropdown();
 });
 
 /**

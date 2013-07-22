@@ -33,11 +33,13 @@ function sendNotify() {
 		        success: function(datiString, status, richiesta) {
 		            //$('#notify').parent().removeClass('open');
 		            successAlert("Notifica Inviata!");
+
 		        },
 		        error: function(err) {
 		            errorAlert("Ajax Notify error");
 		        }
 		    });
+		    $('#notify').dropdown();
     }
 
     // Error: Type not selected
@@ -76,7 +78,6 @@ function sendNotify() {
  */
 $("#notify").next().on("click", "#notifySubmit", function() {
     sendNotify();
-    $('#notify').dropdown();
 });
 
 /**
