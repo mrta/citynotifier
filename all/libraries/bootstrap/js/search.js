@@ -39,8 +39,6 @@ function searchEvent() {
 
 	// Event radius (metres)
 	radiusWidget ? parameters["radius"] = radiusWidget.get('distance') * 1000 : parameters["radius"] = distanceDefault * 1000;
-	console.log("DistanceDefault vale: "+ distanceDefault);
-	console.log("Radius vale: " + parameters["radius"]);
 
 	// Event min Timestamp
 	var timeMin = toTimestamp(parseDate($("#timeFromText").val().replace(/\-/g,'/')));
@@ -96,11 +94,6 @@ function searchLocal(){
 				console.log("Ok local.. ");
 				successAlert("Ricerca in corso...");	
 
-		    	// Clear list table
-		    	//$('#modalBody').html('');
-
-		    	console.log(datiString);
-
 		    	// Update events local with new informations
 					if(datiString.events)
 						$.each(datiString.events, function(index, event){
@@ -116,7 +109,6 @@ function searchLocal(){
 							} else if (result.length == 1) {
 								// Update local event
 								console.log("Evento esiste già");
-								console.log(event);
 							  	updateEvent(result[0], event);
 							  
 							} else
@@ -251,29 +243,41 @@ function searchSkeptical(parameters){
     }
 }
 
+function searchLive(){
+	var dateNow = new Date();
+	var dateSecondsAgo = new Date(dateNow.getTime() - LIVE_SECOND*1000);
+
+	var day = dateSecondsAgo.getDate();
+	var month = dateSecondsAgo.getMonth()+1;
+	var year = dateSecondsAgo.getFullYear();
+	var hours = dateSecondsAgo.getHours();
+	var minutes = dateSecondsAgo.getMinutes();
+	var seconds = dateSecondsAgo.getSeconds();
+	$("#timeFromText").val(day+'-'+month+'-'+year+' '+ hours + ':' + minutes + ':' + seconds);
+
+	console.log("Ricerca da "+ day+'-'+month+'-'+year+' '+ hours + ':' + minutes + ':' + seconds)
+	searchEvent();
+}
+
 /**
  * updateEvent aggiorna un evento Local con nuove informazioni
  * @param eventLocal evento locale da aggiornare
  * @param EventRemote evento remoto con le informazioni aggiornate
  */
 function updateEvent(eventLocal, eventRemote){
-				//TODO: Aggiungere descrizioni nuove, NON sovrascrivere
-				eventLocal.description = eventRemote.description;
-				// New Description
-				var descriptionHtml = "";
-				var fullArray = checkArray(eventLocal.description);
-				if(fullArray){
-					for (j in eventLocal.description){
-						if(eventLocal.description[j]){
-							eventLocal.description[j] = eventLocal.description[j].charAt(0).toUpperCase() + eventLocal.description[j].slice(1);
-							descriptionHtml = descriptionHtml.concat('<li><p>'+eventLocal.description[j]+'</p></li>');
-							}
-					}	
-				}
 
-				//TODO: Aggiornare la fresheness più alta
-				eventLocal.freshness = eventRemote.freshness;	
-
+	// New Description
+	eventLocal.description = eventRemote.description;
+	var descriptionHtml = "";
+	var fullArray = checkArray(eventLocal.description);
+	if(fullArray){
+		for (j in eventLocal.description){
+			if(eventLocal.description[j]){
+				eventLocal.description[j] = eventLocal.description[j].charAt(0).toUpperCase() + eventLocal.description[j].slice(1);
+				$('#'+eventLocal.eventID+'but').next().append('<li><p>'+eventLocal.description[j]+'</p></li>');
+			}
+		}	
+	}
 	// New Address
 	if(eventRemote.route){
 		var eventRemoteAddress = eventRemote.route + ", " + eventRemote.street_number;
@@ -286,18 +290,30 @@ function updateEvent(eventLocal, eventRemote){
 	eventLocal.lng = middlePoint(eventRemote.locations).lng();
 
 	// New Status
-	eventLocal.status = eventRemote.status.charAt(0).toUpperCase() + eventRemote.status.slice(1);	
-	switch (eventLocal.status) {
-		case "Open":
-			var statusHtml = '<button class="btn btn-success">'+eventLocal.status;
-			break;
-		case "Closed":
-			var statusHtml = '<button class="btn btn-danger">'+eventLocal.status;
-			break;
-		case "Skeptical":
-			var statusHtml = '<button class="btn btn-warning">'+eventLocal.status;
-			break;	
+	if(eventLocal.status != "Skeptical"){
+		if(eventRemote.freshness > eventLocal.freshness){
+			eventLocal.status = eventRemote.status.charAt(0).toUpperCase() + eventRemote.status.slice(1);	
+			switch (eventLocal.status) {
+				case "Open":
+					var statusHtml = '<button class="btn btn-success">'+eventLocal.status;
+					break;
+				case "Closed":
+					var statusHtml = '<button class="btn btn-danger">'+eventLocal.status;
+					break;
+				case "Skeptical":
+					var statusHtml = '<button class="btn btn-warning">'+eventLocal.status;
+					break;	
+			}
+
+			var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
+    		markerFoundArray[0].status = eventLocal.status;
+		}
 	}
+
+	// New Freshness
+	if(eventRemote.freshness > eventLocal.freshness)
+		eventLocal.freshness = eventRemote.freshness;	
+
 	
 	// New Start Time Date
 	if(eventLocal.startTimeUnformatted > eventRemote.startTime){
@@ -313,8 +329,7 @@ function updateEvent(eventLocal, eventRemote){
 	}
 	
 	// New number of Notification
-	if(eventLocal.numNot != (eventLocal.numNot + eventRemote.number_of_notifications))
-    	eventLocal.numNot += eventRemote.number_of_notifications;
+    eventLocal.numNot += eventRemote.number_of_notifications;
 
     // New relyability
 	var rely = (eventLocal.reliability * 2 + eventRemote.reliability * 2)/(2*(eventLocal.numNot));
@@ -323,9 +338,6 @@ function updateEvent(eventLocal, eventRemote){
     // Update Events Table
 	$('#'+eventLocal.eventID+'tr td:nth-child(2)').html(eventLocal.startTime);
 	$('#'+eventLocal.eventID+'tr td:nth-child(3)').html(eventLocal.address);
-	$('#'+eventLocal.eventID+'tr td:nth-child(4)').html('<div class="btn-group">\
-							<a href="#" id="'+eventLocal.eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
-							<ul class="dropdown-menu">'+descriptionHtml+'</ul>');	
 	$('#'+eventLocal.eventID+'tr td:nth-child(5)').html(eventLocal.numNot+' / '+eventLocal.reliability);
 	$('#'+eventLocal.eventID+'tr td:nth-child(6)').html(statusHtml);
 	
@@ -343,9 +355,8 @@ function updateEvent(eventLocal, eventRemote){
     }
 
     if(eventLocal.subtype == "coda"){	
-    	var markerFoundArray = $.grep(markersArray, function(e){ return e.eventID == eventLocal.eventID; });
+    	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
     	var heatmapFoundArray = $.grep(heatmapArray, function(e){ return e.eventID == eventLocal.eventID; });
-        console.log(heatmapArray);
     	var markerFound = markerFoundArray[0];
     	var heatmapFound = heatmapFoundArray[0];
 
@@ -378,7 +389,7 @@ function updateEvent(eventLocal, eventRemote){
             heatmapFound.setOptions({
                 gradient: gradient
             });
-            }
+        }
     }
 }
 
@@ -472,7 +483,7 @@ function createEvent(event){
 			if(eventObject.description[j]){
 				eventObject.description[j] = eventObject.description[j].charAt(0).toUpperCase() + eventObject.description[j].slice(1);
 				descriptionHtml = descriptionHtml.concat('<li><p>'+eventObject.description[j]+'</p></li>');
-				}
+			}
 		}	
 	}
 	
@@ -818,6 +829,7 @@ function addEventMarker(eventObject){
 		infoWindow.type = this.type;	
 		infoWindow.subtype = this.subtype;	
 		infoWindow.status = this.status;
+		console.log("STATUS --> "+this.status);
 		infoWindow.address = this.address;	
 		if($.isNumeric(infoWindow.id))
 			infoWindow.scope = "local";
