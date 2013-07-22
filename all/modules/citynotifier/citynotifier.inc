@@ -11,7 +11,7 @@ function citynotifier_create_event($data) {
 function citynotifier_update_event($event, $mode = NULL){
 	$notifications = citynotifier_get_notify_of_event($event);
 	
-	if ((citynotifier_get_range_subtype($event['type'], $event['subtype'])) >= l_range &&
+	if ((citynotifier_get_range_subtype($event->type, $event->subtype)) >= l_range &&
 	  count($notifications) == 3 && $mode == 'update_location') {
 	  $notifications = citynotifier_get_notify_of_event($event);
     foreach($notifications as $notify) {
@@ -28,7 +28,7 @@ function citynotifier_update_event($event, $mode = NULL){
       watchdog('citynotifier', t("Errore geocoding.") . '<pre>'. print_r($event, TRUE) .'</pre>', WATCHDOG_DEBUG);
 	};
 	
-	$event['last_update'] = time();
+	$event->last_update = time();
 	return drupal_write_record("citynotifier_event", $event, 'event_id');
 }
 
@@ -107,9 +107,7 @@ function citynotifier_get_matched_event($data) {
 		$query->condition('cn.route', $data['route'],'=');
 
 	$query->orderby('cn.created', 'DESC');
-	$event = $query->execute()->fetchAssoc();
-
-	return $event;
+	return $query->execute()->fetchAssoc();
 }
 
 /**
@@ -135,7 +133,7 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
      if(!$data_remote_event['locations'][$i]['lat'])
      	break;
    };
-   return $same_event?$event:array("event_id"=>FALSE, "status"=>FALSE);
+   return $same_event?$event:FALSE;
 }
 
 function _citynotifier_get_event_status($event_id){
@@ -159,7 +157,7 @@ function citynotifier_get_notify_of_event($event) {
                                           'lat', 'lng', 'street_number', 'route', 'locality', 'administrative_area_level_3',
                                           'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code',
                                           'status', 'description', ))
-                     ->condition('cn.event_id', $event['event_id'], '=');
+                     ->condition('cn.event_id', $event->event_id, '=');
 	return $query->execute()->fetchAll();
 }
 
@@ -551,10 +549,10 @@ function citynotifier_sync_fading() {
 	  
 		switch($data_event->status) {
 		case citynotifier_get_index_status("open"):
-		  $data_event['status'] = citynotifier_get_index_status("closed");
+		  $data_event->status = citynotifier_get_index_status("closed");
 			break;
 	  default:
-	    $data_event['status'] = citynotifier_get_index_status("archived");
+	    $data_event->status = citynotifier_get_index_status("archived");
 		};
 		
 		citynotifier_update_event($data_event);
@@ -570,3 +568,13 @@ function citynotifier_get_subtype_fading($data_type, $data_subtype) {
 
 	return FALSE;
 }
+
+
+function citynotifier_get_driving_distance($from, $to) {
+  $query = array('origins' => $from['lat'] . "," . $from['lng'], 'destinations' => $to['lat'] . "," . $to['lng'],
+                 'mode'=> 'driving', 'language' => 'en', 'sensor' => 'false');
+  
+  $response = drupal_http_request("http://maps.googleapis.com/maps/api/distancematrix/json" . "?" . http_build_query($query));
+  return drupal_json_decode($response->data);
+}
+
