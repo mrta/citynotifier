@@ -33,12 +33,13 @@ function sendNotify() {
 		        success: function(datiString, status, richiesta) {
 		            //$('#notify').parent().removeClass('open');
 		            successAlert("Notifica Inviata!");
-		            $('#notify').dropdown();
+
 		        },
 		        error: function(err) {
 		            errorAlert("Ajax Notify error");
 		        }
 		    });
+		    $('#notify').dropdown();
     }
 
     // Error: Type not selected

@@ -117,12 +117,12 @@ function searchLocal(){
 
 				// Animation loading
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
-				$('#search').dropdown();
 	 		},
 		    error: function(err) {
 		        errorAlert("Ajax Search error");
 		    }
 		});
+		$('#search').dropdown();
 }
 
 function searchRemote(parameters){
