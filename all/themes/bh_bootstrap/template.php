@@ -568,6 +568,7 @@ function bh_bootstrap_preprocess_page(&$variables, $hook) {
   // CSS      
 	drupal_add_css($bootstrap_path . '/css/bootstrap.css', array('media' => 'all'));	
 	drupal_add_css($bootstrap_path . '/css/bootstrap-responsive.css', array('media' => 'screen'));
+  drupal_add_css($bootstrap_path . '/css/bootstrap-select.css', array('media' => 'screen'));
 	drupal_add_css($bootstrap_path . '/css/citynotifier.css', array('media' => 'all'));	
 	drupal_add_css($bootstrap_path . '/css/datetimepicker.css', array('media' => 'all'));
 	
@@ -575,7 +576,8 @@ function bh_bootstrap_preprocess_page(&$variables, $hook) {
   // JS
   drupal_add_js($bootstrap_path . '/js/config.js', array('scope' => 'footer'));
 	drupal_add_js($bootstrap_path . '/js/bootstrap.min.js', array('scope' => 'footer'));
-  drupal_add_js($bootstrap_path . '/js/bootstrap-datetimepicker.js', array('scope' => 'footer'));	
+  drupal_add_js($bootstrap_path . '/js/bootstrap-datetimepicker.js', array('scope' => 'footer'));
+  drupal_add_js($bootstrap_path . '/js/bootstrap-select.js', array('scope' => 'footer')); 
   drupal_add_js($bootstrap_path . '/js/gui.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/utils.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/account.js', array('scope' => 'footer'));

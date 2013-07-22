@@ -275,6 +275,7 @@ function updateEvent(eventLocal, eventRemote){
 			if(eventLocal.description[j]){
 				eventLocal.description[j] = eventLocal.description[j].charAt(0).toUpperCase() + eventLocal.description[j].slice(1);
 				$('#'+eventLocal.eventID+'but').next().append('<li><p>'+eventLocal.description[j]+'</p></li>');
+				$('#'+eventLocal.eventID+'but').removeClass('disabled');
 			}
 		}	
 	}
@@ -711,6 +712,8 @@ $("#searchType").on('change', function() {
 												<option>Concerto</option>');
                 break;
         }
+
+        $('.selectpicker').selectpicker('render');
     }
     else{
     	$('#searchSubType').attr('disabled', 'disabled');

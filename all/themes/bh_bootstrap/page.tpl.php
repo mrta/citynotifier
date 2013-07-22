@@ -73,6 +73,7 @@
             <div class="container">
                 <div style="position:absolute; left:212px; top:127px;" id="info"></div>
                 <a class="brand" href="#">City<span class="text-error">Notifier</span></a>
+
                 <ul class="nav pull-right">
 
                     <li class="dropdown">
@@ -81,7 +82,7 @@
                             <form>
                                 <fieldset>
                                     <div class="control-group">
-                                        <select id="notifyType" autocomplete="off">
+                                        <select class="selectpicker" id="notifyType" autocomplete="off">
                                             <option disabled selected>Select type</option>
                                             <option>Problemi stradali</option>
                                             <option>Emergenze sanitarie</option>
@@ -91,7 +92,7 @@
                                         </select>
                                     </div>
                                     <div class="control-group">
-                                        <select id="notifySubType" autocomplete="off">
+                                        <select class="selectpicker" id="notifySubType" autocomplete="off">
                                             <option disabled selected>Select subtype</option>
                                         </select>
                                     </div>
@@ -117,7 +118,7 @@
                                 <fieldset>
                                 
                                     <div class="control-group">
-                                        <select id="searchType" autocomplete="off">
+                                        <select class="selectpicker" id="searchType" autocomplete="off">
                                             <option selected>All</option>
                                             <option>Problemi stradali</option>
                                             <option>Emergenze sanitarie</option>
@@ -128,7 +129,7 @@
                                     </div>
                                     
                                     <div class="control-group">
-                                        <select disabled id="searchSubType" autocomplete="off">
+                                        <select disabled class="selectpicker" id="searchSubType" autocomplete="off">
                                             <option disabled selected>Select subtype</option>
                                         </select>
                                     </div>
@@ -146,16 +147,18 @@
                                      
 									<div class="input-append date" id="datetimepickerFrom" data-date-format="dd-mm-yyyy">
 										<input type="text" id="timeFromText" placeholder="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">
-    									<span class="add-on"><i class="icon-th"></i></span>
+    									<span class="add-on"><i class="icon-remove"></i></span>
+                                        <span class="add-on"><i class="icon-th"></i></span>
 									</div>
 									
 									<div class="input-append date" id="datetimepickerTo" data-date-format="dd-mm-yyyy">
 										<input type="text" id="timeToText" placeholder="To time (default 'now')" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">
-    									<span class="add-on"><i class="icon-th"></i></span>
+    									<span class="add-on"><i class="icon-remove"></i></span>
+                                        <span class="add-on"><i class="icon-th"></i></span>
 									</div>
                               
                                     <div class="control-group">
-                                        <select class="span2" id="searchStatus" autocomplete="off">
+                                        <select class="span2 selectpicker" id="searchStatus" autocomplete="off">
                                         	<option>All</option>
                                             <option selected>Open</option>
                                             <option>Closed</option>
@@ -256,7 +259,7 @@
     	<img style="width:30%" class="pull-right" src="sites/all/libraries/bootstrap/img/admin.jpg">
     	<form class="form-search">
 		  <div class="input-append">
-		  	<select class="span4" id="serverInput" autocomplete="off">
+		  	<select class="span4 selectpicker" id="serverInput" autocomplete="off">
                 <option selected>Default: Server Locale</option>
             </select>
 			<button id="serverConnect" type="button" class="btn btn-inverse">Connect</button>

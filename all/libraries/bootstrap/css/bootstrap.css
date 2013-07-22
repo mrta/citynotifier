@@ -4782,7 +4782,7 @@ input[type="submit"].btn.btn-mini {
 .navbar .pull-right > li > .dropdown-menu .dropdown-menu,
 .navbar .nav > li > .dropdown-menu.pull-right .dropdown-menu {
   right: 100%;
-  left: auto;
+  
   margin-right: -1px;
   margin-left: 0;
   -webkit-border-radius: 6px 0 6px 6px;

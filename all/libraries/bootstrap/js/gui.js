@@ -98,7 +98,7 @@ $(document).ready(function(){
 $('.brand').on('click', function(){
 	//console.log(jQuery.cookie());
 	errorAlert("Pota");
-	searchLive();
+	//searchLive();
 	/*heatMapArray = [];
 	for(var i=0; i<heatmapArray.length;i++)
 		heatmapArray[i].setMap(heatmapArray[i].getMap() ? null : map);
@@ -380,5 +380,15 @@ $('#addressButtonNotify').on('click', function(){
 	getLocation();
 });
 
-	
+$('.selectpicker').selectpicker();
+
+$('.selectpicker-div').on('click', function(e){
+	$('.selectpicker-div').not(this).removeClass('open');
+	$(this).toggleClass('open');
+	e.stopPropagation();
+});
+
+$('body').on('click', function() {
+	$('.selectpicker-div').removeClass('open');
+});
 

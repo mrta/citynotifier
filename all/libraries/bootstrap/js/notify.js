@@ -164,7 +164,9 @@ $('#notifyAddress').typeahead({
  * Notify Type updater on click
  */
 $("#notifyType").on('change', function() {
+
     var conceptName = $('#notifyType').find(":selected").text();
+    console.log(conceptName);
     if (conceptName != "Select Type") {
     	// A type selected
         $('#notifySubType').removeAttr("disabled");
@@ -177,6 +179,7 @@ $("#notifyType").on('change', function() {
 												<option>Coda</option>\
 												<option>Lavori in corso</option>\
 												<option>Strada impraticabile</option>');
+                console.log("Cambia");
                 break;
             case "Emergenze sanitarie":
                 $('#notifySubType').html('<option disabled selected>Select subtype</option>\
@@ -203,6 +206,9 @@ $("#notifyType").on('change', function() {
 												<option>Concerto</option>');
                 break;
         }
+        $('.selectpicker').selectpicker('refresh');
+        $('.selectpicker').selectpicker('render');
+
     }
 });
 
