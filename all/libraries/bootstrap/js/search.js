@@ -117,7 +117,6 @@ function searchLocal(){
 
 				// Animation loading
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
-				$('#search').parent().removeClass('open');
 	 		},
 		    error: function(err) {
 		        errorAlert("Ajax Search error");
@@ -517,6 +516,7 @@ $("#search").next().on("click", "#searchSubmit", function() {
 	// Clear list table
 	$('#modalBody').html('');
     searchEvent();
+    $('#search').dropdown();
 });
 
 /**
