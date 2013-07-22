@@ -60,8 +60,8 @@ function searchEvent() {
 	if($('#searchAddress').val() != ''){
 
 		// Ok search
-		if(! $('#infoAddress').next().is('p'))
-			$('#infoAddress').after('<p id="spinner"></p>');
+		/*if(! $('#infoAddress').next().is('p'))
+			$('#infoAddress').after('<p id="spinner"></p>');*/
 		$('#searchAddress').parent().removeClass("error");
 		$('#addressButtonSearch').removeClass("btn-danger");
 		$('#addressMarkerSearch').removeClass("icon-white");
