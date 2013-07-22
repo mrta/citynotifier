@@ -31,7 +31,7 @@ function sendNotify() {
 		        data: notifyJSON,
 		        contentType: "application/json; charset=utf-8",
 		        success: function(datiString, status, richiesta) {
-		            $('#notify').parent().removeClass('open');
+		            //$('#notify').parent().removeClass('open');
 		            successAlert("Notifica Inviata!");
 		        },
 		        error: function(err) {
@@ -76,6 +76,7 @@ function sendNotify() {
  */
 $("#notify").next().on("click", "#notifySubmit", function() {
     sendNotify();
+    $('#notify').dropdown();
 });
 
 /**

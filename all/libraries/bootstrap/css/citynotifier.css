@@ -131,9 +131,8 @@ div.datetimepicker {
 
 #notifyPanel{
 	overflow: hidden;
-	overflow-x: hidden;
-	width: 40%;
-	height: 300px!important;
+	width: 550px;
+	height: 300px;
 }
 
 #notifyPanel .modal-body{
