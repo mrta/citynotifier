@@ -33,19 +33,19 @@ function citynotifier_notify() {
 	  return;
 	}
 
-	if (($data['status'] == citynotifier_get_index_status("open") && $event['status'] == citynotifier_get_index_status("closed"))) {
-    	$event['status'] = citynotifier_get_index_status("skeptical");
-    	$event['last_update'] = time();
-	    drupal_write_record("citynotifier_event", $event, 'event_id');
-	}
-	elseif ($event['status'] != citynotifier_get_index_status("skeptical")){
-		$event['status'] = $data['status'];
-		$event['last_update'] = time();
-		drupal_write_record("citynotifier_event", $event, 'event_id');
+	switch($event['status']) {
+	case citynotifier_get_index_status("closed"):
+	  if($data['status'] == citynotifier_get_index_status("open")) {
+	    $event['status'] = citynotifier_get_index_status("skeptical");
+    	citynotifier_update_event($event);
+	  }
+	  break;
+	default:
+	  $event['status'] = $data['status'];
+	  citynotifier_update_event($event, 'update_location');
 	}
 	
 	drupal_add_http_header("Status", 200);
-
 	echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("notifica inviata con successo"))));
 	return;
 }

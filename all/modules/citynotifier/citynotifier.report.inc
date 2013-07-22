@@ -53,8 +53,7 @@ function citynotifier_report_apply($data, $mode = NULL) {
 	  break;
 	case citynotifier_get_index_status("closed"):
 	  $matched_event['status'] = citynotifier_get_index_status("skeptical");
-	  $matched_event['last_update'] = time();
-	  drupal_write_record("citynotifier_event", $matched_event, 'event_id');
+	  citynotifier_update_event($matched_event);
 		break;
 	case citynotifier_get_index_status("skeptical"):
 	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/

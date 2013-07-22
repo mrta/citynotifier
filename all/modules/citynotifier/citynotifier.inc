@@ -8,6 +8,31 @@ function citynotifier_create_event($data) {
 	return $data['event_id'];
 }
 
+function citynotifier_update_event($event, $mode = NULL){
+	$notifications = citynotifier_get_notify_of_event($event);
+	
+	if ((citynotifier_get_range_subtype($event['type'], $event['subtype'])) >= l_range &&
+	  count($notifications) == 3 && $mode == 'update_location') {
+	  $notifications = citynotifier_get_notify_of_event($event);
+    foreach($notifications as $notify) {
+      $lat += $notify->lat;
+      $lng += $notify->lng;
+    }
+    $event['lat'] = $lat/count($notifications);
+    $event['lng'] = $lng/count($notifications);
+    
+    $update_location = citynotifier_get_address_from_point($data);
+    if($update_location)
+      $event = array_merge($event, $update_location);
+    else
+      watchdog('citynotifier', t("Errore geocoding.") . '<pre>'. print_r($event, TRUE) .'</pre>', WATCHDOG_DEBUG);
+	};
+	
+	$event['last_update'] = time();
+	return drupal_write_record("citynotifier_event", $event, 'event_id');
+}
+
+
 function citynotifier_get_event($data) {
 	$query = db_select("citynotifier_event", 'ce')
 		       ->fields('ce', array('event_id', 'status', 'lat', 'lng', 'last_update', 'street_number',
@@ -17,57 +42,36 @@ function citynotifier_get_event($data) {
 	return $query->execute()->fetchAssoc();
 }
 
-function _citynotifier_get_event_status($event_id){
-	$query = db_select("citynotifier_event", 'ce')
-		->fields('ce', array('status'))
-		->condition('ce.event_id', $event_id, '=');
-	$event = $query->execute()->fetchAssoc();
 
-	return $event['status'];
-}
-function _citynotifier_check_status($event_id, $status){
-	$query = db_select("citynotifier_event", 'ce')
-		->fields('ce', array('status'))
-		->condition('ce.event_id', $event_id, '=');
-	$event = $query->execute()->fetchAssoc();
+function _citynotifier_get_remote_event($data){
+	$servers = citynotifier_get_subscribed_servers();
+	$fp = array();
+	$result = array();
 
-	if($event['status'] == $status)
-		return 	TRUE;
-	else
-		return FALSE;
-}
+	foreach($servers as $server) {
+		$pointer = citynotifier_http_get_request_asynchronous($server['url'] . "/richieste", $data);
+		$fp[] = array("pointer" => $pointer, "server" => $server['name']);
+		$result[$server['name']] = '';
+	}
 
-function _citynotifier_update_event($event){
-	$event['last_update'] = time();
-	if(!drupal_write_record("citynotifier_event", $event, 'event_id')) {
-		watchdog('citynotifier', t("Errore nella memorizzazione nel database") . '<pre>'. print_r($data, TRUE) .'</pre>', WATCHDOG_DEBUG);
-		drupal_add_http_header("Status", 500);
-		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Errore nella memorizzazione nel database"))));
-		return;
-	};
-}
+	while(!empty($fp)) {
+		foreach($fp as $index => $f) {
+			$out = fgets($f['pointer']);
+			if (!$out) {
+				fclose($f['pointer']);
+				unset($fp[$index]);
+			}
+			$result[$f['server']] = $result[$f['server']] . $out;
+		}
+	}
 
-
-
-
-function _citynotifier_get_range_subtype($type, $subtype){
-  $types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
-
-  foreach($types_subtypes[$type] as $st)
-    if($st['subtype'] == $subtype) return $st['range'];
-
-  return FALSE;
+	foreach($result as $index => $data) {
+		$out = explode("\r\n\r\n", $result[$index]);
+		$result[$index] = drupal_json_decode($out[1]);
+	}
+	return $result;
 }
 
-function _citynotifier_get_event_freshness($event_id){
-	$query = db_select("citynotifier_event", 'ce');
-	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	$query->addExpression('MAX(cn.created)', 'freshness');
-	$query->condition('cn.event_id', $event_id, '=');
-	$event = $query->execute()->fetchAssoc();
-
-	return $event['freshness'];
-}
 
 /**
  * Get matched event to notify
@@ -77,7 +81,7 @@ function _citynotifier_get_event_freshness($event_id){
  */
 function citynotifier_get_matched_event($data) {
 	extract(_citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype'])); 
-	$range = _citynotifier_get_range_subtype($type, $subtype);
+	$range = citynotifier_get_range_subtype($type, $subtype);
 
 		/* 3 casi: 2 notifiche 
 		   1) vicine ma su vie diverse => 2 eventi diversi
@@ -134,6 +138,65 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
    return $same_event?$event:array("event_id"=>FALSE, "status"=>FALSE);
 }
 
+function _citynotifier_get_event_status($event_id){
+	$query = db_select("citynotifier_event", 'ce')
+		->fields('ce', array('status'))
+		->condition('ce.event_id', $event_id, '=');
+	$event = $query->execute()->fetchAssoc();
+
+	return $event['status'];
+}
+
+
+
+
+
+/********************** NOTIFY FUNCTION **********************/
+
+function citynotifier_get_notify_of_event($event) {
+  $query = db_select("citynotifier_notify", 'cn')
+                     ->fields('cn', array('notify_id', 'event_id', 'uid', 'created', 'type', 'subtype',
+                                          'lat', 'lng', 'street_number', 'route', 'locality', 'administrative_area_level_3',
+                                          'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code',
+                                          'status', 'description', ))
+                     ->condition('cn.event_id', $event['event_id'], '=');
+	return $query->execute()->fetchAll();
+}
+
+
+function _citynotifier_check_status($event_id, $status){
+	$query = db_select("citynotifier_event", 'ce')
+		->fields('ce', array('status'))
+		->condition('ce.event_id', $event_id, '=');
+	$event = $query->execute()->fetchAssoc();
+
+	if($event['status'] == $status)
+		return 	TRUE;
+	else
+		return FALSE;
+}
+
+
+function citynotifier_get_range_subtype($type, $subtype){
+  $types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
+
+  foreach($types_subtypes[$type] as $st)
+    if($st['subtype'] == $subtype) return $st['range'];
+
+  return FALSE;
+}
+
+function _citynotifier_get_event_freshness($event_id){
+	$query = db_select("citynotifier_event", 'ce');
+	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+	$query->addExpression('MAX(cn.created)', 'freshness');
+	$query->condition('cn.event_id', $event_id, '=');
+	$event = $query->execute()->fetchAssoc();
+
+	return $event['freshness'];
+}
+
+
 function _citynotifier_validate($data, $function_type=NULL) {
   switch($function_type) {
   case "request":
@@ -188,7 +251,7 @@ function _citynotifier_citynotifier2data($data) {
     
   
   if(!$data['route'] || !$data['street_number']) {
-    $address = _citynotifier_get_address_from_point($data);
+    $address = citynotifier_get_address_from_point($data);
     if($address)
       $data += $address;
     else
@@ -232,7 +295,7 @@ function _citynotifier_data2citynotifier($data) {
 
 
 
-function _citynotifier_get_address_from_point($data) {
+function citynotifier_get_address_from_point($data) {
   $options['language'] = "it";
   $address = geocoder_reverse('google', $data['lat'], $data['lng'], $options);
   
@@ -376,34 +439,6 @@ function citynotifier_get_fp_for_asynchronous_http_get_request($url, $query) {
   return array("fp" => $fp, "errno" => $errno, "errstr" => $errstr);
 }
 
-function _citynotifier_get_remote_event($data){
-	$servers = citynotifier_get_subscribed_servers();
-	$fp = array();
-	$result = array();
-
-	foreach($servers as $server) {
-		$pointer = citynotifier_http_get_request_asynchronous($server['url'] . "/richieste", $data);
-		$fp[] = array("pointer" => $pointer, "server" => $server['name']);
-		$result[$server['name']] = '';
-	}
-
-	while(!empty($fp)) {
-		foreach($fp as $index => $f) {
-			$out = fgets($f['pointer']);
-			if (!$out) {
-				fclose($f['pointer']);
-				unset($fp[$index]);
-			}
-			$result[$f['server']] = $result[$f['server']] . $out;
-		}
-	}
-
-	foreach($result as $index => $data) {
-		$out = explode("\r\n\r\n", $result[$index]);
-		$result[$index] = drupal_json_decode($out[1]);
-	}
-	return $result;
-}
 
 function citynotifier_debug($data) {
   if (is_array($data) || is_object($data))
@@ -480,7 +515,7 @@ function citynotifier_sync() {
 				default:
 					break;
 			}
-			drupal_write_record("citynotifier_event", $event, 'event_id');
+			citynotifier_update_event($event);
 		}
 	}
 }
@@ -509,26 +544,26 @@ function citynotifier_sync_fading() {
 	$query->condition($or);
 	$query->groupBy('event_id');
 	$events = $query->execute()->fetchAll();
-
-	foreach ($events as $event) {
-		$fading = citynotifier_get_fading($event);
-		if ((int)$event->status == citynotifier_get_index_status("open")){
-			if ($event->freshness < time() - $fading) {
-				$event_update = array('event_id' => $event->event_id, 
-										'status' => citynotifier_get_index_status("closed"), 'last_update' => time());
-				drupal_write_record("citynotifier_event", $event_update, 'event_id');
-			}
-		}
-		elseif ((int)$event->last_update < time() - $fading) {
-			$event_update = array('event_id' => $event->event_id, 'status' => citynotifier_get_index_status("archived"));
-			drupal_write_record("citynotifier_event", $event_update, 'event_id');
-		}
+	
+	foreach ($events as $data_event) {
+	  if($data_event->last_update > time() - citynotifier_get_subtype_fading($data_event->type, $data_event->subtype))
+	    pass;
+	  
+		switch($data_event->status) {
+		case citynotifier_get_index_status("open"):
+		  $data_event['status'] = citynotifier_get_index_status("closed");
+			break;
+	  default:
+	    $data_event['status'] = citynotifier_get_index_status("archived");
+		};
+		
+		citynotifier_update_event($data_event);
 	}
 }
 
-function citynotifier_get_fading($event) {
+function citynotifier_get_subtype_fading($data_type, $data_subtype) {
 	$types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
-	extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype)); 
+	extract(_citynotifier_get_value_type_subtype_from_index($type, $subtype)); 
 
 	foreach($types_subtypes[$type] as $st)
 	  if($st['subtype'] == $subtype) return $st['fading'];

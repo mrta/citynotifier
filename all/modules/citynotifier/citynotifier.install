@@ -1,6 +1,19 @@
 <?php
 // citynotifier.install
 
+/* Range lat/lng */
+define("s_range", 0.0003);
+define("m_range", 0.001);
+define("l_range", 0.004);
+define("xl_range", 0.02);
+
+/* Fading in seconds */
+define("s_fading", 60);
+define("m_fading", 300);
+define("l_fading", 6000);
+define("xl_fading", 1200);
+
+
 /**
 * Implements hook_install().
 */
@@ -8,18 +21,6 @@ function citynotifier_install() {
   drupal_install_schema('citynotifier_notify');
   drupal_install_schema('citynotifier_event');
   
-  /* Range lat/lng */
-  define("s_range", 0.0003);
-  define("m_range", 0.001);
-  define("l_range", 0.004);
-  define("xl_range", 0.02);
-	
-  /* Fading in seconds */
-  define("s_fading", 60);
-  define("m_fading", 300);
-  define("l_fading", 6000);
-  define("xl_fading", 1200);
-	
   $types_subtypes = array("all" => array(array("subtype" => "all")),
                            "problemi_stradali" => array(array("subtype" => "all"),
                                                         array("subtype" => "incidente", "range" => m_range, "fading" => l_fading),

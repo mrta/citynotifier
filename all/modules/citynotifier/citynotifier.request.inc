@@ -97,7 +97,7 @@ function citynotifier_request() {
                 $data_remote[$i_fp]["events"][$i_event]["event_id"] = $data_local["event_id"];
              }
              else{
-              $address = _citynotifier_get_address_from_point($event['locations'][0]);
+              $address = citynotifier_get_address_from_point($event['locations'][0]);
               $data_remote[$i_fp]["events"][$i_event] = array_merge($data_remote[$i_fp]["events"][$i_event], $address);
              }
            };
