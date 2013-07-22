@@ -99,18 +99,14 @@ function citynotifier_get_matched_event($data) {
 
 	$query->condition('cn.type', $data['type'], '=')
 		->condition('cn.subtype', $data['subtype'], '=');
-		/*->condition('cn.lat', $data['lat']-$range,'>')
-		->condition('cn.lat', $data['lat']+$range,'<')
-		->condition('cn.lng', $data['lng']-$range,'>')
-		->condition('cn.lng', $data['lng']+$range,'<');*/
   $query->havingCondition('distance', $range, '<');
 	$query->orderby('cn.created', 'DESC');
   $event = $query->execute()->fetchAssoc();
 
-  extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype)); 
+  extract(_citynotifier_get_value_type_subtype_from_index($event['type'], $event['subtype'])); 
 
-  if($type == "problemi_stradali" && $subtype == "coda" && $distance > $range){
-    $distance = citynotifier_get_driving_distance(array('lat' => $event->lat, 'lng' => $event->lng), array('lat' => $data['lat'], 'lng' => $data['lng']));
+  if($type == "problemi_stradali" && $subtype == "coda"){
+    $distance = citynotifier_get_driving_distance(array('lat' => $event['lat'], 'lng' => $event['lng']), array('lat' => $data['lat'], 'lng' => $data['lng']));
     if ($distance > $range)
       return FALSE; 
   }
