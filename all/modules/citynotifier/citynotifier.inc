@@ -95,19 +95,25 @@ function citynotifier_get_matched_event($data) {
 	$query->fields('cn', array('lng', 'lat', 'street_number', 'route', 'locality',
 		'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1',
 		'country', 'postal_code'));
+  $query->addExpression(('(6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) )))*1000'), 'distance');
 
 	$query->condition('cn.type', $data['type'], '=')
-		->condition('cn.subtype', $data['subtype'], '=')
-		->condition('cn.lat', $data['lat']-$range,'>')
+		->condition('cn.subtype', $data['subtype'], '=');
+		/*->condition('cn.lat', $data['lat']-$range,'>')
 		->condition('cn.lat', $data['lat']+$range,'<')
 		->condition('cn.lng', $data['lng']-$range,'>')
-		->condition('cn.lng', $data['lng']+$range,'<');
-
-	if($type == "problemi_stradali" && $subtype == "coda")
-		$query->condition('cn.route', $data['route'],'=');
-
+		->condition('cn.lng', $data['lng']+$range,'<');*/
+  $query->havingCondition('distance', $range, '<');
 	$query->orderby('cn.created', 'DESC');
-	return $query->execute()->fetchAssoc();
+  $event = $query->execute()->fetchAssoc();
+
+  if($event->type == "problemi_stradali" && $event->subtype == "coda" && $distance > $range){
+    $distance = citynotifier_get_driving_distance(array('lat' => $event->lat, 'lng' => $event->lng), array('lat' => $data['lat'], 'lng' => $data['lng']));
+    if ($distance > $range)
+      return FALSE; 
+  }
+
+	return $event;
 }
 
 /**

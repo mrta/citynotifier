@@ -1,11 +1,11 @@
 <?php
 // citynotifier.install
 
-/* Range lat/lng */
-define("s_range", 0.0003);
-define("m_range", 0.001);
-define("l_range", 0.004);
-define("xl_range", 0.02);
+/* Range meters */
+define("s_range", 10);
+define("m_range", 500);
+define("l_range", 1000);
+define("xl_range", 2000);
 
 /* Fading in seconds */
 define("s_fading", 60);
