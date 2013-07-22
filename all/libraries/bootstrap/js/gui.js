@@ -98,6 +98,7 @@ $(document).ready(function(){
 $('.brand').on('click', function(){
 	//console.log(jQuery.cookie());
 	errorAlert("Pota");
+	searchLive();
 	/*heatMapArray = [];
 	for(var i=0; i<heatmapArray.length;i++)
 		heatmapArray[i].setMap(heatmapArray[i].getMap() ? null : map);
@@ -161,9 +162,11 @@ $('#liveButton').click(function(){
         	distanceWidget = new DistanceWidget(map);
         	radiusWidgetCheck = true;
 		}
+		clearOverlays();
 		searchEvent();
+
     	var interval = 1000 * LIVE_SECOND * 1; // Every LIVE_SECOND seconds. Default: 30
-		refreshIntervalId = setInterval(searchEvent, interval);	
+		refreshIntervalId = setInterval(searchLive, interval);	
      }      
      else {
      	// Stop live

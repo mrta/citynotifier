@@ -150,7 +150,7 @@
 									</div>
 									
 									<div class="input-append date" id="datetimepickerTo" data-date-format="dd-mm-yyyy">
-										<input type="text" id="timeToText" placeholder="To time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">
+										<input type="text" id="timeToText" placeholder="To time (default 'now')" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">
     									<span class="add-on"><i class="icon-th"></i></span>
 									</div>
                               
