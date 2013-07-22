@@ -500,7 +500,7 @@ function citynotifier_increase_decrease_reputation($usr_notifications, $status_i
 function citynotifier_sync_fading() {
 	$query = db_select('citynotifier_event', 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
-	$query->fields('ce', array('event_id', 'status'));
+	$query->fields('ce', array('event_id', 'status', 'last_update'));
 	$query->fields('cn', array('type', 'subtype'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$or = db_or();
@@ -514,7 +514,8 @@ function citynotifier_sync_fading() {
 		$fading = citynotifier_get_fading($event);
 		if ((int)$event->status == citynotifier_get_index_status("open")){
 			if ($event->freshness < time() - $fading) {
-				$event_update = array('event_id' => $event->event_id, 'status' => citynotifier_get_index_status("closed"));
+				$event_update = array('event_id' => $event->event_id, 
+										'status' => citynotifier_get_index_status("closed"), 'last_update' => time());
 				drupal_write_record("citynotifier_event", $event_update, 'event_id');
 			}
 		}
