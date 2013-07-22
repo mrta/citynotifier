@@ -43,26 +43,28 @@ function sendNotify() {
     }
 
     // Error: Type not selected
-    if ((notifyType.type == "select_type"))
-        $('#notifyType').parent().addClass("error");
+    if ((notifyType.type == "select_type")){
+        $('#notifyType').selectpicker('setStyle','btn-danger');
+    }
     else if ((notifyType.subtype == "select_subtype") && (!$('#notifySubType').attr('disabled')))
-        $('#notifySubType').parent().addClass("error"); // Error: SubType not selected
+    	$('#notifySubType').selectpicker('setStyle','btn-danger'); // Error: SubType not selected
 
     // Error: Address not selected
     if (!$('#notifyAddress').val() && $('#notifyAddress').next().is('button')) {
         $('#notifyAddress').parent().addClass("error");
+        $('#notifyType').attr('data-style', 'btn-danger');
         $('#notifyAddress').next().addClass("btn-danger");
         $('#addressMarkerNotify').addClass("icon-white");
     }
 
     // Type ok
     $("#notifyType").on("change", function() {
-        $('#notifyType').parent().removeClass("error");
+        $('#notifyType').next().children().removeClass('btn-danger');
     });
 
     // Subtype ok
     $("#notifySubType").on("change", function() {
-        $('#notifySubType').parent().removeClass("error");
+        $('#notifySubType').next().children().removeClass('btn-danger');
     });
 
     // Address ok
