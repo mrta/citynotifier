@@ -382,7 +382,7 @@ function citynotifier_get_reputation($uid) {
 function citynotifier_set_reputation($uid, $reputation) {
   $user = user_load($uid);
   $user->reputation['und'][0]['value'] = $reputation;
-  user_save($uid);
+  user_save($user);
 }
 
 function citynotifier_get_notifications_by_user($uid) {

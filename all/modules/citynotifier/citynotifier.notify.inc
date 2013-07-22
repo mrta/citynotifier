@@ -40,6 +40,8 @@ function citynotifier_notify() {
     	citynotifier_update_event($event);
 	  }
 	  break;
+	case citynotifier_get_index_status("skeptical"):
+		break;
 	default:
 	  $event['status'] = $data['status'];
 	  citynotifier_update_event($event, 'update_location');
