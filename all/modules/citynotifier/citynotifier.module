@@ -219,3 +219,16 @@ function citynotifier_subscribed_servers() {
   return;
 }
 
+
+/**
+ *	Adds a new role
+ *      @machine_name - the name of the role to be added
+ *      @weight - the optional display weight for role
+ */
+function citynotifier_add_role($machine_name, $weight = 0)  {
+	$role = new stdClass();
+	$role->name = $machine_name;
+	$role->weight = $weight;
+	user_role_save($role);
+}
+

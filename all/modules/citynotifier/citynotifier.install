@@ -83,6 +83,9 @@ function citynotifier_install() {
       );
     field_create_instance($field_instance);
   }
+  
+  /** Add role "citynotifier_admin" **/
+  citynotifier_add_role('citynotifier_admin');
 }
 
 /**
@@ -100,6 +103,9 @@ function citynotifier_uninstall() {
   
   /** Delete field reputation from user profile **/
   field_delete_field("reputation");
+  
+  /** Delete role "citynotifier_admin" **/
+  user_role_delete('citynotifier_admin');
 }
 
 
