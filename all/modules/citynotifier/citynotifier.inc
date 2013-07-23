@@ -107,7 +107,7 @@ function citynotifier_get_matched_event($data) {
 
   if($type == "problemi_stradali" && $subtype == "coda"){
     $distance = min(citynotifier_get_driving_distance(array('lat' => $event['lat'], 'lng' => $event['lng']), array('lat' => $data['lat'], 'lng' => $data['lng'])), citynotifier_get_driving_distance(array('lat' => $data['lat'], 'lng' => $data['lng']),array('lat' => $event['lat'], 'lng' => $event['lng'])));
-    
+
     if ($distance > $range)
       return FALSE; 
   }
@@ -528,8 +528,9 @@ function citynotifier_increase_decrease_reputation($usr_notifications, $status_i
 		$reputation = citynotifier_get_reputation($notification->uid);
 
 		if ((int)$notification->status == $status_inc) 
-			$reputation += 0.1;
-		else
+      if($reputation < 1)
+        $reputation += 0.1;
+		elseif($reputation < -1)
 			$reputation -= 0.1;
 		citynotifier_set_reputation($notification->uid, $reputation);
 	}
