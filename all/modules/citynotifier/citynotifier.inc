@@ -547,25 +547,22 @@ function citynotifier_sync_fading() {
 	$query->groupBy('event_id');
 	$events = $query->execute()->fetchAll();
 	
-	foreach ($events as $data_event) {
-	  if($data_event->last_update > time() - citynotifier_get_subtype_fading($data_event->type, $data_event->subtype))
-	    pass;
-	  
-		switch($data_event->status) {
-		case citynotifier_get_index_status("open"):
-		  $data_event->status = citynotifier_get_index_status("closed");
-			break;
-	  default:
-	    $data_event->status = citynotifier_get_index_status("archived");
-		};
-		
-		citynotifier_update_event($data_event);
-	}
+	foreach ($events as $event){
+    extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype));
+    $fading = citynotifier_get_subtype_fading($type, $subtype);
+    if ($event->status == citynotifier_get_index_status("open") && $event->freshness < time() - $fading){
+      $event->status = citynotifier_get_index_status("closed");
+      citynotifier_update_event($event);
+    }
+    elseif ($event->status == citynotifier_get_index_status("closed") && $event->last_update < time() - $fading){
+      $event->status = citynotifier_get_index_status("archived");
+      citynotifier_update_event($event);
+    }
+  }
 }
-
-function citynotifier_get_subtype_fading($data_type, $data_subtype) {
+   
+function citynotifier_get_subtype_fading($type, $subtype) {
 	$types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
-	extract(_citynotifier_get_value_type_subtype_from_index($type, $subtype)); 
 
 	foreach($types_subtypes[$type] as $st)
 	  if($st['subtype'] == $subtype) return $st['fading'];
