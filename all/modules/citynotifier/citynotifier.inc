@@ -10,10 +10,10 @@ function citynotifier_create_event($data) {
 
 function citynotifier_update_event($event, $mode = NULL){
 	$notifications = citynotifier_get_notify_of_event($event);
+  extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype));
 	
-	if ((citynotifier_get_range_subtype($event->type, $event->subtype)) >= l_range &&
+	if ((citynotifier_get_range_subtype($type, $subtype)) >= l_range &&
 	  count($notifications) == 3 && $mode == 'update_location') {
-	  $notifications = citynotifier_get_notify_of_event($event);
     foreach($notifications as $notify) {
       $lat += $notify->lat;
       $lng += $notify->lng;
