@@ -527,11 +527,13 @@ function citynotifier_increase_decrease_reputation($usr_notifications, $status_i
 	foreach ($usr_notifications as $notification) {
 		$reputation = citynotifier_get_reputation($notification->uid);
 
-		if ((int)$notification->status == $status_inc) 
-      if($reputation < 1)
+		if ((int)$notification->status == $status_inc) {
+      if((float)$reputation < 1)
         $reputation += 0.1;
-		elseif($reputation > -1)
-			$reputation -= 0.1;
+    }
+		elseif((float)$reputation > -1)
+      $reputation -= 0.1;
+
 		citynotifier_set_reputation($notification->uid, $reputation);
 	}
 }
