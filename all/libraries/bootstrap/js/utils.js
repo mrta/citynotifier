@@ -1,3 +1,6 @@
+var isiPad = navigator.userAgent.match(/iPad/i) != null;
+if(isiPad)
+    successAlert("Pota iPad");
 /**
  * Create query from parameters 
  * @param url Server url
@@ -290,5 +293,6 @@ function pota(){
       iterator++;
         }, i * 200);
       }
-
 }
+
+
