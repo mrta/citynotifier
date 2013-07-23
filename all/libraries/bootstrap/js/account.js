@@ -1,3 +1,4 @@
+var session_auth;
 /**
  * loginFunction permette all'utente di collegarsi al sistema CityNotifier
  */
@@ -29,7 +30,7 @@ function loginFunction() {
        			var session_id = datiString.session_id;
         		var session_name = datiString.session_name;   
         		var session_user = datiString.username;   
-        		var session_auth = datiString.roles;
+        		session_auth = datiString.roles;
         		console.log("Creo la sessione di nome "+session_name+" con id "+session_id);
         		
         		// Store login session data in a cookie

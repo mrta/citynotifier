@@ -38,7 +38,7 @@ function searchEvent() {
 	parameters["lng"] = userMarker.getPosition().lng();
 
 	// Event radius (metres)
-	radiusWidget ? parameters["radius"] = radiusWidget.get('distance') * 1000 : parameters["radius"] = distanceDefault * 1000;
+	parameters["radius"] =  distanceDefault * 1000;
 
 	// Event min Timestamp
 	var timeMin = toTimestamp(parseDate($("#timeFromText").val().replace(/\-/g,'/')));
@@ -464,6 +464,7 @@ function createEvent(event){
 	
 	// Draw Queue
 	if(eventObject.subtype == "Coda"){
+
 		drawQueue(event);
 	}
 

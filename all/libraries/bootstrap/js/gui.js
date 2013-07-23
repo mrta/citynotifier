@@ -3,6 +3,7 @@ var msgArray = []; // Array per gestire visualizzazione alert
 var count = 0; // Count ordine alerts
 
 $(document).ready(function(){
+	session_auth = jQuery.cookie('session_auth');
 	if(jQuery.cookie('session_user')){
 		$('#account').fadeOut(1000, function() {
                     $('#account').html((jQuery.cookie('session_user'))[0].toUpperCase() + (jQuery.cookie('session_user')).slice(1) + ' <i class="icon-user icon-white"></i>');
@@ -72,7 +73,9 @@ $(document).ready(function(){
         
         $('#searchAddress').val(jQuery.cookie('last_address'));
         
-        $('#searchRadius').val(jQuery.cookie('last_radius'));
+        $('#searchRadius').val(jQuery.cookie('last_radius') + " km");
+        console.log("Pota");
+        distanceDefault = jQuery.cookie('last_radius').split(" ")[0];
         
         $('#searchStatus').val(jQuery.cookie('last_status'));
         	
@@ -153,6 +156,7 @@ $('#liveButton').click(function(){
 
     	// timeTo set to NOW
     	$('#timeToText').val('');
+    	$('#timeFromText').val('');
 
     	// Create new markerPosition
 		var markerPosition = new google.maps.LatLng(lastLatitude, lastLongitude);
@@ -170,13 +174,19 @@ $('#liveButton').click(function(){
 
     	var interval = 1000 * LIVE_SECOND * 1; // Every LIVE_SECOND seconds. Default: 30
 		refreshIntervalId = setInterval(searchLive, interval);	
+
+		var interval_queue = 1000 * 60 * 1; // Every 60 seconds
+		refreshIntervalId_queue = setInterval(updateQueue(), interval_queue);	
      }      
      else {
      	// Stop live
       	$(this).removeClass('btn-success');
     	$(this).addClass('btn-danger');
 
+    	$('#timeFromText').val('');
+
 		clearInterval(refreshIntervalId);
+		clearInterval(refreshIntervalId_queue);
       }	
 });
 
@@ -297,17 +307,23 @@ function createInfoWindow(latlng, infoWindow){
 			$('#coordModal').html(latlng.lat() + " , " + latlng.lng());
 			$('#typeModal').html(infoType);
 			$('#subtypeModal').html(infoSubType);
+
+			console.log(infoSubType);
+			if(session_auth == 2 && ( infoSubType == "Buca" || infoSubType == "Lavori in corso"))
+				var disabled = 'disabled';
+			else
+				var disabled = '';
 							
 			switch (infoStatus) {
 				case "Open":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
 						$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
 					break;
 				case "Closed":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
@@ -315,7 +331,7 @@ function createInfoWindow(latlng, infoWindow){
 
 					break;
 				case "Skeptical":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
@@ -325,7 +341,7 @@ function createInfoWindow(latlng, infoWindow){
 													<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
 					break;	
 			}
-			  
+	  
 			// Update infoWindow
 			infoWindow.setContent('<div class="hero-unit">\
 										<h2>'+infoSubType+'<img style="padding-left: 35px;" class="pull-right" src='+getIcon(infoType, infoSubType)+'></h2>\
@@ -337,6 +353,8 @@ function createInfoWindow(latlng, infoWindow){
 											</ul>\
 										</div>\
 									</div>');
+
+
 }
 
 /**
@@ -401,7 +419,7 @@ $(window).unload(function() {
         jQuery.cookie('last_type', $('#searchType').val(), { path: '/', expires: 30 });
         jQuery.cookie('last_subtype', $('#searchSubType').val(), { path: '/', expires: 30 });
         jQuery.cookie('last_address', $('#searchAddress').val(), { path: '/', expires: 30 });
-        jQuery.cookie('last_radius', $('#searchRadius').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_radius', distanceDefault, { path: '/', expires: 30 });
         jQuery.cookie('last_status', $('#searchStatus').val(), { path: '/', expires: 30 });
         jQuery.cookie('last_timeTo', $('#timeToText').val(), { path: '/', expires: 30 });
     
