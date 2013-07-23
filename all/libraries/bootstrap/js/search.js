@@ -123,6 +123,7 @@ function searchLocal(){
 		    }
 		});
 		$('#search').parent().removeClass('open');
+		$('#map_canvas').click();
 }
 
 function searchRemote(parameters){
