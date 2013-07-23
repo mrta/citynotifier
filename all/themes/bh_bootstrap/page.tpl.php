@@ -77,7 +77,7 @@
                 <ul class="nav pull-right">
 
                     <li class="dropdown">
-                        <a href="#" id="notify" class="dropdown-toggle navCN" data-toggle="dropdown">Notify <i class="icon-plus icon-white"></i></a>
+                        <a href="notify" id="notify" class="dropdown-toggle navCN" data-toggle="dropdown">Notify <i class="icon-plus icon-white"></i></a>
                         <ul class="dropdown-menu">
                             <form>
                                 <fieldset>
@@ -112,7 +112,7 @@
                     </li>
 
                     <li class="dropdown">
-                        <a href="#" id="search" class="dropdown-toggle fulladdressvalidator navCN" data-toggle="dropdown">Search <i class="icon-search icon-white"></i></a>
+                        <a href="search" id="search" class="dropdown-toggle fulladdressvalidator navCN" data-toggle="dropdown">Search <i class="icon-search icon-white"></i></a>
                         <ul class="dropdown-menu">
                             <form>
                                 <fieldset>
@@ -174,7 +174,7 @@
                         </ul>
                     </li>
 
-                    <li><a href="#" id="refresh" class="navCN">Refresh <i class="icon-remove icon-white"></i></a></li>
+                    <li><a href="refresh" id="refresh" class="navCN">Refresh <i class="icon-remove icon-white"></i></a></li>
 
                     <li class="divider-vertical"></li>
 
