@@ -391,3 +391,7 @@ $('.selectpicker-div').on('click', function(e){
 $('body').on('click', function() {
 	$('.selectpicker-div').removeClass('open');
 });
+
+$('#map_canvas').on('click',function(){
+	successAlert("Pota...");
+});
