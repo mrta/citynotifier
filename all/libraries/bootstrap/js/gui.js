@@ -395,3 +395,9 @@ $('body').on('click', function() {
 $('#map_canvas').on('click',function(){
 	successAlert("Pota...");
 });
+
+$('.navCN').on('click', function(){
+	console.log("Potaaaaaaaa");
+	if(isiPad)
+		$(this).click();
+});
