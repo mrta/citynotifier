@@ -65,6 +65,7 @@ $(document).ready(function(){
 													<option>Concerto</option>');
 		            break;
 		    }
+		    
 		    $("#searchSubType option:contains("+jQuery.cookie('last_subtype')+")").attr("selected","selected");
 		}
         	
@@ -74,7 +75,6 @@ $(document).ready(function(){
         $('#searchRadius').val(jQuery.cookie('last_radius'));
         
         $('#searchStatus').val(jQuery.cookie('last_status'));
-        $('#timeFromText').val(jQuery.cookie('last_timeFrom')); 
         	
         $('#timeToText').val(jQuery.cookie('last_timeTo')); 
         if($('#timeToText').val()){
@@ -90,6 +90,9 @@ $(document).ready(function(){
                                             <option>Problemi ambientali</option>\
                                             <option>Eventi pubblici</option>');
 	$('#notifySubType').html('<option disabled selected>Select subtype</option>');
+
+	$('.selectpicker').selectpicker('refresh');
+    $('.selectpicker').selectpicker('render');
 });
 
 /**
@@ -392,6 +395,20 @@ $('body').on('click', function() {
 	$('.selectpicker-div').removeClass('open');
 });
 
-$('#map_canvas').on('click',function(){
-	successAlert("Pota...");
+$(window).unload(function() {
+    // Create cookies
+    if(jQuery.cookie('session_user')){
+        jQuery.cookie('last_type', $('#searchType').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_subtype', $('#searchSubType').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_address', $('#searchAddress').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_radius', $('#searchRadius').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_status', $('#searchStatus').val(), { path: '/', expires: 30 });
+        jQuery.cookie('last_timeTo', $('#timeToText').val(), { path: '/', expires: 30 });
+    
+        // Save last location clicked
+        if(userMarker){
+            jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
+            jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
+        }     
+    }
 });

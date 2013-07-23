@@ -201,8 +201,6 @@ function searchSkeptical(parameters){
 					url: url,
 					type: 'GET',
 					success: function(responseSkeptical, status, richiesta) {
-						skepticalAlert("Ok Skeptical.. ");
-						
 				    	
 				        // Update events local with new informations
 						// Add new event from remote servers

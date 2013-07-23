@@ -53,23 +53,6 @@ $(window).load(function () {
     initialize();
 });
 
-$(window).unload(function() {
-    // Create cookies
-    if(jQuery.cookie('session_user')){
-        jQuery.cookie('last_type', $('#searchType').val(), { path: '/', expires: 30 });
-        jQuery.cookie('last_subtype', $('#searchSubType').val(), { path: '/', expires: 30 });
-        jQuery.cookie('last_address', $('#searchAddress').val(), { path: '/', expires: 30 });
-        jQuery.cookie('last_radius', $('#searchRadius').val(), { path: '/', expires: 30 });
-        jQuery.cookie('last_status', $('#searchStatus').val(), { path: '/', expires: 30 });
-        jQuery.cookie('last_timeFrom', $('#timeFromText').val(), { path: '/', expires: 30 });
-        jQuery.cookie('last_timeTo', $('#timeToText').val(), { path: '/', expires: 30 });
-    
-        // Save last location clicked
-        if(userMarker){
-            jQuery.cookie('last_lat', userMarker.getPosition().lat(), { path: '/', expires: 30 });
-            jQuery.cookie('last_lng', userMarker.getPosition().lng(), { path: '/', expires: 30 });
-        }     
-    }
-});
+
 
 
