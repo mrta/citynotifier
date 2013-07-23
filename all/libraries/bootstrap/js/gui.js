@@ -395,9 +395,3 @@ $('body').on('click', function() {
 $('#map_canvas').on('click',function(){
 	successAlert("Pota...");
 });
-
-$('.navCN').on('click', function(){
-	successAlert("Poto");
-	if(isiPad)
-		$(this).click();
-});
