@@ -106,7 +106,8 @@ function citynotifier_get_matched_event($data) {
   extract(_citynotifier_get_value_type_subtype_from_index($event['type'], $event['subtype'])); 
 
   if($type == "problemi_stradali" && $subtype == "coda"){
-    $distance = citynotifier_get_driving_distance(array('lat' => $event['lat'], 'lng' => $event['lng']), array('lat' => $data['lat'], 'lng' => $data['lng']));
+    $distance = min(citynotifier_get_driving_distance(array('lat' => $event['lat'], 'lng' => $event['lng']), array('lat' => $data['lat'], 'lng' => $data['lng'])), citynotifier_get_driving_distance(array('lat' => $data['lat'], 'lng' => $data['lng']),array('lat' => $event['lat'], 'lng' => $event['lng'])));
+    
     if ($distance > $range)
       return FALSE; 
   }
