@@ -391,4 +391,3 @@ $('.selectpicker-div').on('click', function(e){
 $('body').on('click', function() {
 	$('.selectpicker-div').removeClass('open');
 });
-

@@ -73,7 +73,7 @@
                 "<div class='btn-group bootstrap-select selectpicker-div'>" +
                     "<button type='button' class='btn dropdown-toggle' >" +
                         "<div class='filter-option pull-left'></div>&nbsp;" +
-                        "<div class='caret'></div>" +
+                        "<div class='caret caret_black'></div>" +
                     "</button>" +
                     "<div class='dropdown-menu open'>" +
                         "<ul class='dropdown-menu inner' role='menu'>" +
