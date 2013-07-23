@@ -397,7 +397,7 @@ $('#map_canvas').on('click',function(){
 });
 
 $('.navCN').on('click', function(){
-	successAlert($(this).html());
+	successAlert("Poto");
 	if(isiPad)
 		$(this).click();
 });
