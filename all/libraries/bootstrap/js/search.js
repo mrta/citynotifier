@@ -122,7 +122,7 @@ function searchLocal(){
 		        errorAlert("Ajax Search error");
 		    }
 		});
-		$('#search').dropdown();
+		$('#search').parent().removeClass('open');
 }
 
 function searchRemote(parameters){

@@ -38,7 +38,7 @@ function sendNotify() {
 		            errorAlert("Ajax Notify error");
 		        }
 		    });
-		    $('#notify').dropdown();
+		    $('#notify').parent().removeClass('open');
     }
 
     // Error: Type not selected
