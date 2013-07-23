@@ -60,8 +60,8 @@ function searchEvent() {
 	if($('#searchAddress').val() != ''){
 
 		// Ok search
-		/*if(! $('#infoAddress').next().is('p'))
-			$('#infoAddress').after('<p id="spinner"></p>');*/
+		if(! $('#infoAddress').next().is('p'))
+			$('#infoAddress').after('<p id="spinner"></p>');
 		$('#searchAddress').parent().removeClass("error");
 		$('#addressButtonSearch').removeClass("btn-danger");
 		$('#addressMarkerSearch').removeClass("icon-white");
@@ -116,13 +116,14 @@ function searchLocal(){
 						});
 
 				// Animation loading
-				//$('#spinner').fadeOut(2000, function() { $(this).remove(); });
+				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
 		        errorAlert("Ajax Search error");
 		    }
 		});
-		$('#search').dropdown();
+		$('#search').parent().removeClass('open');
+		$('#map_canvas').click();
 }
 
 function searchRemote(parameters){
@@ -667,13 +668,16 @@ $('#searchAddress').typeahead({
 /**
  * Search Type updater on click
  */
-$("#searchType").on('change', function() {
+$("#searchType").next().on('click', function() {
+	console.log("Pota?")
     var conceptName = $('#searchType').find(":selected").text();
-    if (conceptName != "All") {
     	// A type selected
-        $('#searchSubType').removeAttr("disabled");
         $('#searchSubType').html('<option disabled selected>Select subtype</option>');
         switch (conceptName) {
+        	case "All":
+                $('#searchSubType').html('<option disabled>Select subtype</option>\
+                								<option selected>All</option>');
+                break;
             case "Problemi stradali":
                 $('#searchSubType').html('<option disabled>Select subtype</option>\
                 								<option selected>All</option>\
@@ -712,13 +716,8 @@ $("#searchType").on('change', function() {
 												<option>Concerto</option>');
                 break;
         }
-
+        $('.selectpicker').selectpicker('refresh');
         $('.selectpicker').selectpicker('render');
-    }
-    else{
-    	$('#searchSubType').attr('disabled', 'disabled');
-    	$('#searchSubType').html('<option disabled selected>Select subtype</option>');
-    }
 });
 
 /**

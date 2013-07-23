@@ -31,15 +31,14 @@ function sendNotify() {
 		        data: notifyJSON,
 		        contentType: "application/json; charset=utf-8",
 		        success: function(datiString, status, richiesta) {
-		            //$('#notify').parent().removeClass('open');
-		            successAlert("Notifica Inviata!");
+		            successAlert(datiString.result.charAt(0).toUpperCase() + datiString.result.slice(1));
 
 		        },
 		        error: function(err) {
 		            errorAlert("Ajax Notify error");
 		        }
 		    });
-		    $('#notify').dropdown();
+		    $('#notify').parent().removeClass('open');
     }
 
     // Error: Type not selected
@@ -167,8 +166,8 @@ $('#notifyAddress').typeahead({
 /**
  * Notify Type updater on click
  */
-$("#notifyType").on('change', function() {
-
+$("#notifyType").next().on('click', function() {
+	console.log("Pota2");
     var conceptName = $('#notifyType').find(":selected").text();
     console.log(conceptName);
     if (conceptName != "Select Type") {
@@ -210,6 +209,7 @@ $("#notifyType").on('change', function() {
 												<option>Concerto</option>');
                 break;
         }
+        $('#notifySubType').prop('disabled',false);
         $('.selectpicker').selectpicker('refresh');
         $('.selectpicker').selectpicker('render');
 

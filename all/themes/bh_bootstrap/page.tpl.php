@@ -119,6 +119,7 @@
                                 
                                     <div class="control-group">
                                         <select class="selectpicker" id="searchType" autocomplete="off">
+                                            <option disabled>Select type</option>
                                             <option selected>All</option>
                                             <option>Problemi stradali</option>
                                             <option>Emergenze sanitarie</option>
@@ -129,8 +130,9 @@
                                     </div>
                                     
                                     <div class="control-group">
-                                        <select disabled class="selectpicker" id="searchSubType" autocomplete="off">
-                                            <option disabled selected>Select subtype</option>
+                                        <select class="selectpicker" id="searchSubType" autocomplete="off">
+                                            <option disabled >Select subtype</option>
+                                            <option selected>All</option>
                                         </select>
                                     </div>
                                     
