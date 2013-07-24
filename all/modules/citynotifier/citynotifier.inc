@@ -98,7 +98,8 @@ function citynotifier_get_matched_event($data) {
   $query->addExpression(('(6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) )))*1000'), 'distance');
 
 	$query->condition('cn.type', $data['type'], '=')
-		->condition('cn.subtype', $data['subtype'], '=');
+		->condition('cn.subtype', $data['subtype'], '=')
+    ->condition('ce.status', citynotifier_get_index_status("archived"), '<>');
   $query->havingCondition('distance', $range, '<');
 	$query->orderby('cn.created', 'DESC');
   $event = $query->execute()->fetchAssoc();
@@ -132,7 +133,7 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
                                                     'subtype' => $data_remote_event['subtype']));
      if($i <> 0 && $event <> $prev_event)
        $same_event = FALSE;
-     
+
      $prev_event = $event;
      $i++;
      if(!$data_remote_event['locations'][$i]['lat'])
