@@ -130,48 +130,40 @@ function middlePoint(pointArray){
 	return new google.maps.LatLng(sumLen/count,sumLng/count);
 }
 
+/**
+ * updateQueue() compute and display new heatmap gradient 
+ */
 function updateQueue(){
 	for(i in heatmapArray){
-		var eventID_heatmap = heatmapArray[i].eventID;
-		console.log(eventID_heatmap);
+		var eventID_heatmap = heatmapArray[i].eventID;);
 
 		var result = $.grep(eventArray, function(e){ return e.eventID == eventID_heatmap; });
-		console.log(result[0]);
 
-		// Calcolo l'eventuale scadenza dell'evento
+		// Check expire Event
         var expireTimeDate = new Date(result[0].freshness).getTime();
-        var sbiaditoTime = expireTimeDate + 10*60;
+        var fadedTime = expireTimeDate + 10*60;
         var expireTime = expireTimeDate + 20*60;
         var nowTime = new Date().getTime() / 1000;
-
-        console.log("Sbiadisce a: "+ sbiaditoTime)
-        console.log("Scade a: "+ expireTime);
-        console.log("Ora sono: "+nowTime)
                         
-        if(expireTime < nowTime){ /*L'evento è scaduto*/
-            console.log("Coda " +result[0].eventID+ " scaduta");
+        if(expireTime < nowTime){ 
             var gradient = [
             'rgba(34, 139, 34, 0)',
             'rgba(34, 139, 34, 1)' //Gradiente verde
             ];
-            // Disegno la coda
     		heatmapArray[i].setOptions({
     			gradient:  gradient
   			});
         }
-        else if(sbiaditoTime < nowTime){ /*L'evento è sbiadito*/
-            console.log("Coda " +result[0].eventID+ " sbiadita");
+        else if(fadedTime < nowTime){ /*L'evento è sbiadito*/
             var gradient = [
             'rgba(255, 165, 0, 0)',
             'rgba(255, 165, 0, 1)' //Gradiente arancio
             ];
-            // Disegno la coda
             heatmapArray[i].setOptions({
     			gradient:  gradient
   			});
         }
         else{ //Coda Fresca
-            console.log("Coda " +result[0].eventID+ " fresca");
             var gradient = [
             'rgba(255, 0, 0, 0)',
             'rgba(255, 0, 0, 1)' //Gradiente rosso

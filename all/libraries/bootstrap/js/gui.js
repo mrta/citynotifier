@@ -1,17 +1,25 @@
 /* Global Variables */
-var msgArray = []; // Array per gestire visualizzazione alert
-var count = 0; // Count ordine alerts
+var msgArray = []; // Alerts array
+var count = 0; // Count alerts orders
 
 $(document).ready(function(){
+	// Store session user authentication 
 	session_auth = jQuery.cookie('session_auth');
-	if(jQuery.cookie('session_user')){
+
+	// Load cookie info
+	if(jQuery.cookie('session_user')){ 
+
+		// If a user is logged
+
+		// Update login gui
 		$('#account').fadeOut(1000, function() {
                     $('#account').html((jQuery.cookie('session_user'))[0].toUpperCase() + (jQuery.cookie('session_user')).slice(1) + ' <i class="icon-user icon-white"></i>');
                     $('#account').fadeIn(1000);
                     $('#notify').css('visibility','visible').hide().fadeIn(1000);
         });
-
         $('#account').next().empty();
+
+        // If admin loads admin panel
         if(jQuery.cookie('session_auth') == 3) //ADMIN
 			$('#account').next().html('<div id="logout-form">\
 				<a href="#adminPanel" role="button" id="adminPanelButton" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
@@ -20,6 +28,7 @@ $(document).ready(function(){
         	$('#account').next().html('<div id="logout-form"><button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
         $('#account').parent().removeClass('open');          
         
+        // Update search infos
         if(jQuery.cookie('last_type') == "All"){
         	$('#searchType').val(jQuery.cookie('last_type'));
         }
@@ -70,31 +79,27 @@ $(document).ready(function(){
 		    $("#searchSubType option:contains("+jQuery.cookie('last_subtype')+")").attr("selected","selected");
 		}
         	
-        
+        // Update address
         $('#searchAddress').val(jQuery.cookie('last_address'));
         
+        // Update radius
         updateRadius(jQuery.cookie('last_radius'));
         if(isNaN(jQuery.cookie('last_radius')) || jQuery.cookie('last_radius') == 0)
         	updateRadius(RADIUS);
         distanceDefault = jQuery.cookie('last_radius').split(" ")[0];
         
+        // Update status
         $('#searchStatus').val(jQuery.cookie('last_status'));
         	
+        // Update time
         $('#timeToText').val(jQuery.cookie('last_timeTo')); 
         if($('#timeToText').val()){
 			$('#liveButton').removeClass('btn-success loading');
 			$('#liveButton').addClass('btn-danger');
 		}
      }
-     
-     $('#notifyTipe').html('<option disabled selected>Select type</option>\
-                                            <option>Problemi stradali</option>\
-                                            <option>Emergenze sanitarie</option>\
-                                            <option>Reati</option>\
-                                            <option>Problemi ambientali</option>\
-                                            <option>Eventi pubblici</option>');
-	$('#notifySubType').html('<option disabled selected>Select subtype</option>');
 
+    // Render selectPicker 
 	$('.selectpicker').selectpicker('refresh');
     $('.selectpicker').selectpicker('render');
 });

@@ -1,13 +1,13 @@
 // Global Variables
 var infoWindow;
-var urlCrossDomain = -1; // No other Server specified
+var urlCrossDomain = -1; // -1 if no other Server is specified
 var eventArray = [];
 var markersArray = [];
-var radiusWidgetCheck = false;
+var radiusWidgetCheck = false; // Check if radiusWidget is displayed
 
 
 /**
- * searchEvent() permette all'utente di cercare eventi segnalati nel sistema CityNotifier
+ * searchEvent() allows the user to search events in the database
  */
 function searchEvent() {
 	xmlhttp = new XMLHttpRequest();
@@ -77,7 +77,7 @@ function searchEvent() {
 	}
 	else{
 		// Error: Address not specified
-		if (!$('#searchAddress').val() && $('#searchAddress').next().is('button')) {
+		if (!$('#searchAddress').val()) {
 		    $('#searchAddress').parent().addClass("error");
 		    $('#searchAddress').next().addClass("btn-danger");
 		    $('#addressMarkerSearch').addClass("icon-white");
@@ -85,37 +85,36 @@ function searchEvent() {
 	}
 }
 
+/**
+ * searchLocal() allows the user to search local events in the database
+ */
 function searchLocal(){
 	// First call: local
 		$.ajax({
 			url: url,
 			type: 'GET',
 			success: function(datiString, status, richiesta) {
-				console.log("Ok local.. ");
 				successAlert("Ricerca in corso...");	
 
-		    	// Update events local with new informations
-					if(datiString.events)
-						$.each(datiString.events, function(index, event){
-							var eventIDRemote = event.event_id;
+				if(datiString.events)
+					$.each(datiString.events, function(index, event){
+						var eventIDRemote = event.event_id;
+					
+						// Check if the event already exists in eventArray
+						var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
 						
-							var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
-							
-							if (result.length == 0) {
-								// New event from remote server
-								console.log("Nuovo evento");
-							  	createEvent(event);
-							  
-							} else if (result.length == 1) {
-								// Update local event
-								console.log("Evento esiste già");
-							  	updateEvent(result[0], event);
-							  
-							} else
-							console.log("ERROR! Più eventi fanno match!!!!");
-						});
+						if (result.length == 0) {
+							// New event from remote server
+						  	createEvent(event);
+						  
+						} 
+						else if (result.length == 1) {
+							// Update local event
+						  	updateEvent(result[0], event);
+						}
+					});
 
-				// Animation loading
+				// Remove spinner animation
 				$('#spinner').fadeOut(2000, function() { $(this).remove(); });
 	 		},
 		    error: function(err) {
@@ -123,9 +122,13 @@ function searchLocal(){
 		    }
 		});
 		$('#search').parent().removeClass('open');
-		$('#map_canvas').click();
+		if(isiPad) $('#map_canvas').click(); // iPad bugfix
 }
 
+/**
+ * searchRemote() allows the user to search remote events in the remote servers' database
+ * @param parameters New get event parameters
+ */
 function searchRemote(parameters){
 	// Second call: remote
 		parameters["scope"] = "remote"
@@ -135,7 +138,6 @@ function searchRemote(parameters){
 			url: url,
 			type: 'GET',
 			success: function(responseRemote, status, richiesta) {
-				console.log("Ok remote..");
 				successAlert("Aggiornamento in corso...");
 				
 				// Update events local with new informations
@@ -145,20 +147,18 @@ function searchRemote(parameters){
 						$.each(response.events, function(index, event){
 							var eventIDRemote = event.event_id;
 						
+							// Check if the event already exists in eventArray
 							var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
 							
 							if (result.length == 0) {
 								// New event from remote server
-								console.log("Nuovo evento");
 							  	createEvent(event);
 							  
-							} else if (result.length == 1) {
+							} 
+							else if (result.length == 1) {
 								// Update local event
-								console.log("Evento esiste già");
 							  	updateEvent(result[0], event);
-							  
-							} else
-							console.log("ERROR! Più eventi fanno match!!!!");
+							}
 						});
 			 	});
 		 	},
@@ -168,6 +168,10 @@ function searchRemote(parameters){
 		});
 }
 
+/**
+ * searchSkeptical() allows the user to search skeptical events near the user's position
+ * @param parameters New get event parameters
+ */
 function searchSkeptical(parameters){
 	// Third call: skeptical around me
 	parameters["scope"] = "local";
@@ -185,13 +189,14 @@ function searchSkeptical(parameters){
 	parameters["subtype"] = "all"
 
 	// Event radius (metres)
-	parameters["radius"] = 0.5 * 1000;
+	parameters["radius"] = SKEPTICAL_METERS * 1000;
 
     if (navigator.geolocation) {
-        var options = {timeout: 2000}; // milliseconds (60 seconds)
+        var options = { timeout: 2000 }; // milliseconds
         navigator.geolocation.getCurrentPosition(
         	function(position){
-        		// Success
+
+        		// Geolocation Success
         		parameters["lat"] = position.coords.latitude;
     			parameters["lng"] = position.coords.longitude;
 
@@ -210,18 +215,13 @@ function searchSkeptical(parameters){
 								$.each(response.events, function(index, event){
 									var eventIDRemote = event.event_id;
 								
+									// Check if the event already exists in eventArray
 									var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
 									
 									if (result.length == 0) {
 										// New event from remote server
-										console.log("Nuovo evento Skeptical");
 									  	createEvent(event);
-									  
-									} else if (result.length == 1) {
-										// Update local event
-										console.log("Evento Skeptical esiste già");
-									} else
-									console.log("ERROR! Più eventi fanno match!!!!");
+									}
 								});
 							}
 			 			});
@@ -232,20 +232,21 @@ function searchSkeptical(parameters){
 				});
         	},
         	function(){
-        		// Error
+        		// Geolocation error
         		skepticalAlert("E' necessario attivare la GeoLocalizzazione per trovare gli eventi scettici");
-        		console.log("GetLocation Skeptical error");
         	}, 
         	options);
-    } else {
-        errorAlert("Sorry, browser does not support geolocation!");
-    }
+    } else
+        errorAlert("Il browser non supporta le geolocalizzazione");
 }
 
+/**
+ * searchLive() allows the user to search events dynamically
+ */
 function searchLive(){
+	// Current timestamp - LIVE_SECOND
 	var dateNow = new Date();
 	var dateSecondsAgo = new Date(dateNow.getTime() - LIVE_SECOND*1000);
-
 	var day = dateSecondsAgo.getDate();
 	var month = dateSecondsAgo.getMonth()+1;
 	var year = dateSecondsAgo.getFullYear();
@@ -254,14 +255,13 @@ function searchLive(){
 	var seconds = dateSecondsAgo.getSeconds();
 	$("#timeFromText").val(day+'-'+month+'-'+year+' '+ hours + ':' + minutes + ':' + seconds);
 
-	console.log("Ricerca da "+ day+'-'+month+'-'+year+' '+ hours + ':' + minutes + ':' + seconds)
 	searchEvent();
 }
 
 /**
- * updateEvent aggiorna un evento Local con nuove informazioni
- * @param eventLocal evento locale da aggiornare
- * @param EventRemote evento remoto con le informazioni aggiornate
+ * updateEvent updates a local event when new info is received
+ * @param eventLocal local event to be updated
+ * @param EventRemote remote event with updated info
  */
 function updateEvent(eventLocal, eventRemote){
 
@@ -278,6 +278,7 @@ function updateEvent(eventLocal, eventRemote){
 			}
 		}	
 	}
+
 	// New Address
 	if(eventRemote.route){
 		var eventRemoteAddress = eventRemote.route + ", " + eventRemote.street_number;
@@ -331,9 +332,9 @@ function updateEvent(eventLocal, eventRemote){
 	// New number of Notification
     eventLocal.numNot += eventRemote.number_of_notifications;
 
-    // New relyability
-	var rely = (eventLocal.reliability * 2 + eventRemote.reliability * 2)/(2*(eventLocal.numNot));
-    eventLocal.reliability = Math.round(rely * 100) / 100;	
+    // New reliability
+	var reli = (eventLocal.reliability * 2 + eventRemote.reliability * 2)/(2*(eventLocal.numNot));
+    eventLocal.reliability = Math.round(reli * 100) / 100;	
 
     // Update Events Table
 	$('#'+eventLocal.eventID+'tr td:nth-child(2)').html(eventLocal.startTime);
@@ -343,25 +344,17 @@ function updateEvent(eventLocal, eventRemote){
 	
 	// Check expire Event
 	var expireTimeDate = new Date(eventLocal.freshness).getTime();
-    var sbiaditoTime = expireTimeDate + 10*60;
+    var fadedTime = expireTimeDate + 10*60;
     var expireTime = expireTimeDate + 20*60;
     var nowTime = new Date().getTime() / 1000;
 
-    if(expireTime < nowTime){
-        console.log("Evento " +eventLocal.eventID+ " scaduto");
-    }
-    else if(sbiaditoTime < nowTime){
-        console.log("Evento " +eventLocal.eventID+ " sbiadito");
-    }
-
-    if(eventLocal.subtype == "coda"){	
+    if(eventLocal.subtype.toLowerCase() == "coda"){	
     	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
     	var heatmapFoundArray = $.grep(heatmapArray, function(e){ return e.eventID == eventLocal.eventID; });
     	var markerFound = markerFoundArray[0];
     	var heatmapFound = heatmapFoundArray[0];
 
         if(expireTime < nowTime){ //L'evento è scaduto
-            console.log("Coda " +eventLocal.eventID+ " scaduta");
             var gradient = [
                 'rgba(34, 139, 34, 0)',
                 'rgba(34, 139, 34, 1)' //Gradiente verde
@@ -370,8 +363,7 @@ function updateEvent(eventLocal, eventRemote){
                 gradient: gradient
             });
         }
-        else if(sbiaditoTime < nowTime){ //L'evento è sbiadito
-            console.log("Coda " +eventLocal.eventID+ " sbiadita");
+        else if(fadedTime < nowTime){ //L'evento è sbiadito
             var gradient = [
                 'rgba(255, 165, 0, 0)',
                 'rgba(255, 165, 0, 1)' //Gradiente arancio
@@ -381,7 +373,6 @@ function updateEvent(eventLocal, eventRemote){
             });
         }
         else{ //Coda Fresca
-            console.log("Coda " +eventObject.eventID+ " fresca");
             var gradient = [
                 'rgba(255, 0, 0, 0)',
                 'rgba(255, 0, 0, 1)' //Gradiente rosso
@@ -411,12 +402,12 @@ function createEvent(event){
 	
 	// Start Time Date
 	var date = new Date(event.start_time*1000);
-		var day = date.getDate();
-		var month = date.getMonth();
-		var year = date.getFullYear();
-		var hours = date.getHours();
-		var minutes = date.getMinutes();
-		var seconds = date.getSeconds();
+	var day = date.getDate();
+	var month = date.getMonth();
+	var year = date.getFullYear();
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	var seconds = date.getSeconds();
 	eventObject.startTime = day+'/'+month+'/'+year+'\t'+ hours + ':' + minutes + ':' + seconds;
 	eventObject.strartTimeUnformatted = event.start_time;
 	
@@ -464,7 +455,7 @@ function createEvent(event){
 	eventArray.push(eventObject);
 	
 	// Draw Queue
-	if(eventObject.subtype == "Coda"){
+	if(eventObject.subtype.toLowerCase() == "coda"){
 
 		drawQueue(event);
 	}
@@ -472,12 +463,7 @@ function createEvent(event){
 	// Add Event marker on map
 	addEventMarker(eventObject);
 
-	// Update Events Table
-	var latHtml = JSON.stringify(eventObject.lat).replace(/\./g,"");
-	var lngHtml = JSON.stringify(eventObject.lng).replace(/\./g,"");
-	var latlngHtml = (latHtml+lngHtml).replace(/""/g,"");
-
-	// Html ul creation
+	// Html description creation
 	var descriptionHtml = "";
 	var fullArray = checkArray(eventObject.description);
 	if(fullArray){
@@ -669,7 +655,6 @@ $('#searchAddress').typeahead({
  * Search Type updater on click
  */
 $("#searchType").next().on('click', function() {
-	console.log("Pota?")
     var conceptName = $('#searchType').find(":selected").text();
     	// A type selected
         $('#searchSubType').html('<option disabled selected>Select subtype</option>');
@@ -722,30 +707,30 @@ $("#searchType").next().on('click', function() {
 
 /**
  * Draw heatMap queue on map from event object
- * @param event Informazioni sull'evento
+ * @param event Event info
  */
 function drawQueue(event){
 		if(event.locations.length != 1){
-			// Estraggo due punti "casuali" dall'Array di punti del percorso
+			// Choose two random points from pointsEvent Array
 			var endUnformatted = event.locations.pop();
 			var end = new google.maps.LatLng(endUnformatted.lat,endUnformatted.lng);
 			var startUnformatted = event.locations.shift();
 			var start = new google.maps.LatLng(startUnformatted.lat,startUnformatted.lng);
 			
-			// Calcolo la distanza in linea d'aria tra i due punti
+			// Compute distance between points
 			var distanceSE = calcDistance(start, end);
 			
 			var waypointsArray = [];
 			
-			// Per ogni punto nell'array verifico se è interno o esterno ai due vertici presi in precedenza
-			// Se il punto è esterno al segmento aggiorno il segmento con i nuovi vertici
+			// For each points in the array, check if it's inside or outside of the route
+			// If outside, it becomes new route vertex
 			$.each(event.locations, function(j){
 				var point = new google.maps.LatLng(event.locations[j].lat, event.locations[j].lng);
 				var distancePS = calcDistance(point, start);
 				var distancePE = calcDistance(point, end);
 				
 				if( (distancePS + distancePE) > distanceSE ){
-					//Punto fuori candidato a diventare nuovo start o end
+					// This point will become the new vertex
 					if ( distancePS < distancePE ){
 						var wayPoint = { location : start };
 						start = point;
@@ -757,41 +742,31 @@ function drawQueue(event){
 				}
 			});
 			
-			// Calcolo l'eventuale scadenza dell'evento
+			// Compute the expireTime 
             var expireTimeDate = new Date(event.freshness).getTime();
-            var sbiaditoTime = expireTimeDate + 10*60;
+            var fadedTime = expireTimeDate + 10*60;
             var expireTime = expireTimeDate + 20*60;
             var nowTime = new Date().getTime() / 1000;
-
-            console.log("Sbiadisce a: "+ sbiaditoTime)
-            console.log("Scade a: "+ expireTime);
-            console.log("Ora sono: "+nowTime)
                             
-            if(expireTime < nowTime){ /*L'evento è scaduto*/
-                console.log("Coda " +event.event_id+ " scaduta");
+            if(expireTime < nowTime){ 
                 var gradient = [
                 'rgba(34, 139, 34, 0)',
                 'rgba(34, 139, 34, 1)' //Gradiente verde
                 ];
-                // Disegno la coda
                 distRoute(start, end, null, event.event_id, gradient);
             }
-            else if(sbiaditoTime < nowTime){ /*L'evento è sbiadito*/
-                console.log("Coda " +event.event_id+ " sbiadita");
+            else if(fadedTime < nowTime){ /*L'evento è sbiadito*/
                 var gradient = [
                 'rgba(255, 165, 0, 0)',
                 'rgba(255, 165, 0, 1)' //Gradiente arancio
                 ];
-                // Disegno la coda
                 distRoute(start, end, null, event.event_id, gradient);
             }
             else{ //Coda Fresca
-                console.log("Coda " +event.event_id+ " fresca");
                 var gradient = [
                 'rgba(255, 0, 0, 0)',
                 'rgba(255, 0, 0, 1)' //Gradiente rosso
                 ];
-                // Disegno la coda
                 distRoute(start, end, null, event.event_id, gradient);
             }
 		}
@@ -831,7 +806,6 @@ function addEventMarker(eventObject){
 		infoWindow.type = this.type;	
 		infoWindow.subtype = this.subtype;	
 		infoWindow.status = this.status;
-		console.log("STATUS --> "+this.status);
 		infoWindow.address = this.address;	
 		if($.isNumeric(infoWindow.id))
 			infoWindow.scope = "local";
@@ -839,7 +813,10 @@ function addEventMarker(eventObject){
 			infoWindow.scope = "remote";
 	  
 		var latLng = marker.getPosition();
+
+		// Create the Window on click
 		createInfoWindow(marker.getPosition(), infoWindow);
+
 		infoWindow.open(map, marker);
 	};					
 
