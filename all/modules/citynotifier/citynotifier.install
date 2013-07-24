@@ -84,8 +84,21 @@ function citynotifier_install() {
     field_create_instance($field_instance);
   }
   
+  /** Init field reputation on legacy users **/
+  $query = db_select('users', 'u');
+  $query->condition('u.uid', 0, '<>');
+  $query->fields('u', array('uid', 'name', 'status', 'created', 'access'));
+  $users = $query->execute()->fetchAll();
+  
+  foreach($users as $u) {
+    citynotifier_set_reputation($u->uid, 0);
+  };
+  
   /** Add role "citynotifier_admin" **/
   citynotifier_add_role('citynotifier_admin');
+  
+  
+  
 }
 
 /**

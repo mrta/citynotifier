@@ -140,20 +140,19 @@ function citynotifier_admin_users() {
   $count_query->addExpression('COUNT(u.uid)');
  
   $query->join("citynotifier_notify", 'cn', 'cn.uid = u.uid');
-  $query->join("field_data_reputation", 'rep', 'rep.entity_id = u.uid');
   $query = $query->extend('PagerDefault')->extend('TableSort')->groupBy('u.uid');
   
   $query
     ->fields('u', array('uid', 'name', 'status', 'created', 'access'))
     ->fields('cn', array('notify_id'))
-    ->fields('rep', array('reputation_value'))
     ->limit(50)
     ->setCountQuery($count_query);
   $query->addExpression('COUNT(notify_id)', 'number_of_notifications');
-  $result = $query->execute();
+  $result = $query->execute()->fetchAll();
   
   $status = array(t('blocked'), t('active'));
   $accounts = array();
+  $options=array();
   foreach ($result as $account) {
     $options[$account->uid] = array(
       'username' => $account->name,
@@ -192,6 +191,9 @@ function citynotifier_admin_users() {
 }
 
 function _citynotifier_admin_users_sort($data, $order, $sort) {
+  if(!$data)
+    return $data;
+  
   foreach ($data as $key => $row) {
     $username[$key] = $row['username'];
     $status[$key] = $row['status'];
