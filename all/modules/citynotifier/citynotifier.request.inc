@@ -72,6 +72,7 @@ function citynotifier_request() {
            $data_remote[$i_fp] = drupal_json_decode($data_remote[$i_fp][1]);
 
            foreach($data_remote[$i_fp]["events"] as $i_event => $event) {
+            $data_remote[$i_fp]["events"][$i_event]['reliability'] = citynotifier_normalize_reliability($event);
              $data_local = _citynotifier_get_matched_remote_event(_citynotifier_citynotifier2data($event));
 
              if($data_local) {
@@ -111,6 +112,14 @@ function citynotifier_request() {
      return;
    };
 };
+
+function citynotifier_normalize_reliability($event){
+  if ($event['reliability'] < 0)
+    $event['reliability'] = 0;
+  elseif ($event['reliability'] > 1)
+    $event['reliability'] = 1;
+  return $event['reliability'];
+}
 
 function citynotifier_normalize_json($data){
   $pos = strpos($data, "{");
