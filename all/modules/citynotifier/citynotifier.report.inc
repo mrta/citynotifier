@@ -61,16 +61,6 @@ function citynotifier_report_apply($data, $mode = NULL) {
 	  break;
 	};
 
-	/* Casi
-	1) Non c'è evento, crealo
-	2) Evento esiste
-	1) Aperto: collega notifica a questo evento
-	2) Chiuso:
-	1) Freshness < N: mettere evento in stato scettico, chiedere agli utenti
-	2) Freshness > N: aprire un nuovo evento
-	*/
-	//citynotifier_debug($data);
-
   /** Ad extra $data **/
 
   $data = array_merge($data, array("uid" => $user->uid, "event_id" => $event_id, "created" => time()));
