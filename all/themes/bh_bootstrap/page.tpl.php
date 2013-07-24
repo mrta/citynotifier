@@ -71,7 +71,6 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
-                <div style="position:absolute; left:212px; top:127px;" id="info"></div>
                 <a class="brand" href="#">City<span class="text-error">Notifier</span></a>
 
                 <ul class="nav pull-right">
@@ -224,7 +223,7 @@
     </div>
 </nav>
 
-<!-- Modal -->
+<!-- Modal table -->
 <div id="myModal" class="modal hide fade bigModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -238,7 +237,7 @@
                     <th>Date</th>
                     <th>Location</th>
                     <th>Descriptions</th>
-                    <th>Credibility</th>
+                    <th>#Notif/Credibility</th>
                     <th>Status</th>  
                 </tr>
             </thead>
@@ -258,10 +257,10 @@
     </div>
     <div class="modal-body">
     	<p class="text-info">Inserisci il Server a cui collegarsi</p>
-    	<img style="width:30%" class="pull-right" src="sites/all/libraries/bootstrap/img/admin.jpg">
+    	<img class="pull-right" src="sites/all/libraries/bootstrap/img/admin.jpg">
     	<form class="form-search">
 		  <div class="input-append">
-		  	<select class="span4 selectpicker" id="serverInput" autocomplete="off">
+		  	<select class="span4" id="serverInput" autocomplete="off">
                 <option selected>Default: Server Locale</option>
             </select>
 			<button id="serverConnect" type="button" class="btn btn-inverse">Connect</button>
@@ -296,7 +295,7 @@
     <p><strong><span class="text-info">Tipologia: </span></strong><span id="typeModal"></span> > <span id="subtypeModal"></span></p>
   	<p><strong><span class="text-info">Coordinate: </span></strong><span id="coordModal"></span></p>
   	<p><ul class="inline">
-  		<li id="statusModal" class="text-info" style="font-weight: bold; padding-left: 0;">Nuovo Status: </li>
+  		<li id="statusModal" class="text-info">Nuovo Status: </li>
 	</ul></p>
   		
     <input id="descModal" type="text" placeholder="Perchè vuoi modificare questo evento?" class="span5">
@@ -307,6 +306,5 @@
   </div>
 </div>
 
-<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyCa8ToftfGkbPcIZldAjUiUNvQp0sxoGro&sensor=false&libraries=visualization,places,geometry"></script>

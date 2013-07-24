@@ -1,3 +1,4 @@
+// Check userAgent for tablet
 var isiPad = navigator.userAgent.match(/iPad/i) != null;
 
 /**
@@ -37,7 +38,7 @@ function toTimestamp(strDate){
 }
 
 /**
- * Check if array contains null or "" values
+ * Used to check event's descriptions array for empty entries
  * @param my_arr Array
  */
 function checkArray(my_arr){
@@ -170,9 +171,15 @@ function getPin(type, subtype){
         }
 }
 
-function pota(){
+// EasterEgg
+// Dio perdonaci
+// Vitali perdonaci
 
-    console.log("Pota");
+function summerEgg(){
+
+    errorAlert("Oh mio Dio, sono ovunque..AAAAAARGH!");
+    skepticalAlert("Si prevedono precipitazioni di poppe su tutta la città..")
+    
 
     var neighborhoods = [
         new google.maps.LatLng(44.49135859,11.34219969),
