@@ -83,11 +83,6 @@ function citynotifier_get_matched_event($data) {
 	extract(_citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype'])); 
 	$range = citynotifier_get_range_subtype($type, $subtype);
 
-		/* 3 casi: 2 notifiche 
-		   1) vicine ma su vie diverse => 2 eventi diversi
-		   2) 2 notifiche vicine sulla stessa via => stesso evento
-		   3) 2 notifiche lontane sulla stessa via o meno ma fuori dal range => 2 eventi diversi
-		*/
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 
@@ -152,9 +147,6 @@ function _citynotifier_get_event_status($event_id){
 }
 
 
-
-
-
 /********************** NOTIFY FUNCTION **********************/
 
 function citynotifier_get_notify_of_event($event) {
@@ -167,7 +159,6 @@ function citynotifier_get_notify_of_event($event) {
 	return $query->execute()->fetchAll();
 }
 
-
 function _citynotifier_check_status($event_id, $status){
 	$query = db_select("citynotifier_event", 'ce')
 		->fields('ce', array('status'))
@@ -179,7 +170,6 @@ function _citynotifier_check_status($event_id, $status){
 	else
 		return FALSE;
 }
-
 
 function citynotifier_get_range_subtype($type, $subtype){
   $types_subtypes = variable_get('citynotifier_settings_types_subtypes', array());
@@ -199,7 +189,6 @@ function _citynotifier_get_event_freshness($event_id){
 
 	return $event['freshness'];
 }
-
 
 function _citynotifier_validate($data, $function_type=NULL) {
   switch($function_type) {
@@ -296,8 +285,6 @@ function _citynotifier_data2citynotifier($data) {
   $data['status'] = $statuses[$data['status']];
   return $data;
 }
-
-
 
 function citynotifier_get_address_from_point($data) {
   $options['language'] = "it";
@@ -457,7 +444,6 @@ function citynotifier_file_get_contents_utf8($fn) {
       return mb_convert_encoding($content, 'UTF-8',
           mb_detect_encoding($content, 'UTF-8, ISO-8859-1', true));
 }
-
 
 function citynotifier_encode_event_id($event_id, $url) {
   if(!preg_match("/(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/", $url, $matches))

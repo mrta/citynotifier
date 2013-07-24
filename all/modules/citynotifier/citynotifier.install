@@ -2,16 +2,16 @@
 // citynotifier.install
 
 /* Range meters */
-define("s_range", 10);
-define("m_range", 500);
+define("s_range", 20);
+define("m_range", 200);
 define("l_range", 1000);
 define("xl_range", 2000);
 
 /* Fading in seconds */
 define("s_fading", 60);
 define("m_fading", 300);
-define("l_fading", 6000);
-define("xl_fading", 1200);
+define("l_fading", 1200);
+define("xl_fading", 260000);
 
 
 /**
@@ -24,16 +24,16 @@ function citynotifier_install() {
   $types_subtypes = array("all" => array(array("subtype" => "all")),
                            "problemi_stradali" => array(array("subtype" => "all"),
                                                         array("subtype" => "incidente", "range" => m_range, "fading" => l_fading),
-                                                        array("subtype" => "buca", "range"=> s_range, "fading" => l_fading),
+                                                        array("subtype" => "buca", "range"=> s_range, "fading" => xl_fading),
                                                         array("subtype" => "coda", "range"=> l_range, "fading" => l_fading),
-                                                        array("subtype" => "lavori_in_corso", "range"=> m_range, "fading" => l_fading),
-                                                        array("subtype" => "strada_impraticabile", "range"=> m_range, "fading" => l_fading)),
+                                                        array("subtype" => "lavori_in_corso", "range"=> m_range, "fading" => xl_fading),
+                                                        array("subtype" => "strada_impraticabile", "range"=> m_range, "fading" => xl_fading)),
                            "emergenze_sanitarie" => array(array("subtype" => "all"),
                                                           array("subtype" => "incidente", "range"=> m_range, "fading" => l_fading),
                                                           array("subtype" => "malore", "range"=> s_range, "fading" => l_fading),
                                                           array("subtype" => "ferito", "range"=> s_range, "fading" => l_fading)),
                            "reati" => array(array("subtype" => "all"),
-                                            array("subtype" => "furto", "range"=> m_range, "fading" => s_fading),
+                                            array("subtype" => "furto", "range"=> m_range, "fading" => m_fading),
                                             array("subtype" => "attentato", "range"=> m_range, "fading" => l_fading)),
                            "problemi_ambientali" => array(array("subtype" => "all"),
                                                           array("subtype" => "incendio", "range"=> xl_range, "fading" => l_fading),

@@ -72,6 +72,7 @@ function citynotifier_request() {
            $data_remote[$i_fp] = drupal_json_decode($data_remote[$i_fp][1]);
 
            foreach($data_remote[$i_fp]["events"] as $i_event => $event) {
+            $data_remote[$i_fp]["events"][$i_event]['reliability'] = citynotifier_normalize_reliability($event);
              $data_local = _citynotifier_get_matched_remote_event(_citynotifier_citynotifier2data($event));
 
              if($data_local) {
@@ -112,6 +113,14 @@ function citynotifier_request() {
    };
 };
 
+function citynotifier_normalize_reliability($event){
+  if ($event['reliability'] < 0)
+    $event['reliability'] = 0;
+  elseif ($event['reliability'] > 1)
+    $event['reliability'] = 1;
+  return $event['reliability'];
+}
+
 function citynotifier_normalize_json($data){
   $pos = strpos($data, "{");
   $data = substr($data, $pos);
@@ -129,8 +138,6 @@ function citynotifier_get_local_event($data) {
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id', 'status'));
 	$query->fields('cn', array('type','subtype','lat','lng', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code', 'description'));
-	//$query->fields('ce', array());
-	//$query->fields('cn', array());
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
 	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
@@ -140,26 +147,7 @@ function citynotifier_get_local_event($data) {
 		if($data['subtype'])
 			$query->condition('cn.subtype', $data['subtype'], '=');
 	}
-
-/*	switch($data['subtype']) {
-	case 0:
-	  $types_subtypes = array_map("_citynotifier_get_map_subtype", variable_get('citynotifier_settings_types_subtypes', array()));
-    $types = array_keys($types_subtypes);
-    $subtypes = $types_subtypes[$types[$data['type']]];
-    unset($subtypes[0]); /* delete 'all' item */
-/*    $db_or = db_or();
-	  foreach($subtypes as $index_subtype => $subtype) {
-	    $db_and = db_and()->condition('cn.type', $data['type'], '=')
-	                      ->condition('cn.subtype', $index_subtype, '=');
-	    $query->condition($db_or->condition($db_and)); 
-	  }
-	  break;
-	default:
-	  $query->condition('cn.type', $data['type'], '=');
-	  $query->condition('cn.subtype', $data['subtype'], '=');
-	  break;
-	}
-*/	  
+  
 	if($data['status'])
 		$query->condition('ce.status', $data['status'],'=');
 	else
@@ -170,7 +158,7 @@ function citynotifier_get_local_event($data) {
 		->havingCondition('distance', $data['radius']/1000, '<');
 	$query->groupBy('ce.event_id');
 
-	$events = $query->execute();//->fetchAll();
+	$events = $query->execute();
 
 	$result = array();
 
