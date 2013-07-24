@@ -135,7 +135,7 @@ function middlePoint(pointArray){
  */
 function updateQueue(){
 	for(i in heatmapArray){
-		var eventID_heatmap = heatmapArray[i].eventID;);
+		var eventID_heatmap = heatmapArray[i].eventID;
 
 		var result = $.grep(eventArray, function(e){ return e.eventID == eventID_heatmap; });
 

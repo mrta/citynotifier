@@ -55,7 +55,7 @@ form fieldset {
     top:0;
     left:0;
     right:0;
-    margin-top:41px; /* Set margin to your navbar height */;
+    margin-top:41px; /* Set margin to your navbar height */
 }
 
 .dropdown-toggle, #update{

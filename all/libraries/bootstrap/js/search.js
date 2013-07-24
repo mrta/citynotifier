@@ -334,7 +334,8 @@ function updateEvent(eventLocal, eventRemote){
 
     // New reliability
 	var reli = (eventLocal.reliability * 2 + eventRemote.reliability * 2)/(2*(eventLocal.numNot));
-    eventLocal.reliability = Math.round(reli * 100) / 100;	
+    eventLocal.reliability = Math.round(reli * 100) / 100;
+
 
     // Update Events Table
 	$('#'+eventLocal.eventID+'tr td:nth-child(2)').html(eventLocal.startTime);
@@ -431,7 +432,9 @@ function createEvent(event){
 
 	// Event reliability
 	eventObject.reliability = Math.round(event.reliability * 100) / 100;
-	var relipercent = eventObject.reliability*100 + "%";
+	var reli_temp =  eventObject.reliability*100;
+	var relipercent = Math.round(reli_temp * 100) / 100 + "%";
+	console.log(relipercent);
 
 	// Number of Notification
 	eventObject.numNot = event.number_of_notifications;

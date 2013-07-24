@@ -1,5 +1,4 @@
 /* Global Variables */
-var msgArray = []; // Alerts array
 var count = 0; // Count alerts orders
 
 $(document).ready(function(){
@@ -108,25 +107,7 @@ $(document).ready(function(){
  * Test on brand click
  */
 $('.brand').on('click', function(){
-	//console.log(jQuery.cookie());
-	errorAlert("Pota");
-	//searchLive();
-	/*heatMapArray = [];
-	for(var i=0; i<heatmapArray.length;i++)
-		heatmapArray[i].setMap(heatmapArray[i].getMap() ? null : map);
-	heatmapArray = [];
-	
-	geocodePosition(new google.maps.LatLng(44.507188428208536, 11.342839968261728), null);*/
-
-	/*if (typeof jQuery != 'undefined') {  
-	    // jQuery is loaded => print the version
-	    alert(jQuery.fn.jquery);
-	}*/
-	//userMarker.setMap(null);
-	console.log(eventArray);
-	//pota();
-	//searchSkeptical(null);
-	//console.log(lastLongitude + " " + lastLatitude);
+	summerEgg();
 });
 
 /**
@@ -249,7 +230,6 @@ function errorAlert(error){
 	var msgObj = new Object();
 	msgObj.msg = error;
 	msgObj.type = "error";
-	msgArray.push(msgObj);
 	handleMsg(msgObj);
 	
 }
@@ -262,7 +242,6 @@ function successAlert(msg){
 	var msgObj = new Object();
 	msgObj.msg = msg;
 	msgObj.type = "success";
-	msgArray.push(msgObj);
 	handleMsg(msgObj);
 }
 
@@ -274,7 +253,6 @@ function skepticalAlert(msg){
 	var msgObj = new Object();
 	msgObj.msg = msg;
 	msgObj.type = "warning";
-	msgArray.push(msgObj);
 	handleMsg(msgObj);
 }
 
@@ -284,8 +262,8 @@ function handleMsg(msgObj){
 			$('#alertBox').prepend('<div id="'+count+'alert" class="alert alert-'+msgObj.type+'">\
 									<button type="button" class="close"></button>\
 									<span id="alertMsg"><strong>'+msgObj.msg+'</strong></span></div>');
-			var pota = '#'+count+'alert';
-			$(pota).delay(2000).fadeTo(2000, 0, function(){
+			var id_alert = '#'+count+'alert';
+			$(id_alert).delay(2000).fadeTo(2000, 0, function(){
 				$(this).css('display', 'none');
 				$(this).remove();
 				count--;
@@ -314,7 +292,6 @@ function createInfoWindow(latlng, infoWindow){
 			$('#typeModal').html(infoType);
 			$('#subtypeModal').html(infoSubType);
 
-			console.log(infoSubType + " " + session_auth);
 			if(!session_auth || (session_auth == 2 && ( infoSubType == "Buca" || infoSubType == "Lavori in corso") ))
 				var disabled = 'disabled';
 			else
@@ -359,8 +336,6 @@ function createInfoWindow(latlng, infoWindow){
 											</ul>\
 										</div>\
 									</div>');
-
-
 }
 
 /**
@@ -407,18 +382,18 @@ $('#addressButtonNotify').on('click', function(){
 	getLocation();
 });
 
+// Load selectPicker plugin
 $('.selectpicker').selectpicker();
-
 $('.selectpicker-div').on('click', function(e){
 	$('.selectpicker-div').not(this).removeClass('open');
 	$(this).toggleClass('open');
 	e.stopPropagation();
 });
-
 $('body').on('click', function() {
 	$('.selectpicker-div').removeClass('open');
 });
 
+// Create cookie
 $(window).unload(function() {
     // Create cookies
     if(jQuery.cookie('session_user')){
