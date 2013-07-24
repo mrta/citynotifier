@@ -20,6 +20,7 @@ function citynotifier_notify() {
 		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
 		return;
 	}
+	citynotifier_debug($user->roles);
 
 	$data = _citynotifier_citynotifier2data(drupal_json_decode(citynotifier_file_get_contents_utf8("php://input")));
 
