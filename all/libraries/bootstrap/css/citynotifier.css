@@ -46,6 +46,7 @@ form fieldset {
 	padding: 0 10px 5px 10px;
 }
 
+/* Google map */
 #map_canvas {
 	
 	display:block;
@@ -89,6 +90,7 @@ div.datetimepicker {
 	z-index:3011!important;
 }
 
+/* Spinner animation loading */
 #spinner {
 	position: fixed;
 	top: 50%;
@@ -113,41 +115,6 @@ div.datetimepicker {
 	-webkit-animation-iteration-count: infinite;
 	-webkit-animation-timing-function: linear;
 }
-
-.hero-unit{
-	background-color: #fff;
-	padding: 15px 15px 55px 15px;
-	overflow: hidden;
-	
-}
-
-.hero-unit .btn-group{
-	line-height: 0;
-}
-
-.gm-style-iw {
-	overflow: hidden!important;	
-}
-
-#infoWindowStatus{
-	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-size: 14
-	height: 30
-	font-weight: normal
-	display: inline-block;
-}
-
-#notifyPanel{
-	overflow: hidden;
-	width: 550px;
-	height: 300px;
-}
-
-#notifyPanel .modal-body{
-	overflow-x: hidden;
-	height: 160px!important;
-}
-
 @keyframes spinnerRotate {
 	from {
 		transform:rotate(0deg);
@@ -166,12 +133,46 @@ div.datetimepicker {
 	}
 }
 
+/* InfoWindow */
+.hero-unit{
+	background-color: #fff;
+	padding: 15px 15px 55px 15px;
+	overflow: hidden;
+	
+}
+.hero-unit .btn-group{
+	line-height: 0;
+}
+.gm-style-iw {
+	overflow: hidden!important;	
+}
+#infoWindowStatus{
+	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 14
+	height: 30
+	font-weight: normal
+	display: inline-block;
+}
+
+/* Change Evenet Modal */
+#notifyPanel{
+	overflow: hidden;
+	width: 550px;
+	height: 300px;
+}
+#notifyPanel .modal-body{
+	overflow-x: hidden;
+	height: 160px!important;
+}
+
+/* Autocomplete */
 .typeahead{
 	min-width:130%;
 	width: auto;
 	overflow:hidden;
 }
 
+/* Alerts */
 #alertBox{
 	position: absolute;
 	left:30%;
@@ -188,8 +189,11 @@ div.datetimepicker {
 	margin-top: 5px;
 	margin-left: -30px;
 }
+#adminAlert {
+	margin-bottom: 70px;
+}
 
-
+/* Loading button */
 .btn.loading {
 	
     background-image: -webkit-gradient(linear, 0 0, 100% 100%,
@@ -225,6 +229,7 @@ div.datetimepicker {
 	to { background-position: -50px 0; }
 }
 
+/* Admin radio buttons */
 .live-radio { float:left; clear:none; }
 .live-radio label { float:left; clear:none; display:block; padding: 2px 20px 0 5px; }
 .live-radio input[type=radio], input.radio { float:left; clear:none; margin: 5px 0 0 2px; }

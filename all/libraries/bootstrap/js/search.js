@@ -143,7 +143,7 @@ function searchRemote(parameters){
 				// Update events local with new informations
 				// Add new event from remote servers
 				$.each(responseRemote, function(index, response){
-					if(response.events)
+					if(response && response.events)
 						$.each(response.events, function(index, event){
 							var eventIDRemote = event.event_id;
 						
