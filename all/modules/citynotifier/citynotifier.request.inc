@@ -68,6 +68,7 @@ function citynotifier_request() {
            fclose($fp['fp']);
            unset($fps[$i_fp]);
            $data_remote[$i_fp] = explode("\r\n\r\n", $data_remote[$i_fp]);
+           $data_remote[$i_fp][1] = citynotifier_normalize_json($data_remote[$i_fp][1]);
            $data_remote[$i_fp] = drupal_json_decode($data_remote[$i_fp][1]);
 
            foreach($data_remote[$i_fp]["events"] as $i_event => $event) {
@@ -111,6 +112,15 @@ function citynotifier_request() {
    };
 };
 
+function citynotifier_normalize_json($data){
+  $pos = strpos($data, "{");
+  $data = substr($data, $pos);
+
+  $pos = strrpos($data, "}");
+  $data = substr($data, 0, $pos+1);
+
+  return $data;
+}
 
 function citynotifier_get_local_event($data) {
 	$statuses = variable_get('citynotifier_settings_statuses', array());
