@@ -20,7 +20,6 @@ function citynotifier_notify() {
 		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("Per inviare una segnalazione bisogna essere loggati"))));
 		return;
 	}
-	citynotifier_debug($user->roles);
 
 	$data = _citynotifier_citynotifier2data(drupal_json_decode(citynotifier_file_get_contents_utf8("php://input")));
 
@@ -44,6 +43,19 @@ function citynotifier_notify() {
 	case citynotifier_get_index_status("skeptical"):
 		break;
 	default:
+	  extract(_citynotifier_get_value_type_subtype_from_index($data['type'], $data['subtype']));
+	  if($type == "problemi_stradali" && $subtype == "buca"){
+	  	if(in_array("citynotifier_admin", $user->roles)){
+	  	  	$event['status'] = citynotifier_get_index_status("archived");
+	  		citynotifier_update_event($event);
+	  	}
+	  	else{
+	  		drupal_add_http_header("Status", 403);
+	  		echo drupal_convert_to_utf8(drupal_json_encode(array("result" => t("non hai i permessi per chiudere l'evento"))));
+	  		return;
+	  	}
+	  	break;
+	  }
 	  $event['status'] = $data['status'];
 	  citynotifier_update_event($event, 'update_location');
 	}
