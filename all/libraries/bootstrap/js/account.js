@@ -1,6 +1,8 @@
-var session_auth;
+/* Global Variables */
+var session_auth; // Keeps track of the user's authentication level
+
 /**
- * loginFunction permette all'utente di collegarsi al sistema CityNotifier
+ * loginFunction for user login
  */
 function loginFunction() {
     xmlhttp = new XMLHttpRequest();
@@ -9,14 +11,16 @@ function loginFunction() {
     // Login object: Username & Password
     var loginObj = new Object();
     loginObj.username = $('#user').val();
-    loginObj.password = $('#pass').val();
-
-    					var userError = $('<span id="user_span" class="help-inline">User incorrect</span>');
-    					var passError = $('<span id="pass_span" class="help-inline">Password incorrect</span>');
+    loginObj.password = $('#pass').val();	
 
     // Create JSON Object from loginObject
     var loginJSON = JSON.stringify(loginObj);
 
+    // Create warning to be inserted in case of error
+    var userError = $('<span id="user_span" class="help-inline">User incorrect</span>');
+    var passError = $('<span id="pass_span" class="help-inline">Password incorrect</span>');
+
+    // AJAX 
     if ((loginObj.username) && (loginObj.password)) {
         $.ajax({
             url: url,
@@ -31,31 +35,35 @@ function loginFunction() {
         		var session_name = datiString.session_name;   
         		var session_user = datiString.username;   
         		session_auth = datiString.roles;
-        		console.log("Creo la sessione di nome "+session_name+" con id "+session_id);
+
+        		// console.log("Creo la sessione di nome "+session_name+" con id "+session_id);
         		
         		// Store login session data in a cookie
+                jQuery.cookie('session_id', session_id, { path: '/', expires: 30 });
         		jQuery.cookie('session_name', session_name, { path: '/', expires: 30 });
-        		jQuery.cookie('session_id', session_id, { path: '/', expires: 30 });
         		jQuery.cookie('session_user', session_user, { path: '/', expires: 30 });
             
+                // Updates the user interface once logged
                 $('#account').fadeOut(1000, function() {
                     $('#account').html((loginObj.username)[0].toUpperCase() + (loginObj.username).slice(1) + ' <i class="icon-user icon-white"></i>');
                     $('#account').fadeIn(1000);
                     $('#notify').css('visibility','visible').hide().fadeIn(1000);
                 });
-
                 $('#account').next().empty();
+
+                // Create the logout panel
                 for (var auth_level in session_auth) {
   					if(auth_level == 3){ //ADMIN
   						$('#account').next().html('<div id="logout-form">\
   							<a href="#adminPanel" role="button" id="adminPanelButton" class="btn btn-info input-block-level" data-toggle="modal">Admin Panel</a>\
   							<button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');
   							jQuery.cookie('session_auth', auth_level, { path: '/', expires: 30 });
-  							
+                            session_auth = auth_level;
 					}
   					else{
   						$('#account').next().html('<div id="logout-form"><button id="logout" type="button" class="btn btn-danger input-block-level">Logout</button></div>');	
 						jQuery.cookie('session_auth', auth_level, { path: '/', expires: 30 });
+                        session_auth = auth_level;
 					}
 				}
 				$('#account').parent().removeClass('open');
@@ -65,6 +73,8 @@ function loginFunction() {
             }
         });
     }
+
+    // Error handling
     else if (!(loginObj.username) && $("#user").is(':last-child')) {
         $('#user').parent().addClass("error");
         $('#user').after(userError);
@@ -118,6 +128,7 @@ $("#dropdown_account").on("click", '#logout', function() {
 
 			successAlert("Logout effettuato con successo");
 
+            // Create the login panel
 			$('#account').fadeOut(1000, function() {
 		        $('#account').html("Account " + '<i class="icon-user icon-white"></i>');
 		        $('#account').fadeIn(1000);
@@ -135,6 +146,9 @@ $("#dropdown_account").on("click", '#logout', function() {
 		        $('#account').next().fadeIn();
 		        $('#account').removeAttr("style");
 		        $('#account').next().removeAttr("style");
+
+                // Clears the session authorization
+                session_auth = null;
     		});
         	
         	$('#notify').fadeOut(1000);

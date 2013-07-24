@@ -440,6 +440,7 @@ function createEvent(event){
 
 	// Event reliability
 	eventObject.reliability = Math.round(event.reliability * 100) / 100;
+	var relipercent = eventObject.reliability*100 + "%";
 
 	// Number of Notification
 	eventObject.numNot = event.number_of_notifications;
@@ -497,7 +498,7 @@ function createEvent(event){
 							<a href="#" id="'+eventObject.eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
 							<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
 						</div></td>\
-						<td>'+eventObject.numNot+' / '+eventObject.reliability+'</td>\
+						<td>'+eventObject.numNot+' / '+relipercent+'</td>\
 						<td>'+statusHtml+'</td>\
 						</tr>');
 	var butID = "#"+eventObject.eventID+"but";			

@@ -73,8 +73,9 @@ $(document).ready(function(){
         
         $('#searchAddress').val(jQuery.cookie('last_address'));
         
-        $('#searchRadius').val(jQuery.cookie('last_radius') + " km");
-        console.log("Pota");
+        updateRadius(jQuery.cookie('last_radius'));
+        if(isNaN(jQuery.cookie('last_radius')) || jQuery.cookie('last_radius') == 0)
+        	updateRadius(RADIUS);
         distanceDefault = jQuery.cookie('last_radius').split(" ")[0];
         
         $('#searchStatus').val(jQuery.cookie('last_status'));
@@ -308,8 +309,8 @@ function createInfoWindow(latlng, infoWindow){
 			$('#typeModal').html(infoType);
 			$('#subtypeModal').html(infoSubType);
 
-			console.log(infoSubType);
-			if(session_auth == 2 && ( infoSubType == "Buca" || infoSubType == "Lavori in corso"))
+			console.log(infoSubType + " " + session_auth);
+			if(!session_auth || (session_auth == 2 && ( infoSubType == "Buca" || infoSubType == "Lavori in corso") ))
 				var disabled = 'disabled';
 			else
 				var disabled = '';

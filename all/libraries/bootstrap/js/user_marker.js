@@ -7,12 +7,11 @@ var lastLongitude = CITYCENTER.lng();
 /**
 * Returns the user's location
 */
-function getLocation(mode) {
+function getLocation() {
     if (navigator.geolocation) {
-        var options = {timeout: 2000}; // milliseconds (60 seconds)
+        var options = {timeout: 2000}; // milliseconds
         navigator.geolocation.getCurrentPosition(showLocation, errorHandler, options);
     } else {
-        console.log("error")
         errorAlert("Sorry, browser does not support geolocation!");
     }
 }

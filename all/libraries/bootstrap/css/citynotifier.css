@@ -1,6 +1,5 @@
 html {
 	height: 100%;
-	
 }
 
 p.ul {
@@ -28,6 +27,15 @@ body .modal.bigModal {
 
 .modal.bigModal .dropdown-menu {
 	padding: 10px;	
+}
+
+#notifyPanel li {
+	font-weight: bold;
+	padding-left: 0;
+}
+
+#adminPanel img {
+	width: 30%;
 }
 
 form fieldset {

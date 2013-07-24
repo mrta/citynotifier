@@ -1,9 +1,9 @@
 /**
-* Get servers list from catalogue specified in /admin/config/citynotifier
+* Get server list from catalogue specified in /admin/config/citynotifier
 */
 $("#account").next().on('click', "#adminPanelButton", function() {
 
-	// Verifica che i server non siano già stati scaricati, altrimenti li scarica
+	// If the list hasn't been already fetched, get it
 	if($('#serverInput > option').length == 1){
 		console.log("Aggiungo server");
 		url = URLSERVER.concat("/servers"); 							
@@ -22,7 +22,7 @@ $("#account").next().on('click', "#adminPanelButton", function() {
 });
 
 /**
-* Aggiunge al campo 'dest' delle chiamate notify/search l'id del server da interrogare
+* Adds the id of the server to query in the 'dest' field 
 */		
 $('#serverConnect').on('click', function(){
 
@@ -46,7 +46,7 @@ $('#serverConnect').on('click', function(){
 });
 
 /**
-* Cambia i secondi di attesa tra un search e l'altro in modalità LIVE
+* Used to set the interval between refreshs in LIVE mode
 */	
 $('input:radio[name="timeLive"]').change( 
 	function(){
