@@ -52,6 +52,8 @@ function citynotifier_report_apply($data, $mode = NULL) {
 	  $event_id = $matched_event['event_id'];
 	  break;
 	case citynotifier_get_index_status("closed"):
+	  if($mode == "notify")
+	  	break;
 	  $matched_event['status'] = citynotifier_get_index_status("skeptical");
 	  citynotifier_update_event($matched_event);
 		break;

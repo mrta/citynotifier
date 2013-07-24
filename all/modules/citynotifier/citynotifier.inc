@@ -137,15 +137,6 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
    return $same_event?$event:FALSE;
 }
 
-function _citynotifier_get_event_status($event_id){
-	$query = db_select("citynotifier_event", 'ce')
-		->fields('ce', array('status'))
-		->condition('ce.event_id', $event_id, '=');
-	$event = $query->execute()->fetchAssoc();
-
-	return $event['status'];
-}
-
 
 /********************** NOTIFY FUNCTION **********************/
 
