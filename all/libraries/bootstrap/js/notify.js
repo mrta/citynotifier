@@ -167,9 +167,7 @@ $('#notifyAddress').typeahead({
  * Notify Type updater on click
  */
 $("#notifyType").next().on('click', function() {
-	console.log("Pota2");
     var conceptName = $('#notifyType').find(":selected").text();
-    console.log(conceptName);
     if (conceptName != "Select Type") {
     	// A type selected
         $('#notifySubType').removeAttr("disabled");
@@ -182,7 +180,6 @@ $("#notifyType").next().on('click', function() {
 												<option>Coda</option>\
 												<option>Lavori in corso</option>\
 												<option>Strada impraticabile</option>');
-                console.log("Cambia");
                 break;
             case "Emergenze sanitarie":
                 $('#notifySubType').html('<option disabled selected>Select subtype</option>\

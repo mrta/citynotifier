@@ -434,7 +434,6 @@ function createEvent(event){
 	eventObject.reliability = Math.round(event.reliability * 100) / 100;
 	var reli_temp =  eventObject.reliability*100;
 	var relipercent = Math.round(reli_temp * 100) / 100 + "%";
-	console.log(relipercent);
 
 	// Number of Notification
 	eventObject.numNot = event.number_of_notifications;
