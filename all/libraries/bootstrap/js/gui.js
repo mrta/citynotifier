@@ -285,12 +285,14 @@ function createInfoWindow(latlng, infoWindow){
 			var infoStatus = infoWindow.status;
 			var infoScope = infoWindow.scope;
 			var address = infoWindow.address;
+			var descriptions = infoWindow.description;
 		
 			// Update changeEvent Modal panel values
 			$('#eventIDModal').html(infoID);
 			$('#coordModal').html(latlng.lat() + " , " + latlng.lng());
 			$('#typeModal').html(infoType);
 			$('#subtypeModal').html(infoSubType);
+			$('#descModal').val('');
 
 			if(!session_auth || (session_auth == 2 && ( infoSubType == "Buca" || infoSubType == "Lavori in corso") ))
 				var disabled = 'disabled';
@@ -299,14 +301,14 @@ function createInfoWindow(latlng, infoWindow){
 							
 			switch (infoStatus) {
 				case "Open":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
 						$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
 					break;
 				case "Closed":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
@@ -314,7 +316,7 @@ function createInfoWindow(latlng, infoWindow){
 
 					break;
 				case "Skeptical":
-						infoStatus = '<div class="btn-group"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
@@ -324,16 +326,33 @@ function createInfoWindow(latlng, infoWindow){
 													<input type="radio" name="optionsRadios" id="optionsRadios2" value="closed" style="vertical-align: middle"><span class="label label-important">Closed</span></label></li>');
 					break;	
 			}
+
+			// Html description creation
+			var countDesc = 0;
+			var descriptionHtml = "";
+			var fullArray = checkArray(descriptions);
+			if(fullArray){
+				for (j=0; j<descriptions.length; j++){
+					if(descriptions[j] && countDesc < 5){
+						descriptions[j] = descriptions[j].charAt(0).toUpperCase() + descriptions[j].slice(1);
+						descriptionHtml = descriptionHtml.concat('<li><p>'+descriptions[j]+'</p></li>');
+						countDesc++
+					}
+				}	
+			}
 	  
 			// Update infoWindow
 			infoWindow.setContent('<div class="hero-unit">\
-										<h2>'+infoSubType+'<img style="padding-left: 35px;" class="pull-right" src='+getIcon(infoType, infoSubType)+'></h2>\
+										<h2>'+infoSubType+'<img id="imgInfoWindow" src='+getIcon(infoType, infoSubType)+'></h2>\
 										<h4>'+address+'</h4>\
 										<p>'+infoType+' > '+infoSubType+'</p>\
+										<ul id="ulInfoWindow">\
+											'+descriptionHtml+'\
+										</ul>\
 										'+infoStatus+'\
-											<ul class="dropdown-menu">\
-												<li>'+changeStatus+'</li>\
-											</ul>\
+										<ul class="dropdown-menu">\
+											<li>'+changeStatus+'</li>\
+										</ul>\
 										</div>\
 									</div>');
 }

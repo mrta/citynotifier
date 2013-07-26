@@ -6,6 +6,10 @@ var markersArray = [];
 var radiusWidgetCheck = false; // Check if radiusWidget is displayed
 
 
+// Create Event infoWindow
+infoWindow = new google.maps.InfoWindow( { maxWidth: 800 });
+
+
 /**
  * searchEvent() allows the user to search events in the database
  */
@@ -265,6 +269,8 @@ function searchLive(){
  */
 function updateEvent(eventLocal, eventRemote){
 
+	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
+
 	// New Description
 	eventLocal.description = eventRemote.description;
 	var descriptionHtml = "";
@@ -273,11 +279,13 @@ function updateEvent(eventLocal, eventRemote){
 		for (j in eventLocal.description){
 			if(eventLocal.description[j]){
 				eventLocal.description[j] = eventLocal.description[j].charAt(0).toUpperCase() + eventLocal.description[j].slice(1);
+				markerFoundArray[0].description.push(eventLocal.description[j]);
 				$('#'+eventLocal.eventID+'but').next().append('<li><p>'+eventLocal.description[j]+'</p></li>');
 				$('#'+eventLocal.eventID+'but').removeClass('disabled');
 			}
 		}	
 	}
+
 
 	// New Address
 	if(eventRemote.route){
@@ -305,8 +313,6 @@ function updateEvent(eventLocal, eventRemote){
 					var statusHtml = '<button class="btn btn-warning">'+eventLocal.status;
 					break;	
 			}
-
-			var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
     		markerFoundArray[0].status = eventLocal.status;
 		}
 	}
@@ -794,13 +800,11 @@ function addEventMarker(eventObject){
 	searchMarker.type = eventObject.type;	
 	searchMarker.subtype = eventObject.subtype;
 	searchMarker.address = 	eventObject.address;	
-	searchMarker.status = eventObject.status;	
+	searchMarker.status = eventObject.status;
+	searchMarker.description = eventObject.description;
 			
 	// Add EventMarker to markerArray
-	markersArray.push(searchMarker);
-	
-	// Create Event infoWindow
-	infoWindow = new google.maps.InfoWindow();			
+	markersArray.push(searchMarker);				
 	
 	var onMarkerClick = function() {
 		var marker = this;
@@ -808,7 +812,9 @@ function addEventMarker(eventObject){
 		infoWindow.type = this.type;	
 		infoWindow.subtype = this.subtype;	
 		infoWindow.status = this.status;
-		infoWindow.address = this.address;	
+		infoWindow.address = this.address;
+		infoWindow.description = this.description;
+
 		if($.isNumeric(infoWindow.id))
 			infoWindow.scope = "local";
 		else

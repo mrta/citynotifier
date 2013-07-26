@@ -223,7 +223,7 @@ function changeStatus(){
 	changeObj.event_id = $('#eventIDModal').html();
 	changeObj.lat = $('#coordModal').html().split(" , ")[0];
 	changeObj.lng = $('#coordModal').html().split(" , ")[1];
-	changeObj.description = $('#descModal').html();
+	changeObj.description = $('#descModal').val();
 	changeObj.type = $('#typeModal').html().toLowerCase().replace(/ /g, "_");;
 	changeObj.subtype = $('#subtypeModal').html().toLowerCase().replace(/ /g, "_");;
 
@@ -238,6 +238,9 @@ function changeStatus(){
 	
 	xmlhttp = new XMLHttpRequest();
     url = URLSERVER.concat("/notifica");	
+
+    $('#notifyPanel').modal('toggle');
+    infoWindow.close();
 	
 	$.ajax({
             url: url,
@@ -246,11 +249,43 @@ function changeStatus(){
             contentType: "application/json; charset=utf-8",
             success: function(datiString, status, richiesta) {
             	successAlert("Modifica segnalata con successo"); 
-            	$('#notifyPanel').modal('toggle');
+            	updateInfoWindow(changeObj);
             },
             error: function(err) {
                 errorAlert("Errore nella modifica dell'evento");
                 $('#notifyPanel').modal('toggle');
             }  	
        });
+}
+
+
+function updateInfoWindow(changeObj){
+
+	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
+
+	// New Status
+	if(markerFoundArray[0].status != "Skeptical"){
+		if(changeObj.status == "closed")
+    		markerFoundArray[0].status = "Closed";
+    	else
+			markerFoundArray[0].status = "Skeptical";
+	}
+
+	// New Status
+	switch (markerFoundArray[0].status) {
+			case "Open":
+				var statusHtml = '<button class="btn btn-success">'+markerFoundArray[0].status;
+				break;
+			case "Closed":
+				var statusHtml = '<button class="btn btn-danger">'+markerFoundArray[0].status;
+				break;
+			case "Skeptical":
+				var statusHtml = '<button class="btn btn-warning">'+markerFoundArray[0].status;
+				break;	
+	}
+
+	$('#'+changeObj.event_id+'tr td:nth-child(6)').html(statusHtml);
+
+	// New Description
+	markerFoundArray[0].description.unshift(changeObj.description);
 }

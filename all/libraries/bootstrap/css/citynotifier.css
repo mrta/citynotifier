@@ -34,6 +34,15 @@ body .modal.bigModal {
 	padding-left: 0;
 }
 
+#infoDescButton, #infoStatusBtnGroup {
+	float: left;
+}
+
+.modal.bigModal .dropdown-menu, #infoDescButton .dropdown-menu{
+	padding: 10px;
+	margin-top: 5px;
+}
+
 #adminPanel img {
 	width: 30%;
 }
@@ -137,7 +146,7 @@ div.datetimepicker {
 .hero-unit{
 	background-color: #fff;
 	padding: 15px 15px 55px 15px;
-	overflow: hidden;
+	width: 370px;
 	
 }
 .hero-unit .btn-group{
@@ -148,10 +157,18 @@ div.datetimepicker {
 }
 #infoWindowStatus{
 	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-size: 14
-	height: 30
-	font-weight: normal
+	font-size: 14px;
+	font-weight: normal;
 	display: inline-block;
+	margin-top: 10px;
+}
+
+#imgInfoWindow{
+	float:right;
+}
+
+#ulInfoWindow{
+	font-size: 12px;
 }
 
 /* Change Evenet Modal */
@@ -161,7 +178,7 @@ div.datetimepicker {
 	height: 300px;
 }
 #notifyPanel .modal-body{
-	overflow-x: hidden;
+	overflow: hidden;
 	height: 160px!important;
 }
 
