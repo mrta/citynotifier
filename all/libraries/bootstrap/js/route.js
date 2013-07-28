@@ -134,6 +134,7 @@ function middlePoint(pointArray){
  * updateQueue() compute and display new heatmap gradient 
  */
 function updateQueue(){
+	console.log("Aggiorno coda");
 	for(i in heatmapArray){
 		var eventID_heatmap = heatmapArray[i].eventID;
 

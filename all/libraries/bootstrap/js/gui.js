@@ -107,7 +107,14 @@ $(document).ready(function(){
  * Test on brand click
  */
 $('.brand').on('click', function(){
-	summerEgg();
+	 $.noty.consumeAlert({layout: 'bottomLeft', type: 'success', dismissQueue: true, timeout: 2000});
+	 alert("This is the same but noty consumed with options This is the same but noty consumed with options");
+	 $.noty.stopConsumeAlert();
+	 $.noty.consumeAlert({layout: 'bottomLeft', text: 'Pota', type: 'alert', dismissQueue: true});
+	 alert("Pota");
+	 $.noty.stopConsumeAlert();
+
+	//summerEgg();
 });
 
 /**
@@ -161,9 +168,6 @@ $('#liveButton').click(function(){
 
     	var interval = 1000 * LIVE_SECOND * 1; // Every LIVE_SECOND seconds. Default: 30
 		refreshIntervalId = setInterval(searchLive, interval);	
-
-		var interval_queue = 1000 * 60 * 1; // Every 60 seconds
-		refreshIntervalId_queue = setInterval(updateQueue(), interval_queue);	
      }      
      else {
      	// Stop live
@@ -173,7 +177,6 @@ $('#liveButton').click(function(){
     	$('#timeFromText').val('');
 
 		clearInterval(refreshIntervalId);
-		clearInterval(refreshIntervalId_queue);
       }	
 });
 
@@ -257,7 +260,10 @@ function skepticalAlert(msg){
 }
 
 function handleMsg(msgObj){
-			$('#alertBox').css('display', 'block');
+			 $.noty.consumeAlert({layout: 'bottomLeft', type: msgObj.type, dismissQueue: true, timeout: 2000});
+	 			alert(msgObj.msg);
+	 		$.noty.stopConsumeAlert();
+			/*$('#alertBox').css('display', 'block');
 			$('#alertBox').css('opacity', 1);
 			$('#alertBox').prepend('<div id="'+count+'alert" class="alert alert-'+msgObj.type+'">\
 									<button type="button" class="close"></button>\
@@ -268,7 +274,7 @@ function handleMsg(msgObj){
 				$(this).remove();
 				count--;
 			});
-			count++;
+			count++;*/
 	}
 
 /**

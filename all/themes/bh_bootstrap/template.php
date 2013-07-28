@@ -578,6 +578,9 @@ function bh_bootstrap_preprocess_page(&$variables, $hook) {
 	drupal_add_js($bootstrap_path . '/js/bootstrap.min.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/bootstrap-datetimepicker.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/bootstrap-select.js', array('scope' => 'footer')); 
+  drupal_add_js($bootstrap_path . '/js/noty/jquery.noty.js', array('scope' => 'footer')); 
+  drupal_add_js($bootstrap_path . '/js/noty/layouts/bottomLeft.js', array('scope' => 'footer'));
+  drupal_add_js($bootstrap_path . '/js/noty/themes/default.js', array('scope' => 'footer')); 
   drupal_add_js($bootstrap_path . '/js/gui.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/utils.js', array('scope' => 'footer'));
   drupal_add_js($bootstrap_path . '/js/account.js', array('scope' => 'footer'));

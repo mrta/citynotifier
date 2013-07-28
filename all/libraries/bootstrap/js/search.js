@@ -258,8 +258,11 @@ function searchLive(){
 	var minutes = dateSecondsAgo.getMinutes();
 	var seconds = dateSecondsAgo.getSeconds();
 	$("#timeFromText").val(day+'-'+month+'-'+year+' '+ hours + ':' + minutes + ':' + seconds);
-
+	
+	console.log("Pota2");
 	searchEvent();
+	console.log("Pota");
+	updateQueue();
 }
 
 /**
@@ -739,38 +742,19 @@ function drawQueue(event){
 				var distancePS = calcDistance(point, start);
 				var distancePE = calcDistance(point, end);
 
-			
-				console.log("Start: " + start);
-				console.log("End: " + end);
-
-				console.log("Distanza punto "+point+" START = "+ distancePS);
-				console.log("Distanza punto "+point+" END = "+ distancePE);
-				console.log("Distanza SE: " + distanceSE);
-
-				console.log("Somma: "+ (distancePS + distancePE));
-
-				console.log("Lol");
-				console.log(inRange(start,end, point));
-				
-				if(!(inRange(start, end, point))){
-					// This point will become the new vertex
-					if ( distancePS < distancePE ){
-						var wayPoint = { location : start };
-						start = point;
-						console.log("Nuovo start: "+start)
+					if(distancePE > distanceSE || distancePS > distanceSE){
+					    // This point will become the new vertex
+					    if ( distancePS > distanceSE ){
+					            var wayPoint = { location : end };
+					            end = point;
+					    }
+					    else if( distancePE > distanceSE){
+					            var wayPoint = { location : start };
+					            start = point;
+					    }
+					    distanceSE = calcDistance(start, end);
 					}
-					else{
-						var wayPoint = { location : end };
-						end = point;
-						console.log("Nuovo end: "+end)
-					}
-				}
 			});
-
-
-		console.log(start);
-		console.log(end);
-
 			
 			// Compute the expireTime 
             var expireTimeDate = new Date(event.freshness).getTime();
