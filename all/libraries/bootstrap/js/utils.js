@@ -302,3 +302,56 @@ function summerEgg(){
 }
 
 
+function inRange(start, point, end) {
+    start_x = start.lat();
+    start_y = start.lng();
+    end_x = end.lat();
+    end_y = end.lng();
+    point_x = point.lat();
+    point_y = point.lng();
+
+    var dx = end_x - start_x;
+    var dy = end_y - start_y;
+    var innerProduct = (point_x - start_x)*dx + (point_y - start_y)*dy;
+    return 0 <= innerProduct && innerProduct <= dx*dx + dy*dy;
+}
+
+
+function checkRange(start, point, end){
+
+    var x1 = start.lat();
+    var y1 = start.lng();
+    var x2 = end.lat();
+    var y2 = end.lng();
+    var x = point.lat();
+    var y = point.lng();
+
+    if (x1 == x2) {  // special case
+        return y1 < y2 ? (y1 <= y && y <= y2) : (y2 <= y && y <= y1);
+    }
+
+    var m = (y2 - y1) / (x2 - x1);
+    var r1 = x1 + m * y1;
+    var r2 = x2 + m * y2;
+    var r = x + m * y;
+    return r1 < r2 ? (r1 <= r && r <= r2) : (r2 <= r && r <= r1);
+}
+
+function check2(start,point,end){
+    return (point.lat() < end.lat() && point.lat() > start.lat() && point.lng() < end.lng() && point.lng > start.lng());
+}
+
+function check3(start,point,end){
+    var x1 = start.lat();
+    var y1 = start.lng();
+    var x2 = end.lat();
+    var y2 = end.lng();
+    var x = point.lat();
+    var y = point.lng();
+
+    var StartEnd = Math.sqrt(Math.pow(2,(x1 - x2)) + Math.pow(2,(y1 - y2)));
+    var startPoint = Math.sqrt(Math.pow(2,(x1 - x)) + Math.pow(2,(y1 - y)));
+    var endPoint = Math.sqrt(Math.pow(2,(x2 - x)) + Math.pow(2,(y2 - y)));
+
+    console.log(Math.acos((Math.pow(2,startPoint) + Math.pow(2,StartEnd) - Math.pow(2,endPoint))/(2 * startPoint * StartEnd)))
+}

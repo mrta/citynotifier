@@ -69,7 +69,6 @@ function distRoute(start, end, waypointsArray, eventID, gradient) {
  */
 
 function calcRoute(start, end, waypointsArray, path, eventID, gradient) {
-
 	// heatMapArray contains current heatMap points between every steps of route 
 	var heatMapMVCArray = [];	
 		
@@ -82,6 +81,7 @@ function calcRoute(start, end, waypointsArray, path, eventID, gradient) {
 	}
 	// Google HeatMap needs a heatPoint MVCArray
 	var pointArray = new google.maps.MVCArray(heatMapMVCArray);
+	
 	var heatmap = new google.maps.visualization.HeatmapLayer({
 		data: pointArray
 	});

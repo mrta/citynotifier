@@ -732,23 +732,45 @@ function drawQueue(event){
 			
 			// For each points in the array, check if it's inside or outside of the route
 			// If outside, it becomes new route vertex
+			
+
 			$.each(event.locations, function(j){
 				var point = new google.maps.LatLng(event.locations[j].lat, event.locations[j].lng);
 				var distancePS = calcDistance(point, start);
 				var distancePE = calcDistance(point, end);
+
+			
+				console.log("Start: " + start);
+				console.log("End: " + end);
+
+				console.log("Distanza punto "+point+" START = "+ distancePS);
+				console.log("Distanza punto "+point+" END = "+ distancePE);
+				console.log("Distanza SE: " + distanceSE);
+
+				console.log("Somma: "+ (distancePS + distancePE));
+
+				console.log("Lol");
+				console.log(inRange(start,end, point));
 				
-				if( (distancePS + distancePE) > distanceSE ){
+				if(!(inRange(start, end, point))){
 					// This point will become the new vertex
 					if ( distancePS < distancePE ){
 						var wayPoint = { location : start };
 						start = point;
+						console.log("Nuovo start: "+start)
 					}
 					else{
 						var wayPoint = { location : end };
 						end = point;
+						console.log("Nuovo end: "+end)
 					}
 				}
 			});
+
+
+		console.log(start);
+		console.log(end);
+
 			
 			// Compute the expireTime 
             var expireTimeDate = new Date(event.freshness).getTime();
