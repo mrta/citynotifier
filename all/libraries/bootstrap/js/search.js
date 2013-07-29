@@ -210,25 +210,22 @@ function searchSkeptical(parameters){
 					url: url,
 					type: 'GET',
 					success: function(responseSkeptical, status, richiesta) {
-				    	
 				        // Update events local with new informations
 						// Add new event from remote servers
-						$.each(responseSkeptical, function(index, response){
-							if(response.events){
-								skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
-								$.each(response.events, function(index, event){
+						if(responseSkeptical.events){
+								
+								$.each(responseSkeptical.events, function(index, event){
 									var eventIDRemote = event.event_id;
 								
 									// Check if the event already exists in eventArray
 									var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
-									
 									if (result.length == 0) {
+										skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
 										// New event from remote server
 									  	createEvent(event);
 									}
 								});
 							}
-			 			});
 			 		},
 				    error: function(err) {
 				        errorAlert("Skeptical Ajax error");
