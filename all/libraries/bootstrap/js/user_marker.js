@@ -2,6 +2,7 @@
 var userMarker;
 var lastLatitude = CITYCENTER.lat();
 var lastLongitude = CITYCENTER.lng();
+var startUp = true;
 
 
 /**
@@ -37,10 +38,14 @@ function showLocation(position) {
         // Keep track of the user's last location
         lastLatitude = markerPosition.lat();
         lastLongitude = markerPosition.lng();
+
     }
     else
         // Drop userMarker on map if it doesn't exist
-        createUserMarker(markerPosition);  
+        createUserMarker(markerPosition);
+
+    // Search on startUp
+    if(startUp) startUpSearch();
 }
 
 /**
@@ -83,6 +88,9 @@ function errorHandler(err) {
         else
             createUserMarker(markerPosition);
     }
+
+    // Search on startUp
+    if(startUp) startUpSearch();
 }
 
 /**

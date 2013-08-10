@@ -82,6 +82,16 @@ form fieldset {
 	border-bottom-color: black !important;
 }
 
+.caret {
+	margin-left: 5px !important;
+}
+
+.text-auth {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 5px 0 0 10px;
+}
+
 #notifyDescription {
 	margin-top: 10px;	
 }

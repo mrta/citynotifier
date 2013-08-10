@@ -265,10 +265,14 @@ function updateInfoWindow(changeObj){
 
 	// New Status
 	if(markerFoundArray[0].status != "Skeptical"){
-		if(changeObj.status == "closed")
+		if(changeObj.status == "closed"){
     		markerFoundArray[0].status = "Closed";
-    	else
+    		markerFoundArray[0].setIcon(getPin(markerFoundArray[0].type, markerFoundArray[0].subtype, markerFoundArray[0].status));
+		}
+    	else{
 			markerFoundArray[0].status = "Skeptical";
+			markerFoundArray[0].setIcon(getPin(markerFoundArray[0].type, markerFoundArray[0].subtype, markerFoundArray[0].status));
+    	}
 	}
 
 	// New Status

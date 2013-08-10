@@ -4,6 +4,7 @@ var urlCrossDomain = -1; // -1 if no other Server is specified
 var eventArray = [];
 var markersArray = [];
 var radiusWidgetCheck = false; // Check if radiusWidget is displayed
+var timeMin = 1; // 1 January 1970
 
 
 // Create Event infoWindow
@@ -45,9 +46,6 @@ function searchEvent() {
 	parameters["radius"] =  distanceDefault * 1000;
 
 	// Event min Timestamp
-	var timeMin = toTimestamp(parseDate($("#timeFromText").val().replace(/\-/g,'/')));
-	if(isNaN(timeMin))
-		timeMin = toTimestamp(dateStart); // 6 months ago
 	parameters["timemin"] = timeMin;
 
 	// Event max Timestamp
@@ -182,7 +180,6 @@ function searchSkeptical(parameters){
 	parameters["status"] = "skeptical";
 
 	// Event min Timestamp
-	timeMin = toTimestamp(dateStart); // 6 months ago
 	parameters["timemin"] = timeMin;
 
 	// Event max Timestamp
@@ -234,11 +231,24 @@ function searchSkeptical(parameters){
         	},
         	function(){
         		// Geolocation error
-        		skepticalAlert("E' necessario attivare la GeoLocalizzazione per trovare gli eventi scettici");
+        		console.log("Errore GeoLocalizzazione per trovare gli eventi scettici");
         	}, 
         	options);
     } else
         errorAlert("Il browser non supporta le geolocalizzazione");
+}
+
+/**
+ * startUpSearch() is used on CityNotifier's startUp in order to search Events
+ */
+function startUpSearch(){
+	// Create new distanceWidget
+	distanceWidget = new DistanceWidget(map);
+    radiusWidgetCheck = true;
+
+    searchEvent();
+
+    startUp = false;
 }
 
 /**
@@ -247,14 +257,8 @@ function searchSkeptical(parameters){
 function searchLive(){
 	// Current timestamp - LIVE_SECOND
 	var dateNow = new Date();
-	var dateSecondsAgo = new Date(dateNow.getTime() - LIVE_SECOND*1000);
-	var day = dateSecondsAgo.getDate();
-	var month = dateSecondsAgo.getMonth()+1;
-	var year = dateSecondsAgo.getFullYear();
-	var hours = dateSecondsAgo.getHours();
-	var minutes = dateSecondsAgo.getMinutes();
-	var seconds = dateSecondsAgo.getSeconds();
-	$("#timeFromText").val(day+'-'+month+'-'+year+' '+ hours + ':' + minutes + ':' + seconds);
+	timeMin = new Date(dateNow.getTime() - LIVE_SECOND).getTime() / 1000;
+	console.log(timeMin);
 	
 	console.log("Pota2");
 	searchEvent();
@@ -509,8 +513,13 @@ $("#search").next().on("click", "#searchSubmit", function() {
 		clearOverlays();
 		eventArray.length = 0;
 	}
+
 	// Clear list table
 	$('#modalBody').html('');
+
+	// Reset timeMin to 1 January 1970
+	timeMin = 1; 
+
     searchEvent();
 });
 
@@ -791,7 +800,7 @@ function addEventMarker(eventObject){
 	// Create Event Marker
 	searchMarker = new google.maps.Marker({
 		position: new google.maps.LatLng(eventObject.lat, eventObject.lng),
-        icon: getPin(eventObject.type, eventObject.subtype),
+        icon: getPin(eventObject.type, eventObject.subtype, eventObject.status),
 		map: map,
 		draggable: false,
 		title: eventObject.eventID,

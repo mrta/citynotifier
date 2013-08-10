@@ -34,6 +34,7 @@ function loginFunction() {
        			var session_id = datiString.session_id;
         		var session_name = datiString.session_name;   
         		var session_user = datiString.username;   
+                
         		session_auth = datiString.roles;
 
         		// console.log("Creo la sessione di nome "+session_name+" con id "+session_id);

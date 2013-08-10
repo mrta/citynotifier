@@ -145,12 +145,6 @@
                                     <div class="control-group">
                                     	<input type="text" id="searchRadius" class="span3" placeholder="Radius (km, es. '2.5')" autocomplete="off">
                                     </div>
-                                     
-									<div class="input-append date" id="datetimepickerFrom" data-date-format="dd-mm-yyyy">
-										<input type="text" id="timeFromText" placeholder="From time" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">
-    									<span class="add-on"><i class="icon-remove"></i></span>
-                                        <span class="add-on"><i class="icon-th"></i></span>
-									</div>
 									
 									<div class="input-append date" id="datetimepickerTo" data-date-format="dd-mm-yyyy">
 										<input type="text" id="timeToText" placeholder="To time (default 'now')" disabled="disabled" data-date-format="yyyy-mm-dd hh:ii" autocomplete="off">

@@ -300,21 +300,32 @@ function createInfoWindow(latlng, infoWindow){
 			$('#subtypeModal').html(infoSubType);
 			$('#descModal').val('');
 
-			if(!session_auth || (session_auth == 2 && ( infoSubType == "Buca" || infoSubType == "Lavori in corso") ))
+			if(!session_auth){
 				var disabled = 'disabled';
-			else
+				var infoCaret = ''
+				var disabledInfo = ''
+			}
+			else if (session_auth == 2 && ( infoSubType == "Buca" || infoSubType == "Lavori in corso") ){
+				var disabled = 'disabled';
+				var infoCaret = ''
+				var disabledInfo = '<p class="text-error text-auth">Non sei autorizzato a cambiare lo stato dell\'evento</p>'
+			}
+			else{
 				var disabled = '';
+				var infoCaret = '<span class="caret"></span>'
+				var disabledInfo = ''
+			}
 							
 			switch (infoStatus) {
 				case "Open":
-						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-success" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-success" data-toggle="dropdown" href="#">'+infoStatus+''+infoCaret+'</a>'+disabledInfo;
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento chiuso</a>';
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
 						$('#statusModal').after('<li><span id="statusModalValue" class="label label-important">Closed</span>');
 					break;
 				case "Closed":
-						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-danger" data-toggle="dropdown" href="#">'+infoStatus+'  <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-danger" data-toggle="dropdown" href="#">'+infoStatus+''+infoCaret+'</a>'+disabledInfo;
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Segnala evento aperto</a>'
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();
@@ -322,7 +333,7 @@ function createInfoWindow(latlng, infoWindow){
 
 					break;
 				case "Skeptical":
-						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-warning" data-toggle="dropdown" href="#">'+infoStatus+' <span class="caret"></span></a>';
+						infoStatus = '<div class="btn-group" id="infoStatusBtnGroup"><a id="infoWindowStatus" type="button" class="btn dropdown-toggle '+disabled+' btn-warning" data-toggle="dropdown" href="#">'+infoStatus+''+infoCaret+'</a>'+disabledInfo;
 						var changeStatus = '<a href="#notifyPanel" data-toggle="modal">Risolvi evento scettico</a>';
 						while($("#statusModal").next().is("li"))
 							$("#statusModal").next().remove();

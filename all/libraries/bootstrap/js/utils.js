@@ -124,51 +124,57 @@ function getIcon(type, subtype){
  * @param type Event type
  * @param subtype Event subtype
  */
-function getPin(type, subtype){
-    var dir = "sites/all/libraries/bootstrap/img/pins/";
+function getPin(type, subtype, status){
+    var mDir = "sites/all/libraries/bootstrap/img/pins/";
     switch (type){
         case"Problemi stradali" :
             switch(subtype){
-                case "Incidente": return dir+"car_accident.png";
-                case "Buca": return dir+"buca.png";
-                case "Coda": return dir+"coda.png";
-                case "Lavori in corso": return dir+"lavoriincorso.png";
-                case "Strada impraticabile": return dir+"stradanonpercorribile.png";
+                case "Incidente": mDir = mDir+"car_accident"; break;
+                case "Buca": mDir = mDir+"buca"; break;
+                case "Coda": mDir = mDir+"coda"; break;
+                case "Lavori in corso": mDir = mDir+"lavoriincorso"; break;
+                case "Strada impraticabile": mDir = mDir+"stradanonpercorribile"; break;
             }
             break;
         
         case "Emergenze sanitarie" :
             switch(subtype){
-                case "Incidente": return dir+"incidente.png";
-                case "Malore": return dir+"malore.png";
-                case "Ferito": return dir+"ferito.png";
+                case "Incidente": mDir = mDir+"incidente"; break;
+                case "Malore": mDir = mDir+"malore"; break;
+                case "Ferito": mDir = mDir+"ferito"; break;
                 }
             break;
         
         case "Reati" :
             switch(subtype){
-                case "Furto": return dir+"thief.png";
-                case "Attentato": return dir+"shooting.png";
+                case "Furto": mDir = mDir+"thief"; break;
+                case "Attentato": mDir = mDir+"shooting"; break;
             }
             break;
             
         case "Problemi ambientali" :
             switch(subtype){
-                case "Incendio" : return dir+"fire.png";
-                case "Tornado" : return dir+"tornado.png";
-                case "Neve" : return dir+"snow.png";
-                case "Alluvione" : return dir+"rain.png";
+                case "Incendio" : mDir = mDir+"fire"; break;
+                case "Tornado" : mDir = mDir+"tornado"; break;
+                case "Neve" : mDir = mDir+"snow"; break;
+                case "Alluvione" : mDir = mDir+"rain"; break;
             }
             break;
         case "Eventi pubblici" :
             switch(subtype){
-                case "Partita" : return dir+"football.png";
-                case "Manifestazione" : return dir+"manifestazione.png";
-                case "Concerto" : return dir+"livemusic.png";
+                case "Partita" : mDir = mDir+"football"; break;
+                case "Manifestazione" : mDir = mDir+"manifestazione"; break;
+                case "Concerto" : mDir = mDir+"livemusic"; break;
                 }
             break;
         break;
-        }
+    }
+    
+    switch (status){
+        case "Open" : return mDir + "Open.png";
+        case "Closed" : return mDir + "Closed.png"
+        case "Skeptical" : return mDir + ".png";
+    }
 }
 
 // EasterEgg
