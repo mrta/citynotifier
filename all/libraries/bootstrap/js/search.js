@@ -147,19 +147,21 @@ function searchRemote(parameters){
 				$.each(responseRemote, function(index, response){
 					if(response && response.events)
 						$.each(response.events, function(index, event){
-							var eventIDRemote = event.event_id;
-						
-							// Check if the event already exists in eventArray
-							var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
+							if(event){
+								var eventIDRemote = event.event_id;
 							
-							if (result.length == 0) {
-								// New event from remote server
-							  	createEvent(event);
-							  
-							} 
-							else if (result.length == 1) {
-								// Update local event
-							  	updateEvent(result[0], event);
+								// Check if the event already exists in eventArray
+								var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
+								
+								if (result.length == 0) {
+									// New event from remote server
+								  	createEvent(event);
+								  
+								} 
+								else if (result.length == 1) {
+									// Update local event
+								  	updateEvent(result[0], event);
+								}
 							}
 						});
 			 	});
