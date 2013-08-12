@@ -225,7 +225,7 @@ function changeStatus(){
 	changeObj.lng = $('#coordModal').html().split(" , ")[1];
 	changeObj.description = $('#descModal').val();
 	changeObj.type = $('#typeModal').html().toLowerCase().replace(/ /g, "_");;
-	changeObj.subtype = $('#subtypeModal').html().toLowerCase().replace(/ /g, "_");;
+	changeObj.subtype = $('#subtypeModal').html().toLowerCase().replace(/ /g, "_");
 
 	// Status skeptical
 	if($('input[name=optionsRadios]:checked').val())
@@ -249,6 +249,12 @@ function changeStatus(){
             contentType: "application/json; charset=utf-8",
             success: function(datiString, status, richiesta) {
             	successAlert("Modifica segnalata con successo"); 
+
+            	if(datiString.event_id){ //Update Event remote
+            		console.log("Aggiorno evento " + changeObj.event_id + " con d_" + datiString.event_id)
+            		changeObj.new_id = URLSERVER.split(".")[0].split("//")[1] + "_" + datiString.event_id; //New ID
+            		var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
+            	} 
             	updateInfoWindow(changeObj);
             },
             error: function(err) {
@@ -292,4 +298,14 @@ function updateInfoWindow(changeObj){
 
 	// New Description
 	markerFoundArray[0].description.unshift(changeObj.description);
+	console.log("Aggiungo " + changeObj.description + " a " + changeObj.event_id);
+	$('#'+changeObj.event_id+'but').next().prepend('<li><p>'+changeObj.description+'</p></li>');
+
+	if(changeObj.new_id){
+		markerFoundArray[0].id = changeObj.new_id
+		markerFoundArray[0].setTitle(changeObj.new_id);
+		$('#'+changeObj.event_id+'tr').attr("id",changeObj.new_id+"tr");
+	}
+
+
 }

@@ -3,6 +3,7 @@ var userMarker;
 var lastLatitude = CITYCENTER.lat();
 var lastLongitude = CITYCENTER.lng();
 var startUp = true;
+var restartLive = false;
 
 
 /**
@@ -142,6 +143,9 @@ function updateMarker(event){
     // Keep track of the user's last location
     lastLatitude = lat;
     lastLongitude = lng;
+
+    restartLive = true;
+    timeMin = 1; //Reset live searching
 
     // Move the userMarker
     var markerPosition = new google.maps.LatLng(lat, lng)

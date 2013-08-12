@@ -140,10 +140,11 @@ function updateQueue(){
 
 		var result = $.grep(eventArray, function(e){ return e.eventID == eventID_heatmap; });
 
+		console.log(result[0]);
+
 		// Check expire Event
-        var expireTimeDate = new Date(result[0].freshness).getTime();
-        var fadedTime = expireTimeDate + 10*60;
-        var expireTime = expireTimeDate + 20*60;
+        var fadedTime = parseInt(result[0].freshness) + 10*60;
+        var expireTime = parseInt(result[0].freshness) + 20*60;
         var nowTime = new Date().getTime() / 1000;
                         
         if(expireTime < nowTime){ 

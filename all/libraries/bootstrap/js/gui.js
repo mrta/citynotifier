@@ -163,6 +163,8 @@ $('#liveButton').click(function(){
         	distanceWidget = new DistanceWidget(map);
         	radiusWidgetCheck = true;
 		}
+
+		timeMin = 1;
 		clearOverlays();
 		searchEvent();
 
@@ -193,6 +195,7 @@ $('#changeButton').on('click', function(){
 $('#timeToText').change(function(){
       	$('#liveButton').removeClass('btn-success loading');
     	$('#liveButton').addClass('btn-danger');
+    	clearInterval(refreshIntervalId);
 });
 
 
