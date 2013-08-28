@@ -38,34 +38,33 @@ function citynotifier_report() {
 
 function citynotifier_report_apply($data, $mode = NULL) {
   global $user;
-  
+
   $matched_event = citynotifier_get_matched_event($data);
-  
+
 	$new_event = FALSE;
-	switch ($matched_event['status']) {
+	switch ($matched_event->status) {
 	case FALSE:
 	case citynotifier_get_index_status("archived"):
 	  $new_event = TRUE;
 	  $event_id = citynotifier_create_event($data);
 	  break;
 	case citynotifier_get_index_status("open"):
-	  $event_id = $matched_event['event_id'];
+	  $event_id = $matched_event->event_id;
 	  break;
 	case citynotifier_get_index_status("closed"):
-	  $event_id = $matched_event['event_id'];
+	  $event_id = $matched_event->event_id;
 	  if($mode == "notify")
 	  	break;
-	  $matched_event['status'] = citynotifier_get_index_status("skeptical");
+	  $matched_event->status = citynotifier_get_index_status("skeptical");
 	  citynotifier_update_event($matched_event);
 		break;
 	case citynotifier_get_index_status("skeptical"):
 	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
-	  $event_id = $matched_event['event_id'];
+	  $event_id = $matched_event->event_id;
 	  break;
 	};
 
   /** Ad extra $data **/
-
   $data = array_merge($data, array("uid" => $user->uid, "event_id" => $event_id, "created" => time()));
   drupal_write_record("citynotifier_notify", $data);
 
