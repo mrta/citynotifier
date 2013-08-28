@@ -9,7 +9,7 @@ function citynotifier_create_event($data) {
 }
 
 function citynotifier_update_event($event, $mode = NULL){
-	$notifications = citynotifier_get_notify_of_event($event);
+/*	$notifications = citynotifier_get_notify_of_event($event);
   extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype));
 	
 	if ((citynotifier_get_range_subtype($type, $subtype)) >= l_range &&
@@ -27,7 +27,7 @@ function citynotifier_update_event($event, $mode = NULL){
     else
       watchdog('citynotifier', t("Errore geocoding.") . '<pre>'. print_r($event, TRUE) .'</pre>', WATCHDOG_DEBUG);
 	};
-	
+*/	
 	$event->last_update = time();
 	return drupal_write_record("citynotifier_event", $event, 'event_id');
 }
@@ -97,18 +97,21 @@ function citynotifier_get_matched_event($data) {
     ->condition('ce.status', citynotifier_get_index_status("archived"), '<>');
   $query->havingCondition('distance', $range, '<');
 	$query->orderby('cn.created', 'DESC');
-  $event = $query->execute()->fetchAssoc();
+  $events = $query->execute()->fetchAll();//fetchAssoc();
 
-  extract(_citynotifier_get_value_type_subtype_from_index($event['type'], $event['subtype'])); 
+  foreach ($events as $event) {
+    extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype)); 
 
-  if($type == "problemi_stradali" && $subtype == "coda"){
-    $distance = min(citynotifier_get_driving_distance(array('lat' => $event['lat'], 'lng' => $event['lng']), array('lat' => $data['lat'], 'lng' => $data['lng'])), citynotifier_get_driving_distance(array('lat' => $data['lat'], 'lng' => $data['lng']),array('lat' => $event['lat'], 'lng' => $event['lng'])));
+    if($type == "problemi_stradali" && $subtype == "coda"){
+      $distance = min(citynotifier_get_driving_distance(array('lat' => $event->lat, 'lng' => $event->lng), array('lat' => $data['lat'], 'lng' => $data['lng'])), citynotifier_get_driving_distance(array('lat' => $data['lat'], 'lng' => $data['lng']),array('lat' => $event->lat, 'lng' => $event->lng)));
 
-    if ($distance > $range)
-      return FALSE; 
+      if ($distance > $range)
+        continue; 
+    }
+
+    return $event;
   }
-
-	return $event;
+  return FALSE;
 }
 
 /**
@@ -452,6 +455,8 @@ function citynotifier_decode_event_id($event_id) {
 }
 
 function citynotifier_sync() {
+  citynotifier_debug("poppe " . time());
+  
 	$query = db_select('citynotifier_event', 'ce');
 	$query->fields('ce', array('event_id', 'status', 'last_update'))
 		->condition('ce.status', citynotifier_get_index_status("skeptical"), '=');
