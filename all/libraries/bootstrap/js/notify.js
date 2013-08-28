@@ -272,12 +272,15 @@ function updateInfoWindow(changeObj){
 	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
 
 	// New Status
+	console.log(markerFoundArray[0].status);
+	console.log(changeObj.status);
 	if(markerFoundArray[0].status != "Skeptical"){
 		if(changeObj.status == "closed"){
     		markerFoundArray[0].status = "Closed";
     		markerFoundArray[0].setIcon(getPin(markerFoundArray[0].type, markerFoundArray[0].subtype, markerFoundArray[0].status));
 
-    		if(changeObj.type == "Coda"){
+    		console.log(changeObj.subtype)
+    		if(changeObj.subtype == "coda"){
     			var heatmapFoundArray = $.grep(heatmapArray, function(e){ return e.eventID == changeObj.event_id; });
     			var heatmapFound = heatmapFoundArray[0];
     			if(heatmapFound){
