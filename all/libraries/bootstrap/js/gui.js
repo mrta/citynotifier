@@ -414,6 +414,8 @@ function updateRadius(distance){
  * getLocation on press search/notify location button
  */
 $('#addressButtonSearch').on('click', function(){
+	$('#addressButtonSearch').removeClass("btn-danger");
+	$('#addressMarkerSearch').removeClass("icon-white");
 	getLocation();
 });
 

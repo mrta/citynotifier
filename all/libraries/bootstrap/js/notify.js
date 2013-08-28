@@ -233,6 +233,8 @@ function changeStatus(){
 	else
 		changeObj.status = $('#statusModalValue').html().toLowerCase();
 
+
+
 	// Create JSON Object from notifyObject
     var changeJSON = JSON.stringify(changeObj);
 	
@@ -274,6 +276,20 @@ function updateInfoWindow(changeObj){
 		if(changeObj.status == "closed"){
     		markerFoundArray[0].status = "Closed";
     		markerFoundArray[0].setIcon(getPin(markerFoundArray[0].type, markerFoundArray[0].subtype, markerFoundArray[0].status));
+
+    		if(changeObj.type == "Coda"){
+    			var heatmapFoundArray = $.grep(heatmapArray, function(e){ return e.eventID == changeObj.event_id; });
+    			var heatmapFound = heatmapFoundArray[0];
+    			if(heatmapFound){
+		            var gradient = [
+		                'rgba(34, 139, 34, 0)',
+		                'rgba(34, 139, 34, 1)' //Gradiente verde
+		            ];
+		            heatmapFound.setOptions({
+		                gradient: gradient
+		            });
+       		 	}
+    		}
 		}
     	else{
 			markerFoundArray[0].status = "Skeptical";

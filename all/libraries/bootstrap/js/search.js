@@ -460,8 +460,15 @@ function createEvent(event){
 	eventObject.numNot = event.number_of_notifications;
 
 	// Event coordinates
-	eventObject.lat = middlePoint(event.locations).lat();
-	eventObject.lng = middlePoint(event.locations).lng();
+	if(eventObject.subtype != "Coda"){
+		eventObject.lat = middlePoint(event.locations).lat();
+		eventObject.lng = middlePoint(event.locations).lng();
+	}
+	else{
+		console.log(event.locations);
+		eventObject.lat = event.locations[0].lat;
+		eventObject.lng = event.locations[0].lng;
+	}
 		
 	// Event ID
 	eventObject.eventID = event.event_id;
