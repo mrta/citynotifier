@@ -31,7 +31,7 @@ function citynotifier_report() {
 
   list($data, $new_event) = citynotifier_report_apply($data);
   drupal_add_http_header("Status", 200);
-  echo drupal_convert_to_utf8(drupal_json_encode(array("event_id" => $data['event_id'],
+  echo drupal_convert_to_utf8(drupal_json_encode(array("event" => $data,
                                                        "result" => $new_event?t("nuova segnalazione aperta con successo"):t("segnalazione di un evento già in memoria avvenuta con successo"))));
   return;
 }
