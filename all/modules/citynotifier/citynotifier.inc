@@ -125,10 +125,12 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
    $event['event_id'] = TRUE;
    $i = 0;
    while($same_event && $event['event_id']) {
-     $event = citynotifier_get_matched_event(array('lat' => $data_remote_event['locations'][$i]['lat'],
+     $event = (array)citynotifier_get_matched_event(array('lat' => $data_remote_event['locations'][$i]['lat'],
                                                     'lng' => $data_remote_event['locations'][$i]['lng'],
                                                     'type' => $data_remote_event['type'],
                                                     'subtype' => $data_remote_event['subtype']));
+     citynotifier_debug("Pota");
+     citynotifier_debug($event);
      if($i <> 0 && $event <> $prev_event)
        $same_event = FALSE;
 

@@ -209,7 +209,7 @@
                 </ul>
                 <ul class="nav pull-right">
                 	<li>
-                		<button id="liveButton" type="button" class="btn btn-danger">Live <i class="icon-eye-open icon-white"></i></button>
+                		<button id="liveButton" type="button" class="btn btn-danger" disabled>Live <i class="icon-eye-open icon-white"></i></button>
                 	</li>
                 </ul>
             </div>

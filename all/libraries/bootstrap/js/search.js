@@ -5,6 +5,7 @@ var eventArray = [];
 var markersArray = [];
 var radiusWidgetCheck = false; // Check if radiusWidget is displayed
 var timeMin = 1; // 1 January 1970
+var searching = false;
 
 
 // Create Event infoWindow
@@ -15,6 +16,7 @@ infoWindow = new google.maps.InfoWindow( { maxWidth: 800 });
  * searchEvent() allows the user to search events in the database
  */
 function searchEvent() {
+	searching = true;
 	xmlhttp = new XMLHttpRequest();
 	    
 	// Query parameters creation
@@ -142,6 +144,10 @@ function searchRemote(parameters){
 			success: function(responseRemote, status, richiesta) {
 				successAlert("Aggiornamento in corso...");
 				console.log("Remote...");
+
+				// Avoid double remoteSearch
+				$('#liveButton').removeAttr('disabled');
+				searching = false;
 				
 				// Update events local with new informations
 				// Add new event from remote servers
@@ -266,13 +272,11 @@ function searchLive(){
 	var dateNow = new Date();
 
 	// If userMarker dragged, restart Live
-	if(restartLive){ clearOverlays(); searchEvent(); restartLive = false; return; }
+	if(restartLive){ clearOverlays(); $('#modalBody').html(''); searchEvent(); restartLive = false; return; }
 
 	timeMin = new Date(dateNow.getTime() - LIVE_SECOND).getTime() / 1000;
-	console.log(timeMin);
 	
 	searchEvent();
-	console.log("Pota");
 	updateQueue();
 }
 
@@ -550,7 +554,7 @@ $("#search").next().on('keypress', '#searchRadius', function(e) {
     	if(jQuery.isNumeric(klm) && klm > 0) {
     		// Valid radius
     	    radiusWidget.set('distance', klm);
-    	    radiusWidget.center_changed();
+    	    radiusWidget.center_changedd();
     	    $('#searchRadius').parent().removeClass("error");
     	}
     	else if(!(jQuery.isNumeric(klm)) || klm <= 0){
