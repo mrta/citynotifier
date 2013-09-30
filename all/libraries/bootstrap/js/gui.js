@@ -170,7 +170,8 @@ $('#liveButton').click(function(){
      }      
      else {
      	// Stop live
-     	$(this).attr('disabled', 'disabled');
+     	if(searching)
+     		$(this).attr('disabled', 'disabled');
       	$(this).removeClass('btn-success');
     	$(this).addClass('btn-danger');
     	

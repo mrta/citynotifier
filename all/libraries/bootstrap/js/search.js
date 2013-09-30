@@ -5,6 +5,7 @@ var eventArray = [];
 var markersArray = [];
 var radiusWidgetCheck = false; // Check if radiusWidget is displayed
 var timeMin = 1; // 1 January 1970
+var searching = false;
 
 
 // Create Event infoWindow
@@ -15,6 +16,7 @@ infoWindow = new google.maps.InfoWindow( { maxWidth: 800 });
  * searchEvent() allows the user to search events in the database
  */
 function searchEvent() {
+	searching = true;
 	xmlhttp = new XMLHttpRequest();
 	    
 	// Query parameters creation
@@ -143,7 +145,9 @@ function searchRemote(parameters){
 				successAlert("Aggiornamento in corso...");
 				console.log("Remote...");
 
+				// Avoid double remoteSearch
 				$('#liveButton').removeAttr('disabled');
+				searching = false;
 				
 				// Update events local with new informations
 				// Add new event from remote servers
