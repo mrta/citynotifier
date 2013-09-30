@@ -107,14 +107,7 @@ $(document).ready(function(){
  * Test on brand click
  */
 $('.brand').on('click', function(){
-	 $.noty.consumeAlert({layout: 'bottomLeft', type: 'success', dismissQueue: true, timeout: 2000});
-	 alert("This is the same but noty consumed with options This is the same but noty consumed with options");
-	 $.noty.stopConsumeAlert();
-	 $.noty.consumeAlert({layout: 'bottomLeft', text: 'Pota', type: 'alert', dismissQueue: true});
-	 alert("Pota");
-	 $.noty.stopConsumeAlert();
-
-	//summerEgg();
+	summerEgg();
 });
 
 /**
@@ -166,6 +159,10 @@ $('#liveButton').click(function(){
 
 		timeMin = 1;
 		clearOverlays();
+		
+		// Clear list table
+		$('#modalBody').html('');
+
 		searchEvent();
 
     	var interval = 1000 * LIVE_SECOND * 1; // Every LIVE_SECOND seconds. Default: 30
@@ -173,9 +170,10 @@ $('#liveButton').click(function(){
      }      
      else {
      	// Stop live
+     	$(this).attr('disabled', 'disabled');
       	$(this).removeClass('btn-success');
     	$(this).addClass('btn-danger');
-
+    	
     	$('#timeFromText').val('');
 
 		clearInterval(refreshIntervalId);
@@ -187,7 +185,16 @@ $('#liveButton').click(function(){
  */
 $('#changeButton').on('click', function(){
 	changeStatus();
-})
+});
+
+/**
+ * Change submit button enter pressed listener
+ */
+$("#notifyPanel").on('keypress', '#descModal', function(e) {
+    if (e.which === 13) {
+        changeStatus();
+    }
+});
 
 /**
  * Deactive Live if timeTo is set
@@ -266,19 +273,7 @@ function handleMsg(msgObj){
 			 $.noty.consumeAlert({layout: 'bottomLeft', type: msgObj.type, dismissQueue: true, timeout: 2000});
 	 			alert(msgObj.msg);
 	 		$.noty.stopConsumeAlert();
-			/*$('#alertBox').css('display', 'block');
-			$('#alertBox').css('opacity', 1);
-			$('#alertBox').prepend('<div id="'+count+'alert" class="alert alert-'+msgObj.type+'">\
-									<button type="button" class="close"></button>\
-									<span id="alertMsg"><strong>'+msgObj.msg+'</strong></span></div>');
-			var id_alert = '#'+count+'alert';
-			$(id_alert).delay(2000).fadeTo(2000, 0, function(){
-				$(this).css('display', 'none');
-				$(this).remove();
-				count--;
-			});
-			count++;*/
-	}
+}
 
 /**
  * Create infoWindow

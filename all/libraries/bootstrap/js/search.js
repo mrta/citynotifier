@@ -142,6 +142,8 @@ function searchRemote(parameters){
 			success: function(responseRemote, status, richiesta) {
 				successAlert("Aggiornamento in corso...");
 				console.log("Remote...");
+
+				$('#liveButton').removeAttr('disabled');
 				
 				// Update events local with new informations
 				// Add new event from remote servers
@@ -266,13 +268,11 @@ function searchLive(){
 	var dateNow = new Date();
 
 	// If userMarker dragged, restart Live
-	if(restartLive){ clearOverlays(); searchEvent(); restartLive = false; return; }
+	if(restartLive){ clearOverlays(); $('#modalBody').html(''); searchEvent(); restartLive = false; return; }
 
 	timeMin = new Date(dateNow.getTime() - LIVE_SECOND).getTime() / 1000;
-	console.log(timeMin);
 	
 	searchEvent();
-	console.log("Pota");
 	updateQueue();
 }
 
@@ -550,7 +550,7 @@ $("#search").next().on('keypress', '#searchRadius', function(e) {
     	if(jQuery.isNumeric(klm) && klm > 0) {
     		// Valid radius
     	    radiusWidget.set('distance', klm);
-    	    radiusWidget.center_changed();
+    	    radiusWidget.center_changedd();
     	    $('#searchRadius').parent().removeClass("error");
     	}
     	else if(!(jQuery.isNumeric(klm)) || klm <= 0){
