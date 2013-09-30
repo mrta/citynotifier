@@ -455,8 +455,6 @@ function citynotifier_decode_event_id($event_id) {
 }
 
 function citynotifier_sync() {
-  citynotifier_debug("poppe " . time());
-  
 	$query = db_select('citynotifier_event', 'ce');
 	$query->fields('ce', array('event_id', 'status', 'last_update'))
 		->condition('ce.status', citynotifier_get_index_status("skeptical"), '=');

@@ -1,5 +1,7 @@
 <?php
 
+module_load_include('inc', 'citynotifier', 'citynotifier.request');
+
 /**
  * Report service.
  */
@@ -31,7 +33,7 @@ function citynotifier_report() {
 
   list($data, $new_event) = citynotifier_report_apply($data);
   drupal_add_http_header("Status", 200);
-  echo drupal_convert_to_utf8(drupal_json_encode(array("event" => $data,
+  echo drupal_convert_to_utf8(drupal_json_encode(array("event" => citynotifier_get_local_event($data, 'report'),
                                                        "result" => $new_event?t("nuova segnalazione aperta con successo"):t("segnalazione di un evento già in memoria avvenuta con successo"))));
   return;
 }
@@ -69,7 +71,7 @@ function citynotifier_report_apply($data, $mode = NULL) {
   drupal_write_record("citynotifier_notify", $data);
 
   if($mode=="notify")
-    return array(citynotifier_get_local_event($data), $new_event);
+    return array(citynotifier_get_event($data), $new_event);
   
   return array($data, $new_event);
 }

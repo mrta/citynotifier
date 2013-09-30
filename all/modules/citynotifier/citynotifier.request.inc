@@ -131,7 +131,7 @@ function citynotifier_normalize_json($data){
   return $data;
 }
 
-function citynotifier_get_local_event($data) {
+function citynotifier_get_local_event($data, $mode=NULL) {
 	$statuses = variable_get('citynotifier_settings_statuses', array());
 
 	$query = db_select("citynotifier_event", 'ce');
@@ -140,23 +140,29 @@ function citynotifier_get_local_event($data) {
 	$query->fields('cn', array('type','subtype','lat','lng', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code', 'description'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
-	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
-
-	if($data['type']){
-		$query->condition('cn.type', $data['type'], '=');
-		if($data['subtype'])
-			$query->condition('cn.subtype', $data['subtype'], '=');
-	}
-  
-	if($data['status'])
-		$query->condition('ce.status', $data['status'],'=');
-	else
-		$query->condition('ce.status', citynotifier_get_index_status("archived"),'<>');
-
-	$query->havingCondition('freshness', $data['timemin'], '>')
-		->havingCondition('freshness', $data['timemax'], '<')
-		->havingCondition('distance', $data['radius']/1000, '<');
-	$query->groupBy('ce.event_id');
+	
+	if($mode == 'report') {
+	  $query->condition('ce.event_id', $data['event_id'], '=');
+	} else {
+	  
+	  if($data['type']){
+	    $query->condition('cn.type', $data['type'], '=');
+	    if($data['subtype'])
+	      $query->condition('cn.subtype', $data['subtype'], '=');
+	  }
+	  
+	  if($data['status'])
+	    $query->condition('ce.status', $data['status'],'=');
+	  else
+		  $query->condition('ce.status', citynotifier_get_index_status("archived"),'<>');
+		
+		
+	  $query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
+	  $query->havingCondition('freshness', $data['timemin'], '>')
+		      ->havingCondition('freshness', $data['timemax'], '<')
+		      ->havingCondition('distance', $data['radius']/1000, '<');
+		$query->groupBy('ce.event_id');
+	};
 
 	$events = $query->execute();
 
