@@ -28,7 +28,7 @@ function citynotifier_notify() {
 	/* Notify on a non local event, create new one */
 	if($new_event) {
 	  drupal_add_http_header("Status", 200);
-	  echo drupal_convert_to_utf8(drupal_json_encode(array("event_id" => $event['event_id'],
+	  echo drupal_convert_to_utf8(drupal_json_encode(array("event" => $event,
 	                                                       "result" => t("notifica inviata con successo su un evento non esistente in locale che ora è stato creato"))));
 	  return;
 	}
