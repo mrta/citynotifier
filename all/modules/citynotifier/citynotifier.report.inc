@@ -69,7 +69,7 @@ function citynotifier_report_apply($data, $mode = NULL) {
   drupal_write_record("citynotifier_notify", $data);
 
   if($mode=="notify")
-    return array(citynotifier_get_event($data), $new_event);
+    return array(citynotifier_get_local_event($data), $new_event);
   
   return array($data, $new_event);
 }
