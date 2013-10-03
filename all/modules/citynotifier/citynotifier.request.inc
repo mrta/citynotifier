@@ -133,18 +133,19 @@ function citynotifier_normalize_json($data){
 
 function citynotifier_get_local_event($data, $mode=NULL) {
 	$statuses = variable_get('citynotifier_settings_statuses', array());
-
+/*
 	$query = db_select("citynotifier_event", 'ce');
 	$query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
 	$query->fields('ce', array('event_id', 'status'));
 	$query->fields('cn', array('type','subtype','lat','lng', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code', 'description'));
 	$query->addExpression('MAX(cn.created)', 'freshness');
 	$query->addExpression('MIN(cn.created)', 'start');
-	
+	$query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
+
 	if($mode == 'report') {
 	  $query->condition('ce.event_id', $data['event_id'], '=');
-	} else {
-	  
+	} 
+  else {	  
 	  if($data['type']){
 	    $query->condition('cn.type', $data['type'], '=');
 	    if($data['subtype'])
@@ -155,14 +156,51 @@ function citynotifier_get_local_event($data, $mode=NULL) {
 	    $query->condition('ce.status', $data['status'],'=');
 	  else
 		  $query->condition('ce.status', citynotifier_get_index_status("archived"),'<>');
-		
-		
-	  $query->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
+	  
 	  $query->havingCondition('freshness', $data['timemin'], '>')
 		      ->havingCondition('freshness', $data['timemax'], '<')
 		      ->havingCondition('distance', $data['radius']/1000, '<');
 		$query->groupBy('ce.event_id');
 	};
+*/
+
+  if($mode == 'report') {
+    $query = db_select("citynotifier_event", 'ce');
+    $query->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+    $query->fields('ce', array('event_id', 'status'));
+    $query->fields('cn', array('type','subtype','lat','lng', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code', 'description'));
+    $query->addExpression('MAX(cn.created)', 'freshness');
+    $query->addExpression('MIN(cn.created)', 'start');
+    $query->condition('ce.event_id', $data['event_id'], '=');
+  }
+
+  else{
+    $subquery = db_select("citynotifier_event", 'ce');
+    $subquery->join("citynotifier_notify", 'cn', 'ce.event_id = cn.event_id');
+    $subquery->fields('ce', array('event_id', 'status'));
+    $subquery->fields('cn', array('type','subtype','lat','lng', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code', 'description', 'created'));
+    $subquery->addExpression(('6371 * 2 * ASIN(SQRT(POWER(SIN(('.$data['lat'].' - cn.lat) * pi()/180 / 2), 2) +COS('.$data['lat'].' * pi()/180) * COS(cn.lat * pi()/180) *POWER(SIN(('.$data['lng'].' - cn.lng) * pi()/180 / 2), 2) ))'), 'distance');
+    if($data['type']){
+      $subquery->condition('cn.type', $data['type'], '=');
+      if($data['subtype'])
+        $subquery->condition('cn.subtype', $data['subtype'], '=');
+    }
+    if($data['status'])
+      $subquery->condition('ce.status', $data['status'],'=');
+    else
+      $subquery->condition('ce.status', citynotifier_get_index_status("archived"),'<>');
+    $subquery->havingCondition('distance', $data['radius']/1000, '<');
+    $subquery->orderBy('distance');
+
+
+    $query = db_select($subquery, 'sub');
+    $query->fields('sub', array('event_id', 'status', 'type','subtype','lat','lng', 'street_number', 'route', 'locality', 'administrative_area_level_3', 'administrative_area_level_2', 'administrative_area_level_1', 'country', 'postal_code', 'description', 'distance'));
+    $query->addExpression('MAX(sub.created)', 'freshness');
+    $query->addExpression('MIN(sub.created)', 'start');
+    $query->havingCondition('freshness', $data['timemin'], '>')
+          ->havingCondition('freshness', $data['timemax'], '<');
+    $query->groupBy('sub.event_id');
+  }
 
 	$events = $query->execute();
 
