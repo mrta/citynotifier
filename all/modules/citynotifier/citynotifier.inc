@@ -129,7 +129,7 @@ function _citynotifier_get_matched_remote_event($data_remote_event) {
                                                     'lng' => $data_remote_event['locations'][$i]['lng'],
                                                     'type' => $data_remote_event['type'],
                                                     'subtype' => $data_remote_event['subtype']));
-     if( ($i <> 0 && $event <> $prev_event) || ($event[0] == NULL))
+     if( ($i <> 0 && $event <> $prev_event) || ($event == NULL))
         $same_event = FALSE;
 
      $prev_event = $event;

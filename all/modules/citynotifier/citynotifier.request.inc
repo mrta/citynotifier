@@ -74,7 +74,7 @@ function citynotifier_request() {
            foreach($data_remote[$i_fp]["events"] as $i_event => $event) {
             $data_remote[$i_fp]["events"][$i_event]['reliability'] = citynotifier_normalize_reliability($event);
              $data_local = _citynotifier_get_matched_remote_event(_citynotifier_citynotifier2data($event));
-
+             citynotifier_debug($data_local);
              if($data_local) {
                if(_citynotifier_get_event_freshness($data_local["event_id"]) < $event["freshness"]){
                  if($data_remote[$i_fp]["events"][$i_event]["status"] == "open" && $statuses[$data_local["status"]] == "closed"){
