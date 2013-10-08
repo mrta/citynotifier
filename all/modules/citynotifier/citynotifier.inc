@@ -9,26 +9,26 @@ function citynotifier_create_event($data) {
 }
 
 function citynotifier_update_event($event, $mode = NULL){
-	$notifications = citynotifier_get_notify_of_event($event);
-  extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype));
-	
-	if ((citynotifier_get_range_subtype($type, $subtype)) >= l_range &&
-	  count($notifications) == 3 && $mode == 'update_location') {
+/*  extract(_citynotifier_get_value_type_subtype_from_index($event['type'], $event['subtype']));
+
+	if ((citynotifier_get_range_subtype($type, $subtype)) >= xl_range &&
+	  count($notifications = citynotifier_get_notify_of_event($event)) >= 3 && $mode == 'update_location') {
     foreach($notifications as $notify) {
       $lat += $notify->lat;
       $lng += $notify->lng;
     }
     $event['lat'] = $lat/count($notifications);
     $event['lng'] = $lng/count($notifications);
-    
+
     $update_location = citynotifier_get_address_from_point($data);
     if($update_location)
       $event = array_merge($event, $update_location);
     else
       watchdog('citynotifier', t("Errore geocoding.") . '<pre>'. print_r($event, TRUE) .'</pre>', WATCHDOG_DEBUG);
 	};
-	
-	$event->last_update = time();
+*/
+
+	$event['last_update'] = time();
 	return drupal_write_record("citynotifier_event", $event, 'event_id');
 }
 
@@ -535,11 +535,11 @@ function citynotifier_sync_fading() {
     $fading = citynotifier_get_subtype_fading($type, $subtype);
     if ($event->status == citynotifier_get_index_status("open") && $event->freshness < time() - $fading){
       $event->status = citynotifier_get_index_status("closed");
-      citynotifier_update_event($event);
+      citynotifier_update_event((array)$event);
     }
     elseif ($event->status == citynotifier_get_index_status("closed") && $event->last_update < time() - $fading){
       $event->status = citynotifier_get_index_status("archived");
-      citynotifier_update_event($event);
+      citynotifier_update_event((array)$event);
     }
   }
 }

@@ -58,7 +58,7 @@ function citynotifier_report_apply($data, $mode = NULL) {
 	  if($mode == "notify")
 	  	break;
 	  $matched_event->status = citynotifier_get_index_status("skeptical");
-	  citynotifier_update_event($matched_event);
+	  citynotifier_update_event((array)$matched_event);
 		break;
 	case citynotifier_get_index_status("skeptical"):
 	  /** Bisogna vedere cosa fare nel caso sia una notifica su evento già skeptical **/
