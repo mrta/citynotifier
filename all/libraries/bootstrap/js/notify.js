@@ -32,6 +32,20 @@ function sendNotify() {
 		        contentType: "application/json; charset=utf-8",
 		        success: function(datiString, status, richiesta) {
 		            successAlert(datiString.result.charAt(0).toUpperCase() + datiString.result.slice(1));
+		            	var eventIDRemote = datiString.event[0].event_id;
+		            	// Check if the event already exists in eventArray
+						var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
+						
+						if (result.length == 0) {
+							// New event from remote server
+						  	createEvent(datiString.event[0]);
+						  
+						} 
+						else if (result.length == 1) {
+							// Update local event
+							clearEvent(result[0]);
+						  	updateEvent(result[0], datiString.event[0]);
+						}
 
 		        },
 		        error: function(err) {
@@ -253,7 +267,6 @@ function changeStatus(){
             	successAlert("Modifica segnalata con successo"); 
 
             	if(datiString.event_id){ //Update Event remote
-            		console.log("Aggiorno evento " + changeObj.event_id + " con d_" + datiString.event_id)
             		changeObj.new_id = URLSERVER.split(".")[0].split("//")[1] + "_" + datiString.event_id; //New ID
             		var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
             	} 
@@ -270,16 +283,14 @@ function changeStatus(){
 function updateInfoWindow(changeObj){
 
 	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
+	var eventsFoundArray = $.grep(eventArray, function(e){ return e.eventID == changeObj.event_id; });
 
 	// New Status
-	console.log(markerFoundArray[0].status);
-	console.log(changeObj.status);
 	if(markerFoundArray[0].status != "Skeptical"){
 		if(changeObj.status == "closed"){
     		markerFoundArray[0].status = "Closed";
     		markerFoundArray[0].setIcon(getPin(markerFoundArray[0].type, markerFoundArray[0].subtype, markerFoundArray[0].status));
 
-    		console.log(changeObj.subtype)
     		if(changeObj.subtype == "coda"){
     			var heatmapFoundArray = $.grep(heatmapArray, function(e){ return e.eventID == changeObj.event_id; });
     			var heatmapFound = heatmapFoundArray[0];
@@ -317,14 +328,32 @@ function updateInfoWindow(changeObj){
 
 	// New Description
 	markerFoundArray[0].description.unshift(changeObj.description);
-	console.log("Aggiungo " + changeObj.description + " a " + changeObj.event_id);
 	$('#'+changeObj.event_id+'but').next().prepend('<li><p>'+changeObj.description+'</p></li>');
 
 	if(changeObj.new_id){
-		markerFoundArray[0].id = changeObj.new_id
+		markerFoundArray[0].id = changeObj.new_id;
 		markerFoundArray[0].setTitle(changeObj.new_id);
 		$('#'+changeObj.event_id+'tr').attr("id",changeObj.new_id+"tr");
+		$('#'+changeObj.event_id).attr("id",changeObj.new_id);
+		$('#'+changeObj.event_id+'but').attr("id",changeObj.new_id+"but");
+
+		eventsFoundArray[0].eventID = changeObj.new_id;
 	}
 
+	// New Number of Notifications
+	eventsFoundArray[0].numNot++;
+	$('#'+changeObj.new_id+'tr td:nth-child(5)').html(eventsFoundArray[0].numNot+' / '+eventsFoundArray[0].reliability);
 
+}
+
+function clearEvent(event){
+	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == event.eventID; });
+	
+	// Clear old descriptions
+	markerFoundArray[0].description = [];
+	event.description = [];
+	$("#"+event.eventID+"but").next().html('');
+
+	// Clear old number of notifications
+	event.numNot = 0;
 }

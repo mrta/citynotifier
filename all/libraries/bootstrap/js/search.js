@@ -332,6 +332,7 @@ function updateEvent(eventLocal, eventRemote){
 					break;	
 			}
     		markerFoundArray[0].status = eventLocal.status;
+    		markerFoundArray[0].setIcon(getPin(markerFoundArray[0].type, markerFoundArray[0].subtype, markerFoundArray[0].status));
 		}
 	}
 
@@ -353,13 +354,13 @@ function updateEvent(eventLocal, eventRemote){
 		eventLocal.startTimeUnformatted = parseFloat(event.start_time);
 	}
 	
-	// New number of Notification
-    eventLocal.numNot += parseInt(eventRemote.number_of_notifications);
 
     // New reliability
-	var reli = ( parseFloat(eventLocal.reliability) * 2 + parseFloat(eventRemote.reliability) * 2)/( 2* (parseInt(eventLocal.numNot) ));
-    eventLocal.reliability = Math.round(reli * 100) / 100;
+	var reli = ( parseFloat(eventLocal.reliability) * 2 * parseInt(eventLocal.numNot) + parseFloat(eventRemote.reliability) * 2 * parseInt(eventRemote.number_of_notifications))/( 2 * ( eventLocal.numNot + eventRemote.number_of_notifications));
+    eventLocal.reliability = Math.round(reli * 100) / 100 + "%";
 
+    // New number of Notification
+    eventLocal.numNot += parseInt(eventRemote.number_of_notifications);
 
     // Update Events Table
 	$('#'+eventLocal.eventID+'tr td:nth-child(2)').html(eventLocal.startTime);
@@ -456,9 +457,7 @@ function createEvent(event){
 	}
 
 	// Event reliability
-	eventObject.reliability = Math.round( parseFloat(event.reliability * 100)) / 100;
-	var reli_temp =  eventObject.reliability*100;
-	var relipercent = Math.round(reli_temp * 100) / 100 + "%";
+	eventObject.reliability = Math.round( parseFloat(event.reliability * 100)) + "%";
 
 	// Number of Notification
 	eventObject.numNot = event.number_of_notifications;
@@ -469,7 +468,6 @@ function createEvent(event){
 		eventObject.lng = middlePoint(event.locations).lng();
 	}
 	else{
-		console.log(event.locations);
 		eventObject.lat = event.locations[0].lat;
 		eventObject.lng = event.locations[0].lng;
 	}
@@ -517,7 +515,7 @@ function createEvent(event){
 							<a href="#" id="'+eventObject.eventID+'but" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Show</a>\
 							<ul class="dropdown-menu">'+descriptionHtml+'</ul>\
 						</div></td>\
-						<td>'+eventObject.numNot+' / '+relipercent+'</td>\
+						<td>'+eventObject.numNot+' / '+eventObject.reliability+'</td>\
 						<td>'+statusHtml+'</td>\
 						</tr>');
 	var butID = "#"+eventObject.eventID+"but";			
