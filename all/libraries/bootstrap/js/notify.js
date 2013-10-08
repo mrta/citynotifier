@@ -43,8 +43,8 @@ function sendNotify() {
 						} 
 						else if (result.length == 1) {
 							// Update local event
-							clearEvent(result[0]);
-						  	updateEvent(result[0], datiString.event[0]);
+							//clearEvent(result[0]);
+						  	updateEvent(result[0], datiString.event[0], 0, notifyObj);
 						}
 
 		        },
@@ -282,8 +282,15 @@ function changeStatus(){
 
 function updateInfoWindow(changeObj){
 
-	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
-	var eventsFoundArray = $.grep(eventArray, function(e){ return e.eventID == changeObj.event_id; });
+	if(changeObj.new_id){
+		var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.new_id; });
+		var eventsFoundArray = $.grep(eventArray, function(e){ return e.eventID == changeObj.new_id; });
+		changeObj.event_id = changeObj.new_id;
+	}
+	else{
+		var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
+		var eventsFoundArray = $.grep(eventArray, function(e){ return e.eventID == changeObj.event_id; });
+	}
 
 	// New Status
 	if(markerFoundArray[0].status != "Skeptical"){
@@ -330,19 +337,17 @@ function updateInfoWindow(changeObj){
 	markerFoundArray[0].description.unshift(changeObj.description);
 	$('#'+changeObj.event_id+'but').next().prepend('<li><p>'+changeObj.description+'</p></li>');
 
-	if(changeObj.new_id){
-		markerFoundArray[0].id = changeObj.new_id;
-		markerFoundArray[0].setTitle(changeObj.new_id);
-		$('#'+changeObj.event_id+'tr').attr("id",changeObj.new_id+"tr");
-		$('#'+changeObj.event_id).attr("id",changeObj.new_id);
-		$('#'+changeObj.event_id+'but').attr("id",changeObj.new_id+"but");
+	markerFoundArray[0].id = changeObj.event_id;
+	markerFoundArray[0].setTitle(changeObj.event_id);
+	$('#'+changeObj.event_id+'tr').attr("id",changeObj.event_id+"tr");
+	$('#'+changeObj.event_id).attr("id",changeObj.event_id);
+	$('#'+changeObj.event_id+'but').attr("id",changeObj.event_id+"but");
 
-		eventsFoundArray[0].eventID = changeObj.new_id;
-	}
+	eventsFoundArray[0].eventID = changeObj.event_id;
 
 	// New Number of Notifications
 	eventsFoundArray[0].numNot++;
-	$('#'+changeObj.new_id+'tr td:nth-child(5)').html(eventsFoundArray[0].numNot+' / '+eventsFoundArray[0].reliability);
+	$('#'+changeObj.event_id+'tr td:nth-child(5)').html(eventsFoundArray[0].numNot+' / '+eventsFoundArray[0].reliability);
 
 }
 

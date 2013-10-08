@@ -114,7 +114,7 @@ function searchLocal(){
 						} 
 						else if (result.length == 1) {
 							// Update local event
-						  	updateEvent(result[0], event);
+						  	updateEvent(result[0], event, 1, null);
 						}
 					});
 
@@ -171,7 +171,7 @@ function searchRemote(parameters){
 									console.log("Vecchio evento");
 									console.log("Aggiorno " + result[0]);
 									// Update local event
-								  	updateEvent(result[0], event);
+								  	updateEvent(result[0], event, 1, null);
 								}
 							}
 						});
@@ -285,23 +285,32 @@ function searchLive(){
  * @param eventLocal local event to be updated
  * @param EventRemote remote event with updated info
  */
-function updateEvent(eventLocal, eventRemote){
+function updateEvent(eventLocal, eventRemote, mode, notifyObj){
 
 	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
 
 	// New Description
-	eventLocal.description = eventRemote.description;
-	var descriptionHtml = "";
-	var fullArray = checkArray(eventLocal.description);
-	if(fullArray){
-		for (j in eventLocal.description){
-			if(eventLocal.description[j]){
-				eventLocal.description[j] = eventLocal.description[j].charAt(0).toUpperCase() + eventLocal.description[j].slice(1);
-				markerFoundArray[0].description.push(eventLocal.description[j]);
-				$('#'+eventLocal.eventID+'but').next().append('<li><p>'+eventLocal.description[j]+'</p></li>');
-				$('#'+eventLocal.eventID+'but').removeClass('disabled');
-			}
-		}	
+	if(mode == 1){
+		eventLocal.description = eventRemote.description;
+		var descriptionHtml = "";
+		var fullArray = checkArray(eventLocal.description);
+		if(fullArray){
+			for (j in eventLocal.description){
+				if(eventLocal.description[j]){
+					eventLocal.description[j] = eventLocal.description[j].charAt(0).toUpperCase() + eventLocal.description[j].slice(1);
+					markerFoundArray[0].description.push(eventLocal.description[j]);
+					$('#'+eventLocal.eventID+'but').next().append('<li><p>'+eventLocal.description[j]+'</p></li>');
+					$('#'+eventLocal.eventID+'but').removeClass('disabled');
+				}
+			}	
+		}
+	}
+	else {
+		if(notifyObj.description){
+			markerFoundArray[0].description.unshift(notifyObj.description);
+			$('#'+eventLocal.eventID+'but').next().prepend('<li><p>'+notifyObj.description+'</p></li>');
+			$('#'+eventLocal.eventID+'but').removeClass('disabled');
+		}
 	}
 
 
@@ -357,10 +366,13 @@ function updateEvent(eventLocal, eventRemote){
 
     // New reliability
 	var reli = ( parseFloat(eventLocal.reliability) * 2 * parseInt(eventLocal.numNot) + parseFloat(eventRemote.reliability) * 2 * parseInt(eventRemote.number_of_notifications))/( 2 * ( eventLocal.numNot + eventRemote.number_of_notifications));
-    eventLocal.reliability = Math.round(reli * 100) / 100 + "%";
+	eventLocal.reliability = Math.round(reli * 100) / 100 + "%";
 
     // New number of Notification
-    eventLocal.numNot += parseInt(eventRemote.number_of_notifications);
+    if(mode)
+    	eventLocal.numNot += parseInt(eventRemote.number_of_notifications);
+    else
+    	eventLocal.numNot++;
 
     // Update Events Table
 	$('#'+eventLocal.eventID+'tr td:nth-child(2)').html(eventLocal.startTime);
