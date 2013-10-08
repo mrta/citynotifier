@@ -9,7 +9,7 @@ function citynotifier_create_event($data) {
 }
 
 function citynotifier_update_event($event, $mode = NULL){
-/*	$notifications = citynotifier_get_notify_of_event($event);
+	$notifications = citynotifier_get_notify_of_event($event);
   extract(_citynotifier_get_value_type_subtype_from_index($event->type, $event->subtype));
 	
 	if ((citynotifier_get_range_subtype($type, $subtype)) >= l_range &&
@@ -27,7 +27,7 @@ function citynotifier_update_event($event, $mode = NULL){
     else
       watchdog('citynotifier', t("Errore geocoding.") . '<pre>'. print_r($event, TRUE) .'</pre>', WATCHDOG_DEBUG);
 	};
-*/	
+	
 	$event->last_update = time();
 	return drupal_write_record("citynotifier_event", $event, 'event_id');
 }
@@ -487,14 +487,12 @@ function citynotifier_sync() {
 			switch ($open > $close) {
 				case TRUE:
 					citynotifier_increase_decrease_reputation($usr_notifications, citynotifier_get_index_status("open"));
-					$event = array('event_id' => $skeptical_event->event_id, 
-									'status' => citynotifier_get_index_status("open"), 'last_update' => time());
+					$event = array('event_id' => $skeptical_event->event_id, 'status' => citynotifier_get_index_status("open"));
 					break;
 				
 				case FALSE:
 					citynotifier_increase_decrease_reputation($usr_notifications, citynotifier_get_index_status("closed"));
-					$event = array('event_id' => $skeptical_event->event_id, 
-									'status' => citynotifier_get_index_status("closed"), 'last_update' => time());
+					$event = array('event_id' => $skeptical_event->event_id, 'status' => citynotifier_get_index_status("closed"));
 					break;
 				default:
 					break;
