@@ -230,11 +230,11 @@ function searchSkeptical(parameters){
 									// Check if the event already exists in eventArray
 									var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
 									if (result.length == 0) {
-										skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
 										// New event from remote server
 									  	createEvent(event);
 									}
 								});
+								skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
 							}
 			 		},
 				    error: function(err) {

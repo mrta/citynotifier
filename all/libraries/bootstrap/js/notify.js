@@ -268,7 +268,6 @@ function changeStatus(){
 
             	if(datiString.event_id){ //Update Event remote
             		changeObj.new_id = URLSERVER.split(".")[0].split("//")[1] + "_" + datiString.event_id; //New ID
-            		var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
             	} 
             	updateInfoWindow(changeObj);
             },
@@ -282,15 +281,13 @@ function changeStatus(){
 
 function updateInfoWindow(changeObj){
 
+	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
+	var eventsFoundArray = $.grep(eventArray, function(e){ return e.eventID == changeObj.event_id; });
+	
 	if(changeObj.new_id){
-		var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.new_id; });
-		var eventsFoundArray = $.grep(eventArray, function(e){ return e.eventID == changeObj.new_id; });
 		changeObj.event_id = changeObj.new_id;
 	}
-	else{
-		var markerFoundArray = $.grep(markersArray, function(e){ return e.id == changeObj.event_id; });
-		var eventsFoundArray = $.grep(eventArray, function(e){ return e.eventID == changeObj.event_id; });
-	}
+
 
 	// New Status
 	if(markerFoundArray[0].status != "Skeptical"){
