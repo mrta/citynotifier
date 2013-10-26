@@ -68,7 +68,7 @@ form fieldset {
     margin-top:41px; /* Set margin to your navbar height */
 }
 
-.dropdown-toggle, #update{
+.dropdown-toggle, .brand, #refresh, #liveButton, #tableList{
     outline: none!important; 
 }
 

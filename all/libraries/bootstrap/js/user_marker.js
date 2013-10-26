@@ -44,9 +44,6 @@ function showLocation(position) {
     else
         // Drop userMarker on map if it doesn't exist
         createUserMarker(markerPosition);
-
-    // Search on startUp
-    if(startUp) startUpSearch();
 }
 
 /**

@@ -26,8 +26,6 @@ function initialize() {
 	directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
     directionsDisplay.setMap(map);
 
-    // Get user Location
-    getLocation();
 
     // Click Listener on map
     google.maps.event.addListener(map, 'click', function(event) {

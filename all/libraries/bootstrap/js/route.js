@@ -60,7 +60,7 @@ function distRoute(start, end, waypointsArray, eventID, gradient) {
 }
 
 /**
- * calcRoute draws 20 heatMap points along path between start/end previously calculated
+ * calcRoute draws heatMap points along path between start/end previously calculated
  * @param {google.maps.LatLng} start Start of the path
  * @param {google.maps.LatLng} end End of the path
  * @param waypointsArray Array of intermediate points between start and end
@@ -72,9 +72,9 @@ function calcRoute(start, end, waypointsArray, path, eventID, gradient) {
 	// heatMapArray contains current heatMap points between every steps of route 
 	var heatMapMVCArray = [];	
 		
-	// Every route's steps interpolate() fills heatMapArray with 20 points
+	// Every route's steps interpolate() fills heatMapArray
 	for(var j=0; j<path.length-1; j++){
-		for(var i=0.01; i<1; i+=0.05){	
+		for(var i=0.01; i<1; i+=0.01){	
 			var heatPoint = google.maps.geometry.spherical.interpolate(path[j], path[j+1], i);
 			heatMapMVCArray.push(heatPoint);
 		}

@@ -18,8 +18,10 @@ function geocodePosition(position){
 				
 				if(address == position)
 					geocodePosition(position); //Retry if Geocoder fails
-				else
+				else{
 					updateAddress(address);
+    				if(startUp) startUpSearch(); // Search on startUp
+				}
 		}
 		else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {    
 		    setTimeout(function() {

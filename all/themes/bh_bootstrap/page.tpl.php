@@ -71,7 +71,7 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
-                <a class="brand" href="#">City<span class="text-error">Notifier</span></a>
+                <a class="brand" href="#" tabindex="-1">City<span class="text-error">Notifier</span></a>
 
                 <ul class="nav pull-right">
 
@@ -201,7 +201,7 @@
             <div class="container">
                 <ul class="nav pull-left">
                     <li>
-                        <a href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>  
+                        <a id="tableList" href="#myModal" role="button" data-toggle="modal"><i class="icon-list icon-white"></i> List</a>  
                     </li>
                     <li>
                     	<p id="infoAddress" class="span4 offset3 text-center"> Seleziona un punto sulla mappa </p>

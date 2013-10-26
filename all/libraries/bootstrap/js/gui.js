@@ -80,6 +80,7 @@ $(document).ready(function(){
         	
         // Update address
         $('#searchAddress').val(jQuery.cookie('last_address'));
+        console.log("Pota2");
         
         // Update radius
         updateRadius(jQuery.cookie('last_radius'));
@@ -101,6 +102,9 @@ $(document).ready(function(){
     // Render selectPicker 
 	$('.selectpicker').selectpicker('refresh');
     $('.selectpicker').selectpicker('render');
+
+    // Get user Location
+    getLocation();
 });
 
 /**

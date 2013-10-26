@@ -82,6 +82,8 @@ function searchEvent() {
 	else{
 		// Error: Address not specified
 		if (!$('#searchAddress').val()) {
+			console.log($('#searchAddress').val());
+							console.log("Pota");
 		    $('#searchAddress').parent().addClass("error");
 		    $('#searchAddress').next().addClass("btn-danger");
 		    $('#addressMarkerSearch').addClass("icon-white");
@@ -223,7 +225,6 @@ function searchSkeptical(parameters){
 				        // Update events local with new informations
 						// Add new event from remote servers
 						if(responseSkeptical.events){
-								
 								$.each(responseSkeptical.events, function(index, event){
 									var eventIDRemote = event.event_id;
 								
@@ -234,6 +235,7 @@ function searchSkeptical(parameters){
 									  	createEvent(event);
 									}
 								});
+								if(responseSkeptical.events.length > 0)
 								skepticalAlert("Sono stati trovati eventi scettici vicino a te! Aiutaci a risolverli");	
 							}
 			 		},
@@ -286,7 +288,6 @@ function searchLive(){
  * @param EventRemote remote event with updated info
  */
 function updateEvent(eventLocal, eventRemote, mode, notifyObj){
-
 	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
 
 	// New Description
@@ -365,8 +366,10 @@ function updateEvent(eventLocal, eventRemote, mode, notifyObj){
 	
 
     // New reliability
-	var reli = ( parseFloat(eventLocal.reliability) * 2 * parseInt(eventLocal.numNot) + parseFloat(eventRemote.reliability) * 2 * parseInt(eventRemote.number_of_notifications))/( 2 * ( eventLocal.numNot + eventRemote.number_of_notifications));
-	eventLocal.reliability = Math.round(reli * 100) / 100 + "%";
+    if(mode){
+		var reli = ( parseFloat(eventLocal.reliability) * 2 * parseInt(eventLocal.numNot) + parseFloat(eventRemote.reliability) * 2 * parseInt(eventRemote.number_of_notifications))/( 2 * ( eventLocal.numNot + eventRemote.number_of_notifications));
+		eventLocal.reliability = Math.round(reli * 100) / 100 + "%";
+	}
 
     // New number of Notification
     if(mode)
@@ -385,10 +388,8 @@ function updateEvent(eventLocal, eventRemote, mode, notifyObj){
     var expireTime = parseFloat(eventLocal.freshness) + 20*60;
     var nowTime = new Date().getTime() / 1000;
 
-    if(eventLocal.subtype.toLowerCase() == "coda"){	
-    	var markerFoundArray = $.grep(markersArray, function(e){ return e.id == eventLocal.eventID; });
+    if(eventLocal.subtype.toLowerCase() == "coda"){		
     	var heatmapFoundArray = $.grep(heatmapArray, function(e){ return e.eventID == eventLocal.eventID; });
-    	var markerFound = markerFoundArray[0];
     	var heatmapFound = heatmapFoundArray[0];
 
     	if(heatmapFound){
@@ -419,6 +420,12 @@ function updateEvent(eventLocal, eventRemote, mode, notifyObj){
 	                gradient: gradient
 	            });
 	        }
+	    heatmapFound.setMap(null);
+	    heatmapArray = $.grep(heatmapArray, function(e){ return e.eventID != heatmapFound.eventID; });
+	    drawQueue(eventRemote);	
+        }
+        else{
+        	drawQueue(eventRemote);	
         }
     }
 }
@@ -438,7 +445,7 @@ function createEvent(event){
 
 	// Description Array
 	eventObject.description = event.description;
-	
+
 	// Start Time Date
 	var date = new Date(event.start_time*1000);
 	var day = date.getDate();
@@ -758,7 +765,9 @@ $("#searchType").next().on('click', function() {
  * @param event Event info
  */
 function drawQueue(event){
+		console.log("Pota2");
 		if(event.locations.length != 1){
+			console.log("Pota3");
 			// Choose two random points from pointsEvent Array
 			var endUnformatted = event.locations.pop();
 			var end = new google.maps.LatLng(endUnformatted.lat,endUnformatted.lng);
