@@ -49,6 +49,8 @@ function initialize() {
 // Only load the map when the window is ready
 $(window).ready(function () {
     initialize();
+
+
 });
 
 

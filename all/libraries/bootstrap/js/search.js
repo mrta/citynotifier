@@ -83,7 +83,7 @@ function searchEvent() {
 		// Error: Address not specified
 		if (!$('#searchAddress').val()) {
 			console.log($('#searchAddress').val());
-							console.log("Pota");
+			console.log("Pota");
 		    $('#searchAddress').parent().addClass("error");
 		    $('#searchAddress').next().addClass("btn-danger");
 		    $('#addressMarkerSearch').addClass("icon-white");

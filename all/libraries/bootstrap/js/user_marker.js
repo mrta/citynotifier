@@ -89,7 +89,7 @@ function errorHandler(err) {
     }
 
     // Search on startUp
-    if(startUp) startUpSearch();
+    //if(startUp) startUpSearch();
 }
 
 /**
