@@ -19,7 +19,6 @@ function initialize() {
     };
 
     map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
-    console.log("Pota map")
     // Load Directions Service to draw routes on map
     directionsService = new google.maps.DirectionsService();
 	var rendererOptions = { draggable: true, map: map };
@@ -49,8 +48,6 @@ function initialize() {
 // Only load the map when the window is ready
 $(window).ready(function () {
     initialize();
-
-
 });
 
 

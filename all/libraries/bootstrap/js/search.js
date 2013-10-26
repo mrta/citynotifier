@@ -82,8 +82,6 @@ function searchEvent() {
 	else{
 		// Error: Address not specified
 		if (!$('#searchAddress').val()) {
-			console.log($('#searchAddress').val());
-			console.log("Pota");
 		    $('#searchAddress').parent().addClass("error");
 		    $('#searchAddress').next().addClass("btn-danger");
 		    $('#addressMarkerSearch').addClass("icon-white");
@@ -145,7 +143,7 @@ function searchRemote(parameters){
 			type: 'GET',
 			success: function(responseRemote, status, richiesta) {
 				successAlert("Aggiornamento in corso...");
-				console.log("Remote...");
+				//console.log("Remote...");
 
 				// Avoid double remoteSearch
 				$('#liveButton').removeAttr('disabled');
@@ -158,20 +156,17 @@ function searchRemote(parameters){
 						$.each(response.events, function(index, event){
 							if(event){
 								var eventIDRemote = event.event_id;
-								console.log("Cerco l'evento "+event + " " + event.event_id);
+								//console.log("Cerco l'evento "+event + " " + event.event_id);
 							
 								// Check if the event already exists in eventArray
 								var result = $.grep(eventArray, function(e){ return e.eventID == eventIDRemote; });
 								
 								if (result.length == 0) {
-									console.log("Nuovo evento");
 									// New event from remote server
 								  	createEvent(event);
 								  
 								} 
 								else if (result.length == 1) {
-									console.log("Vecchio evento");
-									console.log("Aggiorno " + result[0]);
 									// Update local event
 								  	updateEvent(result[0], event, 1, null);
 								}
@@ -765,9 +760,7 @@ $("#searchType").next().on('click', function() {
  * @param event Event info
  */
 function drawQueue(event){
-		console.log("Pota2");
 		if(event.locations.length != 1){
-			console.log("Pota3");
 			// Choose two random points from pointsEvent Array
 			var endUnformatted = event.locations.pop();
 			var end = new google.maps.LatLng(endUnformatted.lat,endUnformatted.lng);
@@ -803,13 +796,10 @@ function drawQueue(event){
 			});
 			
 			// Compute the expireTime 
-			console.log(event.freshness);
             var fadedTime = parseFloat(event.freshness) + (10*60);
             var expireTime = parseFloat(event.freshness) + (20*60);
-            var nowTime = new Date().getTime() / 1000;
-                            
-            console.log("Expire: " + expireTime)
-            console.log("Now: " + nowTime)
+            var nowTime = new Date().getTime() / 1000;                
+
             if(expireTime < nowTime){
                 var gradient = [
                 'rgba(34, 139, 34, 0)',
@@ -825,7 +815,6 @@ function drawQueue(event){
                 distRoute(start, end, null, event.event_id, gradient);
             }
             else{ //Coda Fresca
-            	console.log("Fresca");
                 var gradient = [
                 'rgba(255, 0, 0, 0)',
                 'rgba(255, 0, 0, 1)' //Gradiente rosso
