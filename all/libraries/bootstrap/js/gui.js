@@ -80,7 +80,6 @@ $(document).ready(function(){
         	
         // Update address
         $('#searchAddress').val(jQuery.cookie('last_address'));
-        console.log("Pota2");
         
         // Update radius
         updateRadius(jQuery.cookie('last_radius'));

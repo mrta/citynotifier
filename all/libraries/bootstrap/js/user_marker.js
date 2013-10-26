@@ -23,7 +23,6 @@ function getLocation() {
 * @param user's position (latlng)
 */
 function showLocation(position) {
-
     var latitude = position.coords.latitude;
     var longitude = position.coords.longitude;
     var markerPosition = new google.maps.LatLng(latitude, longitude);
@@ -50,9 +49,11 @@ function showLocation(position) {
 * getLocation error handling
 * @param error
 */
-function errorHandler(err) {   
+function errorHandler(err) {
+    console.log("Pota2");
     // Browser doesn't support geolocation
     if (err.code == 1 || err.code == 2) {
+        console.log("Pota3");
         errorAlert("Posizione non disponibile!");
         
         // Try to get last known position
@@ -103,7 +104,11 @@ function createUserMarker(markerPosition){
     geocodePosition(markerPosition);
 
     // Pan the map to the user's location
+    console.log("Pota pan")
+    if(!map)
+        console.log("Pota 42")
     map.panTo(markerPosition);
+    
 
     // Keep track of the user's last location
     lastLatitude = markerPosition.lat();
@@ -121,6 +126,8 @@ function createUserMarker(markerPosition){
         // Create new distanceWidget
         distanceWidget = new DistanceWidget(map);
     }
+
+
 
 
     // userMarker drag listener
