@@ -1,5 +1,5 @@
 // Enable new Google Maps
-google.maps.visualRefresh = NEW_GOOGLE_MAP;
+//google.maps.visualRefresh = NEW_GOOGLE_MAP;
 
 // Global variables
 var map;

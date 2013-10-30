@@ -289,7 +289,7 @@ function updateInfoWindow(changeObj){
 	}
 
 
-	// New Status
+	// New marker
 	if(markerFoundArray[0].status != "Skeptical"){
 		if(changeObj.status == "closed"){
     		markerFoundArray[0].status = "Closed";
@@ -332,7 +332,10 @@ function updateInfoWindow(changeObj){
 
 	// New Description
 	markerFoundArray[0].description.unshift(changeObj.description);
-	$('#'+changeObj.event_id+'but').next().prepend('<li><p>'+changeObj.description+'</p></li>');
+	if(changeObj.description){
+		$('#'+changeObj.event_id+'but').removeClass('disabled');
+		$('#'+changeObj.event_id+'but').next().prepend('<li><p>'+changeObj.description+'</p></li>');
+	}
 
 	markerFoundArray[0].id = changeObj.event_id;
 	markerFoundArray[0].setTitle(changeObj.event_id);

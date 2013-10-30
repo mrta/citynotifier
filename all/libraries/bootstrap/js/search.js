@@ -417,10 +417,10 @@ function updateEvent(eventLocal, eventRemote, mode, notifyObj){
 	        }
 	    heatmapFound.setMap(null);
 	    heatmapArray = $.grep(heatmapArray, function(e){ return e.eventID != heatmapFound.eventID; });
-	    drawQueue(eventRemote);	
+	    if(!isiPad) drawQueue(eventRemote);	  	
         }
         else{
-        	drawQueue(eventRemote);	
+        	if(!isiPad) drawQueue(eventRemote);	
         }
     }
 }
@@ -501,7 +501,7 @@ function createEvent(event){
 	eventArray.push(eventObject);
 	
 	// Draw Queue
-	if(eventObject.subtype.toLowerCase() == "coda"){
+	if(eventObject.subtype.toLowerCase() == "coda" && !isiPad){
 		drawQueue(event);
 	}
 
@@ -800,7 +800,7 @@ function drawQueue(event){
             var expireTime = parseFloat(event.freshness) + (20*60);
             var nowTime = new Date().getTime() / 1000;                
 
-            if(expireTime < nowTime){
+            if(expireTime < nowTime || event.status == "closed"){
                 var gradient = [
                 'rgba(34, 139, 34, 0)',
                 'rgba(34, 139, 34, 1)' //Gradiente verde

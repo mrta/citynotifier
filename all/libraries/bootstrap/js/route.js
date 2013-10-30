@@ -74,7 +74,7 @@ function calcRoute(start, end, waypointsArray, path, eventID, gradient) {
 		
 	// Every route's steps interpolate() fills heatMapArray
 	for(var j=0; j<path.length-1; j++){
-		for(var i=0.01; i<1; i+=0.01){	
+		for(var i=0.01; i<1; i+=0.08){	
 			var heatPoint = google.maps.geometry.spherical.interpolate(path[j], path[j+1], i);
 			heatMapMVCArray.push(heatPoint);
 		}
